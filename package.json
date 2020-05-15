@@ -1,9 +1,19 @@
 {
   "name": "vn.js",
   "version": "0.0.1",
-  "main": "index.js",
   "repository": "git@github.com:ash-r1/VN.js.git",
   "author": "Ash <ash.suzuki.r1@gmail.com>",
   "license": "MPL",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "ts-loader": "^7.0.4",
+    "typescript": "^3.9.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server --hot --inline --watch-content-base --content-base public/"
+  }
 }
