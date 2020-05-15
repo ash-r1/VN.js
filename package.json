@@ -6,6 +6,7 @@
   "license": "MPL",
   "private": true,
   "devDependencies": {
+    "@types/pixi.js": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "eslint": "^7.0.0",
@@ -24,5 +25,8 @@
     "start": "webpack-dev-server --hot --inline --watch-content-base --content-base public/",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "yarn lint --fix"
+  },
+  "dependencies": {
+    "pixi.js": "^5.2.4"
   }
 }
