@@ -34,13 +34,11 @@ module.exports = {
       'warn',
       {
         groups: [
-          // React first
-          ['^react', '^@?\\w'],
+          // pixi.js first
+          ['^pixi.js'],
           // Side effect imports.
           ['^\\u0000'],
           // Packages.
-          // pixijs
-          ['^@pixjs'],
           // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
           ['^@?\\w'],
           // Absolute imports and other imports such as Vue-style `@/foo`.
