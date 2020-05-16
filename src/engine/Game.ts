@@ -1,15 +1,20 @@
 import { ScenarioGenerator } from 'src/scenario/generator';
 
-import Renderer from './Renderer';
+import Renderer from '../renderer/Renderer';
+import Image from './commands/image';
 
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
  */
 export default class Game {
-  constructor(private renderer: Renderer) {}
+  readonly image: Image;
+  constructor(private renderer: Renderer) {
+    this.image = new Image(renderer);
+  }
+  //TODO: この辺りのimageとかの渡し方は今後改善しよう
 
-  async run(generator: (renderer: Renderer) => ScenarioGenerator) {
-    const scenario = generator(this.renderer);
+  async run(generator: (game: Game) => ScenarioGenerator) {
+    const scenario = generator(this);
     while (true) {
       // TODO: このnextの発火をクリック待ちなどで制御すればエンジンの基礎構造が（あっさり）完成するのでは？
       const { value, done } = scenario.next();
