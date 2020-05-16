@@ -68,6 +68,11 @@ export default class Image {
     });
   }
 
+  // alias as show on: bg
+  async bg(src: string, options: Omit<ShowOption, 'on'>): Promise<Result> {
+    return await this.show('bg', src, { ...options, on: 'bg' });
+  }
+
   // TODO: ここのオプションの付け方も考えたい...
   async show(
     name: string,
