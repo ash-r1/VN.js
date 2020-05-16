@@ -23,6 +23,13 @@ const setLayerProps = (layer: PIXI.DisplayObject, props: LayerProps) => {
 
 export type AddImageProps = LayerProps;
 
+interface Layers {
+  bg: PIXI.Container;
+  fg: PIXI.Container;
+  ui: PIXI.Container;
+}
+export type layerName = keyof Layers;
+
 /**
  * Renderer レンダリングとそのためのリソース管理を責務とするモジュール
  *
@@ -40,9 +47,30 @@ export default class Renderer {
   private loader: PIXI.Loader;
   // TODO: wrap this ticker... ?
   readonly ticker: PIXI.Ticker;
+
+  private layers: Layers;
+
   constructor(private app: PIXI.Application) {
     this.loader = app.loader;
     this.ticker = app.ticker;
+
+    const bg = new PIXI.Container();
+    bg.name = '@bg';
+    this.app.stage.addChild(bg);
+
+    const fg = new PIXI.Container();
+    fg.name = '@fg';
+    this.app.stage.addChild(fg);
+
+    const ui = new PIXI.Container();
+    ui.name = '@ui';
+    this.app.stage.addChild(ui);
+
+    this.layers = {
+      bg,
+      fg,
+      ui,
+    };
   }
 
   load(src: string): Promise<PIXI.LoaderResource> {
@@ -61,7 +89,6 @@ export default class Renderer {
 
   // TODO: よりメタな概念として addLayer みたいなの欲しいかもなぁー
 
-  // TODO: フェードインとかがマジで厄介だよなぁ... いっそ細かい事はここでは管理せず、コマンドで制御させるべきなのか？ とりあえずこれで概形作ってから考えるか。。。
   /**
    *
    * @param name イメージレイヤの名前
@@ -71,10 +98,12 @@ export default class Renderer {
   async AddImageLayer(
     name: string,
     src: string,
+    on: layerName,
     { x = 0.0, y = 0.0, alpha = 1.0 }: AddImageProps
-  ): Promise<void> {
-    // TODO: remove the layer has same name if exists
+  ): Promise<boolean> {
+    const parent = this.layers[on];
 
+    // TODO: remove the layer has same name if exists
     const resource = await this.load(src);
     const sprite = new PIXI.Sprite(resource.texture);
     sprite.name = name;
@@ -84,24 +113,32 @@ export default class Renderer {
     setLayerProps(sprite, { x, y, alpha });
 
     // TODO: remove if the name is already used
-    this.app.stage.addChild(sprite);
-
-    return;
-  }
-
-  async RemoveLayer(name: string): Promise<boolean> {
-    const sprite = this.app.stage.getChildByName(name);
-    if (!sprite) {
-      return false;
-    }
-
-    this.app.stage.removeChild(sprite);
+    parent.addChild(sprite);
 
     return true;
   }
 
-  async SetLayerProps(name: string, props: LayerProps): Promise<boolean> {
-    const sprite = this.app.stage.getChildByName(name);
+  async RemoveLayer(name: string, on: layerName): Promise<boolean> {
+    const parent = this.layers[on];
+
+    const sprite = parent.getChildByName(name);
+    if (!sprite) {
+      return false;
+    }
+
+    parent.removeChild(sprite);
+
+    return true;
+  }
+
+  async SetLayerProps(
+    name: string,
+    on: layerName,
+    props: LayerProps
+  ): Promise<boolean> {
+    const parent = this.layers[on];
+
+    const sprite = parent.getChildByName(name);
     if (!sprite) {
       return false;
     }

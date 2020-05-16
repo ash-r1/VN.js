@@ -1,12 +1,18 @@
 import Renderer from 'src/engine/Renderer';
 
+import { layerName } from '../Renderer';
 import { Result } from './command';
 
-export interface ShowOption {
+export interface ShowHideOption {
   duration?: number;
+  on?: layerName;
+}
+
+export interface ShowOption extends ShowHideOption {
   x?: number;
   y?: number;
 }
+type HideOption = ShowHideOption;
 
 // tick promise
 function tickPromise(
@@ -42,15 +48,23 @@ export default class Image {
 
   // TODO: tickerを元にしたアニメーションの良い感じのPromiseがほしい
 
-  private async fadeIn(name: string, duration: number): Promise<void> {
+  private async fadeIn(
+    name: string,
+    on: layerName,
+    duration: number
+  ): Promise<void> {
     await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(name, { alpha: ratio });
+      this.r.SetLayerProps(name, on, { alpha: ratio });
     });
   }
 
-  private async fadeOut(name: string, duration: number): Promise<void> {
+  private async fadeOut(
+    name: string,
+    on: layerName,
+    duration: number
+  ): Promise<void> {
     await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(name, { alpha: 1 - ratio });
+      this.r.SetLayerProps(name, on, { alpha: 1 - ratio });
     });
   }
 
@@ -58,10 +72,11 @@ export default class Image {
   async show(
     name: string,
     src: string,
-    { duration = 500, x = 0, y = 0 }: ShowOption
+    { duration = 500, x = 0, y = 0, on = 'fg' }: ShowOption
   ): Promise<Result> {
-    await this.r.AddImageLayer(name, src, { alpha: 0.0, x, y });
-    await this.fadeIn(name, duration);
+    // TODO: cross-fade if same name image already exists
+    await this.r.AddImageLayer(name, src, on, { alpha: 0.0, x, y });
+    await this.fadeIn(name, on, duration);
     return {
       shouldWait: true,
     };
@@ -69,10 +84,10 @@ export default class Image {
 
   async hide(
     name: string,
-    { duration = 500 }: { duration: number }
+    { duration = 500, on = 'fg' }: HideOption
   ): Promise<Result> {
-    await this.fadeOut(name, duration);
-    await this.r.RemoveLayer(name);
+    await this.fadeOut(name, on, duration);
+    await this.r.RemoveLayer(name, on);
     return {
       shouldWait: false,
     };
