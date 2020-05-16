@@ -2,6 +2,7 @@ import Renderer from 'src/engine/Renderer';
 
 import { layerName } from '../Renderer';
 import { Result } from './command';
+import tickPromise from './tickPromise';
 
 export interface ShowHideOption {
   duration?: number;
@@ -13,35 +14,6 @@ export interface ShowOption extends ShowHideOption {
   y?: number;
 }
 type HideOption = ShowHideOption;
-
-// tick promise
-function tickPromise(
-  ticker: PIXI.Ticker,
-  duration: number,
-  update: (ratio: number) => void
-): Promise<void> {
-  return new Promise((resolve) => {
-    let t = 0;
-    const tick = (delta: number) => {
-      const ms = delta * ticker.deltaMS;
-      // この計算そもそも合ってるの？
-      t += ms;
-
-      // finalize if duration reaches target duration
-      if (t >= duration) {
-        ticker.remove(tick);
-        update(1.0);
-        resolve();
-        return;
-      }
-
-      update(t / duration);
-    };
-    ticker.add(tick);
-
-    // TODO: easing func?
-  });
-}
 
 export default class Image {
   constructor(private r: Renderer) {}
