@@ -50,8 +50,9 @@ export default class Game {
         // do command
         const result = await value;
         if (result.shouldWait) {
-          console.log('clickwait');
+          await this.renderer.showWaiting();
           await this.waitNext();
+          await this.renderer.hideWaiting();
         }
         continue;
       }
