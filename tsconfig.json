@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]
+    },
     "outDir": "./dist/",
     "sourceMap": true,
     "noImplicitAny": false,
@@ -7,10 +11,10 @@
     "esModuleInterop": true,
     "target": "es5",
     "jsx": "react",
-    "strict": true,
+    "strict": true
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ],
   "exclude": [
       "node_modules",
