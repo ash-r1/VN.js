@@ -6,6 +6,7 @@
   "license": "MPL",
   "private": true,
   "devDependencies": {
+    "@types/eventemitter3": "^2.0.2",
     "@types/pixi.js": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
@@ -27,6 +28,7 @@
     "lint:fix": "yarn lint --fix"
   },
   "dependencies": {
+    "eventemitter3": "^4.0.4",
     "pixi.js": "^5.2.4"
   }
 }

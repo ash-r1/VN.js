@@ -1,4 +1,4 @@
-import Renderer from 'src/renderer/Renderer';
+import Renderer from 'src/engine/Renderer';
 
 import { Result } from './command';
 
@@ -74,7 +74,7 @@ export default class Image {
     await this.fadeOut(name, duration);
     await this.r.RemoveLayer(name);
     return {
-      shouldWait: true,
+      shouldWait: false,
     };
   }
 }

@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
 
 import Game from './engine/Game';
-import Renderer from './renderer/Renderer';
+import Renderer from './engine/Renderer';
+import Responder from './engine/Responder';
 import scenario1 from './scenario/scenario1';
 
 const app = new PIXI.Application({ resizeTo: window });
@@ -12,5 +13,6 @@ const app = new PIXI.Application({ resizeTo: window });
 document.body.appendChild(app.view);
 
 const renderer = new Renderer(app);
-const game = new Game(renderer);
+const responder = new Responder(app);
+const game = new Game(renderer, responder);
 game.run(scenario1);
