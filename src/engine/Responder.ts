@@ -5,6 +5,9 @@ export default class Responder {
   constructor(app: PIXI.Application) {
     this.stage = app.stage;
     this.stage.interactive = true;
+
+    // TODO: probably, this may wrong , especially when the window is larger than screen
+    this.stage.hitArea = app.screen;
   }
 
   // TODO: on, once, removeListener の型が色々渡しすぎて無駄に複雑なので調整?
