@@ -1,5 +1,6 @@
 import Renderer from 'src/engine/Renderer';
 
+import MessageBox from '../layer/MessageBox';
 import { Result } from './command';
 import tickPromise from './tickPromise';
 
@@ -32,12 +33,18 @@ export default class Message {
 
   async show(text: string, { duration = 500 }: ShowOption): Promise<Result> {
     // TODO: fade only if the message layer not exists
-    await this.r.AddImageLayer(MESSAGE, 'game/textbox.png', 'ui', {
-      alpha: 0.0,
-      x: 960,
-      y: 850,
-    });
+    await this.r.RemoveLayer(MESSAGE, 'ui');
+
+    const messageBox = await MessageBox.init(this.r);
+    messageBox.name = MESSAGE;
+    messageBox.alpha = 0.0;
+    messageBox.y = 620;
+    await this.r.AddLayer(messageBox, 'ui');
+
     await this.fadeIn(duration);
+
+    await messageBox.animateText(text);
+    console.log(text);
 
     return {
       shouldWait: true,

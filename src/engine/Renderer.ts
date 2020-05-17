@@ -165,33 +165,6 @@ export default class Renderer {
     return true;
   }
 
-  async ShowText(message: string) {
-    // 'Noto Serif JP'
-    const textSample = new PIXI.Text('example: \n' + message, {
-      fontFamily: 'Noto Serif JP',
-      // fontFamily: 'Snippet',
-      // fontFamily: 'aaa',
-      fontSize: 30,
-      fill: 'black',
-      align: 'left',
-    });
-    textSample.name = '@text';
-    textSample.position.set(460, 730);
-    this.layers['ui'].addChild(textSample);
-
-    // const textSample2 = new PIXI.Text('example: \n' + message, {
-    //   // fontFamily: 'Noto Serif JP',
-    //   // fontFamily: 'Snippet',
-    //   // fontFamily: 'aaa',
-    //   fontSize: 30,
-    //   fill: 'red',
-    //   align: 'left',
-    // });
-    // textSample2.alpha = 0.5;
-    // textSample2.position.set(460, 730);
-    // this.layers['ui'].addChild(textSample2);
-  }
-
   /* ==========
    * waiting
    * ========== */
