@@ -23,10 +23,11 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack && rm -rf build && mkdir build && cp -r dist/* build && cp -r public/* build",
     "start": "webpack-dev-server --hot --inline --watch-content-base --content-base public/",
     "lint": "eslint ./src/**/*.ts",
-    "lint:fix": "yarn lint --fix"
+    "lint:fix": "yarn lint --fix",
+    "deploy": "yarn build && aws --profile=ash s3 sync build s3://vnjs-web"
   },
   "dependencies": {
     "eventemitter3": "^4.0.4",
