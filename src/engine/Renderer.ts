@@ -150,6 +150,19 @@ export default class Renderer {
     return true;
   }
 
+  async AddLayer(layer: PIXI.DisplayObject, on: layerName): Promise<void> {
+    const parent = this.layers[on];
+    parent.addChild(layer);
+
+    return;
+  }
+
+  HasLayer(name: string, on: layerName): boolean {
+    const parent = this.layers[on];
+    const sprite = parent.getChildByName(name);
+    return !!sprite;
+  }
+
   async RemoveLayer(name: string, on: layerName): Promise<boolean> {
     const parent = this.layers[on];
 
@@ -188,7 +201,8 @@ export default class Renderer {
       sprite.name = '@waiting';
       this.app.stage.addChild(sprite);
       sprite.alpha = 0.0;
-      sprite.y = 800;
+      sprite.x = 1860;
+      sprite.y = 1020;
       this.waiting = sprite;
       this.waitingTime = 0;
       this.ticker.add(this.animateWaiting);

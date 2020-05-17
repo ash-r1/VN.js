@@ -3,6 +3,7 @@ import EventEmitter from 'eventemitter3';
 import { ScenarioGenerator } from 'src/scenario/generator';
 
 import Image from './commands/image';
+import Message from './commands/message';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -13,17 +14,20 @@ const NEXT = '@next';
  */
 export default class Game {
   readonly image: Image;
+  readonly message: Message;
   private ee: EventEmitter;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     this.image = new Image(renderer);
-    this.ee = new EventEmitter();
+    this.message = new Message(renderer);
 
-    // configure click/touchstart
+    // configure click/tap
+    this.ee = new EventEmitter();
     responder.on('click', () => {
       console.log('clicked');
       this.ee.emit(NEXT);
     });
+    // TODO: tap? touchstart?
     responder.on('tap', () => {
       this.ee.emit(NEXT);
     });
