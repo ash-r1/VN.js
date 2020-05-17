@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import Renderer from 'src/engine/Renderer';
 
+import Crossfade from '../layer/Crossfade';
 import { layerName, setLayerProps } from '../Renderer';
 import { Result } from './command';
 import tickPromise from './tickPromise';
@@ -45,6 +46,52 @@ export default class Image {
   // alias as show on: bg
   async bg(src: string, options: Omit<ShowOption, 'on'>): Promise<Result> {
     return await this.show('bg', src, { ...options, on: 'bg' });
+  }
+
+  async test(): Promise<Result> {
+    const base = new PIXI.Container();
+
+    const ktk1 = await this.r.load('game/images/ktk/ktk lg a01 a.png');
+    const ktk2 = await this.r.load('game/images/ktk/ktk lg a04 a.png');
+
+    const crossfade = new Crossfade(ktk1.texture, ktk2.texture);
+    base.addChild(crossfade);
+
+    await this.r.AddLayer(base, 'fg');
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(ratio);
+    });
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(1 - ratio);
+    });
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(ratio);
+    });
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(1 - ratio);
+    });
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(ratio);
+    });
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(1 - ratio);
+    });
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(ratio);
+    });
+
+    await tickPromise(this.r.ticker, 1000, (ratio) => {
+      crossfade.updateWeight(1 - ratio);
+    });
+
+    return {
+      shouldWait: true,
+    };
   }
 
   async show(
