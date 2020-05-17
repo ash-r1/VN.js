@@ -9,6 +9,8 @@ import scenario1 from './scenario/scenario1';
 
 const canvas = document.getElementById('game');
 
+PIXI.settings.RESOLUTION = window.devicePixelRatio;
+
 const app = new PIXI.Application({
   width: 1920,
   height: 1080,
