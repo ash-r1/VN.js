@@ -7,6 +7,7 @@
   "private": true,
   "devDependencies": {
     "@types/eventemitter3": "^2.0.2",
+    "@types/fontfaceobserver": "^0.0.6",
     "@types/pixi.js": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "eventemitter3": "^4.0.4",
+    "fontfaceobserver": "^2.1.0",
     "pixi.js": "^5.2.4"
   }
 }
