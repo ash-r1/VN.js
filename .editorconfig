@@ -6,6 +6,11 @@ charset = utf-8
 trim_trailing_whitespace = true
 end_of_line = lf
 
+
+[*.{html,css}]
+indent_style = space
+indent_size = 2
+
 [*.{ts,js,json}]
 indent_style = space
 indent_size = 2

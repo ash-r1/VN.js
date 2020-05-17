@@ -91,34 +91,6 @@ export default class Renderer {
     });
   }
 
-  autoResize(window) {
-    let resizeId: number;
-    // TODO: この辺もRxJS使うとthrottleとか含めて綺麗に解決できるんだろうなぁ...
-    const resizeOnce = () => {
-      resizeId = requestAnimationFrame(() => {
-        this.app.view.width = window.innerWidth;
-        this.app.view.height = window.innerHeight;
-
-        const { width, height } = this.app.renderer.screen;
-
-        const ratio = Math.min(
-          this.app.view.width / width,
-          this.app.view.height / height
-        );
-        this.app.renderer.resolution = ratio;
-        cancelAnimationFrame(resizeId);
-      });
-    };
-
-    // window -> view
-    window.addEventListener('resize', () => {
-      resizeOnce();
-    });
-
-    // do once
-    resizeOnce();
-  }
-
   // TODO: よりメタな概念として addLayer みたいなの欲しいかもなぁー
 
   /**
@@ -192,6 +164,37 @@ export default class Renderer {
 
     return true;
   }
+
+  async ShowText(message: string) {
+    // 'Noto Serif JP'
+    const textSample = new PIXI.Text('example: \n' + message, {
+      fontFamily: 'Noto Serif JP',
+      // fontFamily: 'Snippet',
+      // fontFamily: 'aaa',
+      fontSize: 30,
+      fill: 'black',
+      align: 'left',
+    });
+    textSample.name = '@text';
+    textSample.position.set(460, 730);
+    this.layers['ui'].addChild(textSample);
+
+    // const textSample2 = new PIXI.Text('example: \n' + message, {
+    //   // fontFamily: 'Noto Serif JP',
+    //   // fontFamily: 'Snippet',
+    //   // fontFamily: 'aaa',
+    //   fontSize: 30,
+    //   fill: 'red',
+    //   align: 'left',
+    // });
+    // textSample2.alpha = 0.5;
+    // textSample2.position.set(460, 730);
+    // this.layers['ui'].addChild(textSample2);
+  }
+
+  /* ==========
+   * waiting
+   * ========== */
 
   async showWaiting() {
     const src = 'ui/waiting-gliff.png';
