@@ -5,7 +5,10 @@ import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import scenario1 from './scenario/scenario1';
 
-const app = new PIXI.Application({ resizeTo: window });
+const app = new PIXI.Application({
+  width: 1920,
+  height: 1080,
+});
 // TODO: 画面内の位置とかズーム率とか上手い具合に扱う必要がある....?
 
 // The application will create a canvas element for you that you
@@ -13,6 +16,7 @@ const app = new PIXI.Application({ resizeTo: window });
 document.body.appendChild(app.view);
 
 const renderer = new Renderer(app);
+renderer.autoResize(window);
 const responder = new Responder(app);
 const game = new Game(renderer, responder);
 game.run(scenario1);

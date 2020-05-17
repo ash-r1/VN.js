@@ -91,6 +91,34 @@ export default class Renderer {
     });
   }
 
+  autoResize(window) {
+    let resizeId: number;
+    // TODO: この辺もRxJS使うとthrottleとか含めて綺麗に解決できるんだろうなぁ...
+    const resizeOnce = () => {
+      resizeId = requestAnimationFrame(() => {
+        this.app.view.width = window.innerWidth;
+        this.app.view.height = window.innerHeight;
+
+        const { width, height } = this.app.renderer.screen;
+
+        const ratio = Math.min(
+          this.app.view.width / width,
+          this.app.view.height / height
+        );
+        this.app.renderer.resolution = ratio;
+        cancelAnimationFrame(resizeId);
+      });
+    };
+
+    // window -> view
+    window.addEventListener('resize', () => {
+      resizeOnce();
+    });
+
+    // do once
+    resizeOnce();
+  }
+
   // TODO: よりメタな概念として addLayer みたいなの欲しいかもなぁー
 
   /**
