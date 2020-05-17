@@ -91,8 +91,6 @@ export default class Renderer {
     });
   }
 
-  // TODO: よりメタな概念として addLayer みたいなの欲しいかもなぁー
-
   /**
    *
    * @param name イメージレイヤの名前
@@ -170,6 +168,7 @@ export default class Renderer {
    * ========== */
 
   async showWaiting() {
+    // TODO: split to other. may subscribe Game's onclick/clickwait event
     const src = 'ui/waiting-gliff.png';
     if (!this.waiting) {
       const resource = await this.load(src);
