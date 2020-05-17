@@ -55,7 +55,7 @@ export default class Image {
     await this.r.AddImageLayer(name, src, on, { alpha: 0.0, x, y });
     await this.fadeIn(name, on, duration);
     return {
-      shouldWait: true,
+      shouldWait: false,
     };
   }
 
