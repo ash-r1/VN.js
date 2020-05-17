@@ -12,7 +12,7 @@ export interface LayerProps {
   // TODO: rotation
 }
 
-const setLayerProps = (layer: PIXI.DisplayObject, props: LayerProps) => {
+export const setLayerProps = (layer: PIXI.DisplayObject, props: LayerProps) => {
   // TODO: make it typesafe-implementation
   ['x', 'y', 'width', 'height', 'alpha'].forEach((property) => {
     if (props[property]) {
@@ -89,35 +89,6 @@ export default class Renderer {
         resolve(resource);
       });
     });
-  }
-
-  /**
-   *
-   * @param name イメージレイヤの名前
-   * @param src 画像ファイル名
-   * @todo 重複した場合過去のものと入れ替える？
-   */
-  async AddImageLayer(
-    name: string,
-    src: string,
-    on: layerName,
-    { x = 0.0, y = 0.0, alpha = 1.0 }: AddImageProps
-  ): Promise<boolean> {
-    const parent = this.layers[on];
-
-    // TODO: remove the layer has same name if exists
-    const resource = await this.load(src);
-    const sprite = new PIXI.Sprite(resource.texture);
-    sprite.name = name;
-
-    // use center of the image as a anchor
-    sprite.anchor.set(0.5, 0.5);
-    setLayerProps(sprite, { x, y, alpha });
-
-    // TODO: remove if the name is already used
-    parent.addChild(sprite);
-
-    return true;
   }
 
   async AddLayer(layer: PIXI.DisplayObject, on: layerName): Promise<void> {

@@ -1,6 +1,8 @@
+import * as PIXI from 'pixi.js';
+
 import Renderer from 'src/engine/Renderer';
 
-import { layerName } from '../Renderer';
+import { layerName, setLayerProps } from '../Renderer';
 import { Result } from './command';
 import tickPromise from './tickPromise';
 
@@ -45,14 +47,18 @@ export default class Image {
     return await this.show('bg', src, { ...options, on: 'bg' });
   }
 
-  // TODO: ここのオプションの付け方も考えたい...
   async show(
     name: string,
     src: string,
     { duration = 500, x = 0, y = 0, on = 'fg' }: ShowOption
   ): Promise<Result> {
-    // TODO: cross-fade if same name image already exists
-    await this.r.AddImageLayer(name, src, on, { alpha: 0.0, x, y });
+    // TODO: cross-fade if same name image already exists?
+    const resource = await this.r.load(src);
+    const sprite = new PIXI.Sprite(resource.texture);
+    sprite.anchor.set(0.5, 0.5);
+    sprite.name = name;
+    setLayerProps(sprite, { x, y, alpha: 0 });
+    await this.r.AddLayer(sprite, on);
     await this.fadeIn(name, on, duration);
     return {
       shouldWait: false,
