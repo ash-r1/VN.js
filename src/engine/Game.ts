@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 
-import { ScenarioGenerator } from 'src/scenario/generator';
+import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Image from './commands/image';
 import Message from './commands/message';
