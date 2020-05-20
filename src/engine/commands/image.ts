@@ -50,39 +50,41 @@ export default class Image {
 
   async test(): Promise<Result> {
     const base = new PIXI.Container();
-
-    const ktk1 = await this.r.load('game/images/ktk/ktk lg a01 a.png');
-    const ktk2 = await this.r.load('game/images/ktk/ktk lg a04 a.png');
-
-    const crossfade = new Crossfade(ktk1.texture);
-    crossfade.startFade(ktk2.texture);
-    base.addChild(crossfade);
-
     await this.r.AddLayer(base, 'fg');
 
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = ratio;
-    });
+    const ktka = await this.r.load('game/images/ktk/ktk lg a01 a.png');
+    const ktkb = await this.r.load('game/images/ktk/ktk lg a01 b.png');
+    const ktkc = await this.r.load('game/images/ktk/ktk lg a01 c.png');
 
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = 1 - ratio;
-    });
-
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = ratio;
-    });
-
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = 1 - ratio;
-    });
-
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = ratio;
-    });
-
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.rate = 1 - ratio;
-    });
+    const ratio = 1.0;
+    const animation = new PIXI.AnimatedSprite(
+      ([
+        // 最初はすぐまばたき
+        [ktka, 2.0 * ratio],
+        [ktkb, 0.1],
+        [ktkc, 0.067],
+        // しつこいと鬱陶しいので次は長くとる
+        [ktka, 8.0 * ratio],
+        [ktkb, 0.1],
+        [ktkc, 0.067],
+        // また長く取って二連瞬き
+        [ktka, 2.0 * ratio],
+        [ktkb, 0.067],
+        [ktkc, 0.033],
+        [ktka, 0.067],
+        [ktkb, 0.1],
+        [ktkc, 0.067],
+        // しつこいと鬱陶しいのでさらに長くとる
+        [ktka, 12.0],
+        [ktkb, 0.1],
+        [ktkc, 0.067],
+      ] as [PIXI.LoaderResource, number][]).map(([{ texture }, time]) => ({
+        texture,
+        time: time * 1000,
+      }))
+    );
+    animation.play();
+    base.addChild(animation);
 
     return {
       shouldWait: true,
