@@ -4,7 +4,7 @@ import vertex from './displacement.vert';
 import fragment from './weightedAverage.frag';
 
 export class WeightedAverageFilter extends PIXI.Filter {
-  private otherSprite: PIXI.Sprite;
+  readonly otherSprite: PIXI.Sprite;
   private maskMatrix: PIXI.Matrix;
   public weight: number;
 

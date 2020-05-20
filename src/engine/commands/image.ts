@@ -54,39 +54,34 @@ export default class Image {
     const ktk1 = await this.r.load('game/images/ktk/ktk lg a01 a.png');
     const ktk2 = await this.r.load('game/images/ktk/ktk lg a04 a.png');
 
-    const crossfade = new Crossfade(ktk1.texture, ktk2.texture);
+    const crossfade = new Crossfade(ktk1.texture);
+    crossfade.startFade(ktk2.texture);
     base.addChild(crossfade);
 
     await this.r.AddLayer(base, 'fg');
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(ratio);
+      crossfade.rate = ratio;
     });
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(1 - ratio);
+      crossfade.rate = 1 - ratio;
     });
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(ratio);
+      crossfade.rate = ratio;
     });
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(1 - ratio);
-    });
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(ratio);
+      crossfade.rate = 1 - ratio;
     });
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(1 - ratio);
-    });
-    await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(ratio);
+      crossfade.rate = ratio;
     });
 
     await tickPromise(this.r.ticker, 1000, (ratio) => {
-      crossfade.updateWeight(1 - ratio);
+      crossfade.rate = 1 - ratio;
     });
 
     return {

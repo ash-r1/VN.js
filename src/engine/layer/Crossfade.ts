@@ -4,15 +4,29 @@ import { WeightedAverageFilter } from '../filters/WeightedAverage';
 
 export default class Crossfade extends PIXI.Sprite {
   private weightedAverageFilter: WeightedAverageFilter;
-  constructor(fromTexture: PIXI.Texture, toTexture: PIXI.Texture) {
-    super(fromTexture);
 
-    const toSprite = new PIXI.Sprite(toTexture);
+  constructor(texture: PIXI.Texture) {
+    super();
+    this.width = texture.width;
+    this.height = texture.height;
+
+    const toSprite = new PIXI.Sprite(texture);
     this.weightedAverageFilter = new WeightedAverageFilter(toSprite);
     this.filters = [this.weightedAverageFilter];
   }
 
-  updateWeight(weight: number): void {
-    this.weightedAverageFilter.weight = weight;
+  startFade(nextTexture: PIXI.Texture) {
+    // set previous texture as default
+    this.texture = this.weightedAverageFilter.otherSprite.texture;
+    this.weightedAverageFilter.weight = 0;
+
+    // set next texture
+    const nextSprite = new PIXI.Sprite(nextTexture);
+    this.weightedAverageFilter = new WeightedAverageFilter(nextSprite);
+    this.filters = [this.weightedAverageFilter];
+  }
+
+  set rate(val: number) {
+    this.weightedAverageFilter.weight = val;
   }
 }
