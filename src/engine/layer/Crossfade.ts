@@ -6,7 +6,7 @@ export default class Crossfade extends PIXI.Sprite {
   private weightedAverageFilter: WeightedAverageFilter;
 
   constructor(texture: PIXI.Texture) {
-    super();
+    super(texture);
     this.width = texture.width;
     this.height = texture.height;
 
@@ -15,16 +15,25 @@ export default class Crossfade extends PIXI.Sprite {
     this.filters = [this.weightedAverageFilter];
   }
 
-  startFade(nextTexture: PIXI.Texture) {
+  nextFade(nextTexture: PIXI.Texture) {
     // set previous texture as default
     this.texture = this.weightedAverageFilter.otherSprite.texture;
-    this.weightedAverageFilter.weight = 0;
 
     // set next texture
     const nextSprite = new PIXI.Sprite(nextTexture);
     this.weightedAverageFilter = new WeightedAverageFilter(nextSprite);
     this.filters = [this.weightedAverageFilter];
   }
+
+  resetFade(currentTexture: PIXI.Texture, nextTexture: PIXI.Texture) {
+    this.texture = currentTexture;
+    const nextSprite = new PIXI.Sprite(nextTexture);
+    this.weightedAverageFilter = new WeightedAverageFilter(nextSprite);
+    this.filters = [this.weightedAverageFilter];
+  }
+
+  // TODO: manage cross-fade by it own. with `await animate()`.
+  // ... but, how about interrupt ?
 
   set rate(val: number) {
     this.weightedAverageFilter.weight = val;
