@@ -93,8 +93,17 @@ export default class Renderer {
 
   loadMulti(srcList: string[]): Promise<Record<string, PIXI.LoaderResource>> {
     return new Promise((resolve) => {
-      // TODO: read cache?
-      const addedLoader = srcList.reduce((loader, src) => {
+      const caches: Record<string, PIXI.LoaderResource> = {};
+      const srcListToLoad = srcList.filter((src) => {
+        const res = this.loader.resources[src];
+        if (res) {
+          caches[src] = res;
+        }
+        return !res;
+      });
+
+      const srcSet = new Set(srcListToLoad);
+      const addedLoader = Array.from(srcSet).reduce((loader, src) => {
         return loader.add(src, src);
       }, this.loader);
       addedLoader.load((loader, resources) => {
@@ -108,7 +117,7 @@ export default class Renderer {
           },
           {}
         );
-        resolve(result);
+        resolve({ ...caches, ...result });
       });
     });
   }
