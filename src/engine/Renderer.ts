@@ -91,6 +91,28 @@ export default class Renderer {
     });
   }
 
+  loadMulti(srcList: string[]): Promise<Record<string, PIXI.LoaderResource>> {
+    return new Promise((resolve) => {
+      // TODO: read cache?
+      const addedLoader = srcList.reduce((loader, src) => {
+        return loader.add(src, src);
+      }, this.loader);
+      addedLoader.load((loader, resources) => {
+        // TODO: check if resources certainly has all of srcList properties
+        const result: Record<string, PIXI.LoaderResource> = srcList.reduce(
+          (prev, current) => {
+            return {
+              ...prev,
+              [current]: resources[current],
+            };
+          },
+          {}
+        );
+        resolve(result);
+      });
+    });
+  }
+
   async AddLayer(layer: PIXI.DisplayObject, on: layerName): Promise<void> {
     const parent = this.layers[on];
     parent.addChild(layer);
@@ -98,9 +120,14 @@ export default class Renderer {
     return;
   }
 
-  HasLayer(name: string, on: layerName): boolean {
+  GetLayer(name: string, on: layerName): PIXI.DisplayObject {
     const parent = this.layers[on];
     const sprite = parent.getChildByName(name);
+    return sprite;
+  }
+
+  HasLayer(name: string, on: layerName): boolean {
+    const sprite = this.GetLayer(name, on);
     return !!sprite;
   }
 

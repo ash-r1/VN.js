@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import Renderer from 'src/engine/Renderer';
 
+import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
 import { layerName, setLayerProps } from '../Renderer';
 import { Result } from './command';
@@ -46,49 +47,6 @@ export default class Image {
   // alias as show on: bg
   async bg(src: string, options: Omit<ShowOption, 'on'>): Promise<Result> {
     return await this.show('bg', src, { ...options, on: 'bg' });
-  }
-
-  async test(): Promise<Result> {
-    const base = new PIXI.Container();
-    await this.r.AddLayer(base, 'fg');
-
-    const ktka = await this.r.load('game/images/ktk/ktk lg a01 a.png');
-    const ktkb = await this.r.load('game/images/ktk/ktk lg a01 b.png');
-    const ktkc = await this.r.load('game/images/ktk/ktk lg a01 c.png');
-
-    const ratio = 1.0;
-    const animation = new PIXI.AnimatedSprite(
-      ([
-        // 最初はすぐまばたき
-        [ktka, 2.0 * ratio],
-        [ktkb, 0.1],
-        [ktkc, 0.067],
-        // しつこいと鬱陶しいので次は長くとる
-        [ktka, 8.0 * ratio],
-        [ktkb, 0.1],
-        [ktkc, 0.067],
-        // また長く取って二連瞬き
-        [ktka, 2.0 * ratio],
-        [ktkb, 0.067],
-        [ktkc, 0.033],
-        [ktka, 0.067],
-        [ktkb, 0.1],
-        [ktkc, 0.067],
-        // しつこいと鬱陶しいのでさらに長くとる
-        [ktka, 12.0],
-        [ktkb, 0.1],
-        [ktkc, 0.067],
-      ] as [PIXI.LoaderResource, number][]).map(([{ texture }, time]) => ({
-        texture,
-        time: time * 1000,
-      }))
-    );
-    animation.play();
-    base.addChild(animation);
-
-    return {
-      shouldWait: true,
-    };
   }
 
   async show(

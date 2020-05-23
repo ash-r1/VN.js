@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
+import Character from './commands/character';
 import Image from './commands/image';
 import Message from './commands/message';
 import Renderer from './Renderer';
@@ -15,11 +16,34 @@ const NEXT = '@next';
 export default class Game {
   readonly image: Image;
   readonly message: Message;
+  readonly ktk: Character;
   private ee: EventEmitter;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     this.image = new Image(renderer);
     this.message = new Message(renderer);
+    this.ktk = new Character(renderer, 'ktk', [
+      {
+        code: 'a01',
+        blink: true,
+      },
+      {
+        code: 'a02',
+        blink: true,
+      },
+      {
+        code: 'a03',
+        blink: true,
+      },
+      {
+        code: 'a04',
+        blink: true,
+      },
+      {
+        code: 'a05',
+        blink: true,
+      },
+    ]);
 
     // configure click/tap
     this.ee = new EventEmitter();
