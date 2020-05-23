@@ -171,6 +171,14 @@ export default class Renderer {
     return true;
   }
 
+  get width(): number {
+    return this.app.screen.width;
+  }
+
+  get height(): number {
+    return this.app.screen.height;
+  }
+
   /* ==========
    * waiting
    * ========== */

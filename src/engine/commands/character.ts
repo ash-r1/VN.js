@@ -165,8 +165,8 @@ export default class Character {
 
   setPos(sprite: PIXI.Sprite, xpos: Position) {
     sprite.anchor.set(0.5, 1.0);
-    sprite.x = position[xpos] * 1920;
-    sprite.y = 1080;
+    sprite.x = position[xpos] * this.r.width;
+    sprite.y = this.r.height;
   }
 
   private async showIntl(
