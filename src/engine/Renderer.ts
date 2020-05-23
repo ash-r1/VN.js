@@ -122,11 +122,11 @@ export default class Renderer {
     });
   }
 
-  async AddLayer(layer: PIXI.DisplayObject, on: layerName): Promise<void> {
+  AddLayer(layer: PIXI.DisplayObject, on: layerName): PIXI.DisplayObject {
     const parent = this.layers[on];
     parent.addChild(layer);
 
-    return;
+    return parent;
   }
 
   GetLayer(name: string, on: layerName): PIXI.DisplayObject {
@@ -140,7 +140,7 @@ export default class Renderer {
     return !!sprite;
   }
 
-  async RemoveLayer(name: string, on: layerName): Promise<boolean> {
+  RemoveLayer(name: string, on: layerName): boolean {
     const parent = this.layers[on];
 
     const sprite = parent.getChildByName(name);
@@ -153,6 +153,7 @@ export default class Renderer {
     return true;
   }
 
+  // TODO: change
   async SetLayerProps(
     name: string,
     on: layerName,
