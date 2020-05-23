@@ -4,9 +4,11 @@ import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
-import { layerName, setLayerProps } from '../Renderer';
+import { layerName } from '../Renderer';
 import { Result } from './command';
 import tickPromise from './tickPromise';
+
+// TODO: position adjustment
 
 export interface ShowHideOption {
   duration?: number;
@@ -23,6 +25,8 @@ export interface Face {
   code: string;
   blink?: boolean;
 }
+
+type CharacterSprite = PIXI.Sprite | BlinkAnimationSprite;
 
 const imagePath = (name: string, size: string, code: string) =>
   `game/images/${name}/${name} ${size} ${code}.png`;
@@ -84,7 +88,7 @@ export default class Character {
     });
   }
 
-  async genSpriteFor(face: Face): Promise<PIXI.Sprite | BlinkAnimationSprite> {
+  async genSpriteFor(face: Face): Promise<CharacterSprite> {
     const resources = await this.loadFor(face);
     if (face.blink) {
       if (resources.length != 3) {
@@ -103,6 +107,47 @@ export default class Character {
     return new PIXI.Sprite(resources[0].texture);
   }
 
+  private async crossfade(
+    sprite: CharacterSprite,
+    face: Face,
+    duration: number,
+    on: layerName
+  ): Promise<CharacterSprite> {
+    if (sprite instanceof BlinkAnimationSprite) {
+      sprite.gotoAndStop(0);
+    }
+
+    const resources = await this.loadFor(face);
+    const crossfade = new Crossfade(sprite.texture);
+    crossfade.name = this.name;
+    this.r.RemoveLayer(this.name, on);
+    this.r.AddLayer(crossfade, on);
+
+    await crossfade.animate(resources[0].texture, duration);
+
+    const nextSprite = await this.genSpriteFor(face);
+    nextSprite.name = this.name;
+    this.r.RemoveLayer(this.name, on);
+    this.r.AddLayer(nextSprite, on);
+
+    return nextSprite;
+  }
+
+  private async showIntl(
+    face: Face,
+    duration: number,
+    on: layerName
+  ): Promise<CharacterSprite> {
+    const sprite = await this.genSpriteFor(face);
+    sprite.name = this.name;
+    sprite.alpha = 0.0;
+    await this.r.AddLayer(sprite, on);
+    // FIXME: refine how to get the layer to fadeIn ...
+    await this.fadeIn(this.name, on, duration);
+
+    return sprite;
+  }
+
   async show(
     code: string,
     { duration = 300, on = 'fg' }: ShowOption
@@ -111,19 +156,26 @@ export default class Character {
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
     }
-    const sprite = await this.genSpriteFor(face);
-    sprite.name = this.name;
-    sprite.alpha = 0.0;
-    await this.r.AddLayer(sprite, on);
-    // FIXME: refine how to get the layer to fadeIn ...
-    await this.fadeIn(this.name, on, duration);
+    const existent = this.r.GetLayer(this.name, 'fg');
+    let nextSprite: CharacterSprite;
+    if (existent) {
+      // TODO: keep it in own field
+      nextSprite = await this.crossfade(
+        existent as CharacterSprite,
+        face,
+        duration,
+        on
+      );
+    } else {
+      nextSprite = await this.showIntl(face, duration, on);
+    }
 
-    if (sprite instanceof BlinkAnimationSprite) {
-      sprite.play();
+    if (nextSprite instanceof BlinkAnimationSprite) {
+      nextSprite.play();
     }
 
     return {
-      shouldWait: true,
+      shouldWait: false,
     };
   }
 
