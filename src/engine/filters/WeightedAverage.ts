@@ -12,7 +12,7 @@ export class WeightedAverageFilter extends PIXI.Filter {
     const maskMatrix = new PIXI.Matrix();
 
     super(vertex, fragment, {
-      mapSampler: otherSprite.texture,
+      otherSampler: otherSprite.texture,
       maskMatrix,
     });
 
