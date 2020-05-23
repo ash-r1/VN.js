@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 
+import tickPromise from '../commands/tickPromise';
 import { WeightedAverageFilter } from '../filters/WeightedAverage';
 
 export default class Crossfade extends PIXI.Sprite {
@@ -15,7 +16,7 @@ export default class Crossfade extends PIXI.Sprite {
     this.filters = [this.weightedAverageFilter];
   }
 
-  nextFade(nextTexture: PIXI.Texture) {
+  private nextFade(nextTexture: PIXI.Texture) {
     // set previous texture as default
     this.texture = this.weightedAverageFilter.otherSprite.texture;
 
@@ -25,11 +26,12 @@ export default class Crossfade extends PIXI.Sprite {
     this.filters = [this.weightedAverageFilter];
   }
 
-  resetFade(currentTexture: PIXI.Texture, nextTexture: PIXI.Texture) {
-    this.texture = currentTexture;
-    const nextSprite = new PIXI.Sprite(nextTexture);
-    this.weightedAverageFilter = new WeightedAverageFilter(nextSprite);
-    this.filters = [this.weightedAverageFilter];
+  async animate(nextTexture: PIXI.Texture, duration: number): Promise<void> {
+    await this.nextFade(nextTexture);
+    await tickPromise(PIXI.Ticker.shared, duration, (rate: number) => {
+      console.log({ rate });
+      this.rate = rate;
+    });
   }
 
   // TODO: manage cross-fade by it own. with `await animate()`.
