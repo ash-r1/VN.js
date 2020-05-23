@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 export default function tickPromise(
   ticker: PIXI.Ticker,
   duration: number,
-  update: (ratio: number) => void
+  update: (rate: number) => void
 ): Promise<void> {
   return new Promise((resolve) => {
     let t = 0;
