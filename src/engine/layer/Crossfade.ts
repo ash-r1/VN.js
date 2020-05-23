@@ -14,9 +14,17 @@ export default class Crossfade extends PIXI.Sprite {
     const toSprite = new PIXI.Sprite(texture);
     this.weightedAverageFilter = new WeightedAverageFilter(toSprite);
     this.filters = [this.weightedAverageFilter];
+
+    this.resetFadeSpritePos();
   }
 
-  private nextFade(nextTexture: PIXI.Texture) {
+  resetFadeSpritePos() {
+    this.weightedAverageFilter.otherSprite.anchor = this.anchor;
+    this.weightedAverageFilter.otherSprite.x = this.x;
+    this.weightedAverageFilter.otherSprite.y = this.y;
+  }
+
+  nextFade(nextTexture: PIXI.Texture) {
     // set previous texture as default
     this.texture = this.weightedAverageFilter.otherSprite.texture;
 
@@ -29,7 +37,6 @@ export default class Crossfade extends PIXI.Sprite {
   async animate(nextTexture: PIXI.Texture, duration: number): Promise<void> {
     await this.nextFade(nextTexture);
     await tickPromise(PIXI.Ticker.shared, duration, (rate: number) => {
-      console.log({ rate });
       this.rate = rate;
     });
   }
@@ -41,3 +48,10 @@ export default class Crossfade extends PIXI.Sprite {
     this.weightedAverageFilter.weight = val;
   }
 }
+
+// override render to call resetFadeSpritePos
+const originalRender = Crossfade.prototype.render;
+Crossfade.prototype.render = function (this: Crossfade, renderer) {
+  this.resetFadeSpritePos();
+  originalRender.bind(this)(renderer);
+};

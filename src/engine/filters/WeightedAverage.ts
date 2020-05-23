@@ -34,6 +34,9 @@ export class WeightedAverageFilter extends PIXI.Filter {
     );
     this.uniforms.weight = this.weight;
     this.uniforms.filterMatrix = filterMatrix;
+    const x = this.otherSprite.x / this.otherSprite.width;
+    const y = this.otherSprite.y / this.otherSprite.height;
+    this.uniforms.otherPos = new Float32Array([x, y]);
     filterManager.applyFilter(this, input, output, false);
   }
 }
