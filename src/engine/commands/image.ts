@@ -25,7 +25,12 @@ export default class Image extends Base {
 
   // alias as show on: bg
   async bg(src: string, options: Omit<ShowOption, 'on'>): Promise<Result> {
-    return await this.show('bg', src, { ...options, on: 'bg' });
+    return await this.show('bg', src, {
+      x: this.r.width / 2,
+      y: this.r.height / 2,
+      ...options,
+      on: 'bg',
+    });
   }
 
   async show(
