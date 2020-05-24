@@ -15,6 +15,29 @@ const ONCLICK = '@intl/onclick';
 export const NEXT = '@core/next';
 export const WAIT = '@core/wait';
 
+const baseFrames = [
+  {
+    code: 'a01',
+    blink: true,
+  },
+  {
+    code: 'a02',
+    blink: true,
+  },
+  {
+    code: 'a03',
+    blink: true,
+  },
+  {
+    code: 'a04',
+    blink: true,
+  },
+  {
+    code: 'a05',
+    blink: true,
+  },
+];
+
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
  */
@@ -22,34 +45,15 @@ export default class Game {
   readonly image: Image;
   readonly message: Message;
   readonly ktk: Character;
+  readonly krn: Character;
   private ee: EventEmitter;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
     this.message = new Message(renderer, ee);
-    this.ktk = new Character(renderer, 'ktk', [
-      {
-        code: 'a01',
-        blink: true,
-      },
-      {
-        code: 'a02',
-        blink: true,
-      },
-      {
-        code: 'a03',
-        blink: true,
-      },
-      {
-        code: 'a04',
-        blink: true,
-      },
-      {
-        code: 'a05',
-        blink: true,
-      },
-    ]);
+    this.ktk = new Character(renderer, 'ktk', baseFrames);
+    this.krn = new Character(renderer, 'krn', baseFrames);
 
     // configure click/tap
     this.ee = ee;
