@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js';
 
+// include pixi-sound to modify loader ... ?
+import 'pixi-sound';
+
 import FontFaceObserver from 'fontfaceobserver';
 
 import Game from './engine/Game';

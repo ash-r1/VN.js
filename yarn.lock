@@ -45,7 +45,7 @@
   resolved "https://registry.yarnpkg.com/@pixi/constants/-/constants-5.2.4.tgz#ef293790cc0e2c74ab78ec49669df514a5ea372a"
   integrity sha512-+sMfU57VTQb5DkDtndCBg3PzyC8NxZJvg/R76tuopkZZ5AgI4aAE6hNMs0JzvalzYNIampzwpdZ1gz5UKvL1dQ==
 
-"@pixi/core@5.2.4":
+"@pixi/core@5.2.4", "@pixi/core@^5.0.2":
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/@pixi/core/-/core-5.2.4.tgz#5cdc09b0ba327877ebbcf1688cff788c954df634"
   integrity sha512-3RXoqtMqCGZFDLNiBp1l6HAnnNvKsCn3D4m3NvrrIhcaPFxD8bSPZaHEaTq6BaStOGWhpofRy+RLtFfYciQLiA==
@@ -143,7 +143,7 @@
     "@pixi/ticker" "5.2.4"
     "@pixi/utils" "5.2.4"
 
-"@pixi/loaders@5.2.4":
+"@pixi/loaders@5.2.4", "@pixi/loaders@^5.0.2":
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/@pixi/loaders/-/loaders-5.2.4.tgz#d56a0866e11888c33a2b24ee72706dcdfe5c7708"
   integrity sha512-MeQd59+sB1ZGhpKGY0w3Ef8cFiWm/yv22MDVM3Hqg1VCu81NjiUrJUGUGALIU8CXI3NfiT+J1zyddslmyJJZjQ==
@@ -317,14 +317,14 @@
     "@pixi/sprite" "5.2.4"
     "@pixi/utils" "5.2.4"
 
-"@pixi/ticker@5.2.4":
+"@pixi/ticker@5.2.4", "@pixi/ticker@^5.0.1":
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/@pixi/ticker/-/ticker-5.2.4.tgz#e5905bb8372ac3128ed4abfd39d5b41d48baddb9"
   integrity sha512-xM7kN+zhnv/q8WNrQ/EJKzmJBrhLcE7HtKFP2v0R3x7N76fqZu6a87C5ioNqJ8rKTThZ8wDOQ2sCN0tlapRFyg==
   dependencies:
     "@pixi/settings" "5.2.4"
 
-"@pixi/utils@5.2.4":
+"@pixi/utils@5.2.4", "@pixi/utils@^5.0.1":
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/@pixi/utils/-/utils-5.2.4.tgz#0e9d05c8b39a1d3c6e54ad0cbbb242c244094046"
   integrity sha512-n/HFBp5MJaF8vrGUbDcf6TuaUmEW07nv96Y0c6teHhnl942pg1XITogOugnU31sW81Z9ra1BG8D39zU4JU0oSA==
@@ -3571,6 +3571,16 @@ pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
+
+pixi-sound@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/pixi-sound/-/pixi-sound-3.0.4.tgz#de2b1bfaccf92e8ef4a2352d272e6608f4588eed"
+  integrity sha512-e+BteT7KYAEs6SAAuqOFlXEarzMNzsVj6y14ecjQ7W7YzjgxQOUVgYFp6rJrDyEmDeSGvWDIR5x7bRMQZGRpzw==
+  dependencies:
+    "@pixi/core" "^5.0.2"
+    "@pixi/loaders" "^5.0.2"
+    "@pixi/ticker" "^5.0.1"
+    "@pixi/utils" "^5.0.1"
 
 pixi.js@*, pixi.js@^5.2.4:
   version "5.2.4"

@@ -6,6 +6,7 @@ import Camera from './commands/camera';
 import Character from './commands/character';
 import Image from './commands/image';
 import Message from './commands/message';
+import Sound from './commands/sound';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -49,6 +50,7 @@ const baseFrames = [
 export default class Game {
   private ee: EventEmitter;
   readonly image: Image;
+  readonly sound: Sound;
   readonly message: Message;
   readonly srt: Character;
   readonly ktk: Character;
@@ -60,6 +62,7 @@ export default class Game {
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
+    this.sound = new Sound(renderer);
     this.message = new Message(renderer, ee);
     this.srt = new Character(renderer, ee, 'srt', [
       ...commonFrames,
