@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
+import { Result } from 'src/engine/commands/command';
 import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
@@ -18,6 +19,7 @@ import {
   position,
   SHOW,
   ShowEvent,
+  Xpos,
 } from './character';
 
 // TODO: position adjustment
@@ -26,16 +28,36 @@ import {
  * move bg & fg layers to show camera-ish
  */
 export default class Camera extends Base {
-  private x: number;
+  private locked = false;
+
   constructor(r: Renderer, private ee: EventEmitter) {
     super(r);
-
-    this.x = r.width / 2.0;
 
     ee.on(SHOW, this.onShow);
     ee.on(HIDE, this.onHide);
     ee.on(MOVE, this.onMove);
     ee.on(CHANGE, this.onChange);
+  }
+
+  async lock(): Promise<Result> {
+    this.locked = true;
+    return {
+      shouldWait: false,
+    };
+  }
+
+  async unlock(): Promise<Result> {
+    this.locked = false;
+    return {
+      shouldWait: false,
+    };
+  }
+
+  async move(xpos: Xpos): Promise<Result> {
+    await this.moveCameraTo(position[xpos] * this.r.width, true);
+    return {
+      shouldWait: false,
+    };
   }
 
   onShow = (ev: ShowEvent) => {
@@ -56,12 +78,15 @@ export default class Camera extends Base {
     this.moveCameraTo(position[ev.xpos] * this.r.width);
   };
 
-  private moveCameraTo = (x: number) => {
+  private moveCameraTo = async (x: number, force = false) => {
+    if (this.locked && !force) {
+      return;
+    }
     const pos = x - this.r.width / 2.0;
     const { bg, fg } = this.r.layers;
     // limit to 5% for bg
     this.moveTo(bg, { x: -pos * 0.05 }, 500);
-    this.moveTo(fg, { x: -pos * 0.1 }, 500);
+    await this.moveTo(fg, { x: -pos * 0.1 }, 500);
     // TODO Promise.all to do them concurrently?
     // ... or, create "moveMultiTo"-ish method to exact one ticker hook animation?
   };

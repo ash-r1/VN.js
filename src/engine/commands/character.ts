@@ -13,7 +13,7 @@ import tickPromise from './tickPromise';
 
 // TODO: position adjustment
 
-type Position =
+export type Xpos =
   | 'mleft'
   | 'mright'
   | 'center'
@@ -24,7 +24,7 @@ type Position =
   | 'rightl4'
   | 'rightr4';
 
-export const position: Record<Position, number> = {
+export const position: Record<Xpos, number> = {
   mleft: 0.2,
   mright: 0.8,
   center: 0.5,
@@ -49,14 +49,14 @@ export const CHANGE = '@character/CHANGE';
 export interface ShowEvent {
   name: string;
   face: Face;
-  xpos: Position;
+  xpos: Xpos;
 }
 export interface HideEvent {
   name: string;
 }
 export interface MoveEvent {
   name: string;
-  xpos: Position;
+  xpos: Xpos;
 }
 export type ChangeEvent = ShowEvent;
 
@@ -65,7 +65,7 @@ export interface ShowHideOption {
 }
 
 export interface ShowOption extends ShowHideOption {
-  xpos?: Position;
+  xpos?: Xpos;
   size?: CharacterSize;
   zIndex?: number;
 }
@@ -88,7 +88,7 @@ const defaultZIndex = 0;
 
 export default class Character extends Base {
   private faces: Record<string, Face>;
-  private xpos: Position = 'center';
+  private xpos: Xpos = 'center';
   private sprite?: CharacterSprite;
   private size: CharacterSize = 'lg';
   private zIndex = defaultZIndex;
@@ -190,7 +190,7 @@ export default class Character extends Base {
     return nextSprite;
   }
 
-  setPos(sprite: PIXI.Sprite, xpos: Position) {
+  setPos(sprite: PIXI.Sprite, xpos: Xpos) {
     sprite.anchor.set(0.5, 1.0);
     sprite.x = (position[xpos] * 0.7 + 0.15) * this.r.width;
     sprite.y = this.r.height;
@@ -199,7 +199,7 @@ export default class Character extends Base {
   private async showIntl(
     face: Face,
     duration: number,
-    xpos: Position
+    xpos: Xpos
   ): Promise<CharacterSprite> {
     const sprite = await this.genSpriteFor(face);
     sprite.name = this.name;
@@ -214,7 +214,7 @@ export default class Character extends Base {
   }
 
   async move(
-    xpos: Position,
+    xpos: Xpos,
     { duration = this.defaultMoveDuration }: MoveOption
   ): Promise<Result> {
     if (!this.sprite) {

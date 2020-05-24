@@ -55,7 +55,7 @@ export default class Game {
   readonly krn: Character;
   readonly kyu: Character;
   readonly icr: Character;
-  private camera: Camera;
+  readonly camera: Camera;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
