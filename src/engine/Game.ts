@@ -8,7 +8,7 @@ import Message from './commands/message';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
-const NEXT = '@next';
+export const NEXT = '@next';
 
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
@@ -20,8 +20,9 @@ export default class Game {
   private ee: EventEmitter;
 
   constructor(private renderer: Renderer, private responder: Responder) {
+    const ee = new EventEmitter();
     this.image = new Image(renderer);
-    this.message = new Message(renderer);
+    this.message = new Message(renderer, ee);
     this.ktk = new Character(renderer, 'ktk', [
       {
         code: 'a01',
@@ -46,7 +47,7 @@ export default class Game {
     ]);
 
     // configure click/tap
-    this.ee = new EventEmitter();
+    this.ee = ee;
     responder.on('click', () => {
       console.log('clicked');
       this.ee.emit(NEXT);
@@ -61,7 +62,7 @@ export default class Game {
 
   waitNext(): Promise<void> {
     return new Promise((resolve) => {
-      this.onceNext(resolve);
+      this.ee.once(NEXT, resolve);
     });
   }
 
@@ -88,16 +89,6 @@ export default class Game {
         'scenario generator returned invalid (non-promise?) value.'
       );
     }
-  }
-
-  onNext(cb: () => void) {
-    this.ee.on(NEXT, cb);
-  }
-  onceNext(cb: () => void) {
-    this.ee.once(NEXT, cb);
-  }
-  removeNext(cb: () => void) {
-    this.ee.removeListener(NEXT, cb);
   }
 
   // TODO: クリック時の瞬時表示などをするにはRxJSとか使った方が綺麗に書けるのかも知れない

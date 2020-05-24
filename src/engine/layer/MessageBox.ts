@@ -36,8 +36,9 @@ export default class MessageBox extends PIXI.Container {
     this.text.text = text;
   }
 
-  async clearText() {
+  clearText() {
     //
+    this.text.text = '';
   }
 
   // TODO: Containerにすべきかも？

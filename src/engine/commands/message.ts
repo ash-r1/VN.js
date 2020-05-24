@@ -1,5 +1,8 @@
+import EventEmitter from 'eventemitter3';
+
 import Renderer from 'src/engine/Renderer';
 
+import { NEXT } from '../Game';
 import MessageBox from '../layer/MessageBox';
 import { Result } from './command';
 import tickPromise from './tickPromise';
@@ -17,7 +20,8 @@ export interface ShowOption extends ShowHideOption {
 type HideOption = ShowHideOption;
 
 export default class Message {
-  constructor(private r: Renderer) {}
+  private messageBox?: MessageBox;
+  constructor(private r: Renderer, private ee: EventEmitter) {}
 
   private async fadeIn(duration: number): Promise<void> {
     await tickPromise(this.r.ticker, duration, (ratio) => {
@@ -31,20 +35,29 @@ export default class Message {
     });
   }
 
+  cleanup = () => {
+    //
+    if (this.messageBox) {
+      this.messageBox.clearText();
+    }
+  };
+
   async show(text: string, { duration = 500 }: ShowOption): Promise<Result> {
-    // TODO: fade only if the message layer not exists
-    await this.r.RemoveLayer(MESSAGE, 'ui');
+    if (!this.messageBox) {
+      const messageBox = await MessageBox.init(this.r);
+      messageBox.name = MESSAGE;
+      messageBox.alpha = 0.0;
+      messageBox.y = 620;
+      await this.r.AddLayer(messageBox, 'ui');
 
-    const messageBox = await MessageBox.init(this.r);
-    messageBox.name = MESSAGE;
-    messageBox.alpha = 0.0;
-    messageBox.y = 620;
-    await this.r.AddLayer(messageBox, 'ui');
+      await this.fadeIn(duration);
+      this.messageBox = messageBox;
+    }
 
-    await this.fadeIn(duration);
-
-    await messageBox.animateText(text);
+    await this.messageBox.animateText(text);
     console.log(text);
+
+    this.ee.once(NEXT, this.cleanup);
 
     return {
       shouldWait: true,
