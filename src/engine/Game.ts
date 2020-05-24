@@ -59,6 +59,7 @@ export default class Game {
     });
     // TODO: tap? touchstart?
     responder.on('tap', () => {
+      console.log('tapped');
       this.ee.emit(ONCLICK);
     });
   }
