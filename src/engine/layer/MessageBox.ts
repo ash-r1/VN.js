@@ -37,7 +37,6 @@ export default class MessageBox extends PIXI.Container {
   }
 
   clearText() {
-    //
     this.text.text = '';
   }
 
