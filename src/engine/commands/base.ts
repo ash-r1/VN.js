@@ -45,4 +45,20 @@ export default abstract class Base {
       this.setLayerProps(layer, { alpha: 1 - rate });
     });
   }
+
+  protected async moveTo(
+    layer: PIXI.DisplayObject,
+    pos: { x?: number; y?: number },
+    duration: number
+  ): Promise<void> {
+    const { x, y } = layer;
+    await tickPromise(this.r.ticker, duration, (rate) => {
+      if (pos.x) {
+        layer.x = (1 - rate) * x + rate * pos.x;
+      }
+      if (pos.y) {
+        layer.y = (1 - rate) * y + rate * pos.y;
+      }
+    });
+  }
 }

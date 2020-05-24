@@ -181,22 +181,13 @@ export default class Character extends Base {
     xpos: Position,
     { duration = this.defaultMoveDuration }: MoveOption
   ): Promise<Result> {
-    // TODO: move, 移動のdurationも指定できる？ showでの自動移動は固定値になる感じで別にいいかな…
     if (!this.sprite) {
       throw new Error(`Character(${this.name}) is not shown`);
     }
 
     if (xpos != this.xpos) {
-      const start = position[this.xpos] * this.r.width;
-      const end = position[xpos] * this.r.width;
-      await tickPromise(this.r.ticker, duration, (rate) => {
-        if (this.sprite) {
-          this.sprite.x = (1 - rate) * start + rate * end;
-        } else {
-          console.error(`sprite not found for ${this.name}`);
-        }
-      });
-
+      const x = position[xpos] * this.r.width;
+      await this.moveTo(this.sprite, { x }, duration);
       this.xpos = xpos;
     }
 
