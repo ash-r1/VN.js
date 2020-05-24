@@ -12,8 +12,8 @@ import Responder from './Responder';
 const ONCLICK = '@intl/onclick';
 
 // public events which can be used by commands
-export const NEXT = '@next';
-export const WAIT = '@wait';
+export const NEXT = '@core/next';
+export const WAIT = '@core/wait';
 
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
