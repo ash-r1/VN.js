@@ -39,6 +39,7 @@ export const position: Record<Position, number> = {
 export interface Face {
   code: string;
   blink?: boolean;
+  filename?: string;
 }
 
 export const SHOW = '@character/SHOW';
@@ -65,6 +66,7 @@ export interface ShowHideOption {
 
 export interface ShowOption extends ShowHideOption {
   xpos?: Position;
+  size?: CharacterSize;
   zIndex?: number;
 }
 type HideOption = ShowHideOption;
@@ -113,13 +115,14 @@ export default class Character extends Base {
   // }
 
   pathsFor(face: Face): string[] {
+    const filename = face.filename ?? face.code;
     if (face.blink) {
       // NOTE: normal, middle, close => a, c, b
       return ['a', 'c', 'b'].map((accessory) =>
-        imagePath(this.name, this.size, `${face.code} ${accessory}`)
+        imagePath(this.name, this.size, `${filename} ${accessory}`)
       );
     }
-    return [imagePath(this.name, this.size, face.code)];
+    return [imagePath(this.name, this.size, filename)];
   }
 
   // async loadAll() {
@@ -233,11 +236,14 @@ export default class Character extends Base {
 
   async show(
     code: string,
-    { duration = this.defaultShowDuration, xpos, zIndex }: ShowOption
+    { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption
   ): Promise<Result> {
     const face = this.faces[code];
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
+    }
+    if (size) {
+      this.size = size;
     }
     if (zIndex) {
       this.zIndex = zIndex;
