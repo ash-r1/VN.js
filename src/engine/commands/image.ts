@@ -26,7 +26,7 @@ export default class Image extends Base {
 
   // alias as show on: bg
   async bg(src: string, options: Omit<ShowOption, 'on'>): Promise<Result> {
-    return await this.show('bg', src, {
+    return await this.show('bg', `game/images/bg ${src}.png`, {
       x: this.r.width / 2,
       y: this.r.height / 2,
       scale: 1.05,
