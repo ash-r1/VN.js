@@ -192,7 +192,7 @@ export default class Character extends Base {
 
   setPos(sprite: PIXI.Sprite, xpos: Position) {
     sprite.anchor.set(0.5, 1.0);
-    sprite.x = position[xpos] * this.r.width;
+    sprite.x = (position[xpos] * 0.7 + 0.15) * this.r.width;
     sprite.y = this.r.height;
   }
 
