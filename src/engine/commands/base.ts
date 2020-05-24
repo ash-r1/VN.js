@@ -7,9 +7,10 @@ import tickPromise from './tickPromise';
 export interface LayerProps {
   x?: number;
   y?: number;
-  alpha?: number;
   width?: number;
   height?: number;
+  alpha?: number;
+  scale?: number;
   // TODO: angle
   // TODO: filter, filterArea
   // TODO: localTransform
@@ -26,6 +27,9 @@ export default abstract class Base {
         layer[property] = props[property];
       }
     });
+    if (props.scale) {
+      layer.scale.set(props.scale, props.scale);
+    }
   }
 
   protected async fadeIn(

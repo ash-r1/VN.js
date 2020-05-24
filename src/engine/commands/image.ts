@@ -12,6 +12,7 @@ export interface ShowOption extends ShowHideOption {
   on?: layerName;
   x?: number;
   y?: number;
+  scale?: number;
 }
 type HideOption = ShowHideOption;
 
@@ -28,6 +29,7 @@ export default class Image extends Base {
     return await this.show('bg', src, {
       x: this.r.width / 2,
       y: this.r.height / 2,
+      scale: 1.05,
       ...options,
       on: 'bg',
     });
@@ -36,13 +38,13 @@ export default class Image extends Base {
   async show(
     name: string,
     src: string,
-    { duration = 500, x = 0, y = 0, on = 'fg' }: ShowOption
+    { duration = 500, on = 'fg', ...option }: ShowOption
   ): Promise<Result> {
     // TODO: cross-fade if same name image already exists?
     const resource = await this.r.load(src);
     const layer = new PIXI.Sprite(resource.texture);
     layer.anchor.set(0.5, 0.5);
-    this.setLayerProps(layer, { x, y, alpha: 0 });
+    this.setLayerProps(layer, { ...option, alpha: 0 });
     await this.r.AddLayer(layer, on);
     await this.fadeIn(layer, duration);
     this.layers.set(name, { layer, on });
