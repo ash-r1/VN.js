@@ -20,6 +20,10 @@ export interface LayerProps {
 export default abstract class Base {
   constructor(protected r: Renderer) {}
 
+  protected get center(): PIXI.Point {
+    return new PIXI.Point(this.r.width / 2.0, this.r.height / 2.0);
+  }
+
   protected setLayerProps(layer: PIXI.DisplayObject, props: LayerProps) {
     // TODO: make it typesafe-implementation
     ['x', 'y', 'width', 'height', 'alpha'].forEach((property) => {
