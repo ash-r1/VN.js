@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
+import Camera from './commands/camera';
 import Character from './commands/character';
 import Image from './commands/image';
 import Message from './commands/message';
@@ -42,11 +43,12 @@ const baseFrames = [
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
  */
 export default class Game {
+  private ee: EventEmitter;
   readonly image: Image;
   readonly message: Message;
   readonly ktk: Character;
   readonly krn: Character;
-  private ee: EventEmitter;
+  private camera: Camera;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
@@ -54,6 +56,7 @@ export default class Game {
     this.message = new Message(renderer, ee);
     this.ktk = new Character(renderer, ee, 'ktk', baseFrames);
     this.krn = new Character(renderer, ee, 'krn', baseFrames);
+    this.camera = new Camera(renderer, ee);
 
     // configure click/tap
     this.ee = ee;

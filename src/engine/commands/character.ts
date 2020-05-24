@@ -24,7 +24,7 @@ type Position =
   | 'rightl4'
   | 'rightr4';
 
-const position: Record<Position, number> = {
+export const position: Record<Position, number> = {
   mleft: 0.2,
   mright: 0.8,
   center: 0.5,
@@ -36,10 +36,28 @@ const position: Record<Position, number> = {
   rightr4: 0.95,
 };
 
-const SHOW = '@character/SHOW';
-const HIDE = '@character/HIDE';
-const MOVE = '@character/MOVE';
-const CHANGE = '@character/CHANGE';
+export interface Face {
+  code: string;
+  blink?: boolean;
+}
+
+export const SHOW = '@character/SHOW';
+export const HIDE = '@character/HIDE';
+export const MOVE = '@character/MOVE';
+export const CHANGE = '@character/CHANGE';
+export interface ShowEvent {
+  name: string;
+  face: Face;
+  xpos: Position;
+}
+export interface HideEvent {
+  name: string;
+}
+export interface MoveEvent {
+  name: string;
+  xpos: Position;
+}
+export type ChangeEvent = ShowEvent;
 
 export interface ShowHideOption {
   duration?: number;
@@ -53,11 +71,6 @@ type HideOption = ShowHideOption;
 
 export interface MoveOption {
   duration?: number;
-}
-
-export interface Face {
-  code: string;
-  blink?: boolean;
 }
 
 type CharacterSprite = PIXI.Sprite | BlinkAnimationSprite;
@@ -209,7 +222,8 @@ export default class Character extends Base {
       const x = position[xpos] * this.r.width;
       await this.moveTo(this.sprite, { x }, duration);
       this.xpos = xpos;
-      this.ee.emit(MOVE, { name: this.name, xpos });
+      const ev: MoveEvent = { name: this.name, xpos };
+      this.ee.emit(MOVE, ev);
     }
 
     return {
@@ -234,13 +248,23 @@ export default class Character extends Base {
         await this.move(xpos, {});
       }
       nextSprite = await this.crossfade(face, duration);
-      this.ee.emit(CHANGE, { name: this.name, face });
+      const ev: ChangeEvent = {
+        name: this.name,
+        face,
+        xpos: this.xpos,
+      };
+      this.ee.emit(CHANGE, ev);
     } else {
       if (xpos) {
         this.xpos = xpos;
       }
       nextSprite = await this.showIntl(face, duration, this.xpos);
-      this.ee.emit(SHOW, { name: this.name, face });
+      const ev: ShowEvent = {
+        name: this.name,
+        face,
+        xpos: this.xpos,
+      };
+      this.ee.emit(SHOW, ev);
     }
 
     if (nextSprite instanceof BlinkAnimationSprite) {

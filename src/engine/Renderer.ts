@@ -26,7 +26,7 @@ export default class Renderer {
   // TODO: wrap this ticker... ?
   readonly ticker: PIXI.Ticker;
 
-  private layers: Layers;
+  layers: Layers;
 
   constructor(private app: PIXI.Application) {
     this.loader = app.loader;
