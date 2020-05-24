@@ -15,13 +15,12 @@ export default class Crossfade extends PIXI.Sprite {
     this.weightedAverageFilter = new WeightedAverageFilter(toSprite);
     this.filters = [this.weightedAverageFilter];
 
-    this.resetFadeSpritePos();
+    this.resetFilterTransform();
   }
 
-  resetFadeSpritePos() {
+  resetFilterTransform() {
     this.weightedAverageFilter.otherSprite.anchor = this.anchor;
-    this.weightedAverageFilter.otherSprite.x = this.x;
-    this.weightedAverageFilter.otherSprite.y = this.y;
+    this.weightedAverageFilter.worldTransform = this.worldTransform;
   }
 
   nextFade(nextTexture: PIXI.Texture) {
@@ -52,6 +51,7 @@ export default class Crossfade extends PIXI.Sprite {
 // override render to call resetFadeSpritePos
 const originalRender = Crossfade.prototype.render;
 Crossfade.prototype.render = function (this: Crossfade, renderer) {
-  this.resetFadeSpritePos();
+  this.resetFilterTransform();
+
   originalRender.bind(this)(renderer);
 };

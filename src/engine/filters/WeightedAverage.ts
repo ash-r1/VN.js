@@ -6,6 +6,7 @@ import fragment from './weightedAverage.frag';
 export class WeightedAverageFilter extends PIXI.Filter {
   readonly otherSprite: PIXI.Sprite;
   private maskMatrix: PIXI.Matrix;
+  public worldTransform: PIXI.Matrix;
   public weight: number;
 
   constructor(otherSprite: PIXI.Sprite, weight = 0) {
@@ -21,6 +22,7 @@ export class WeightedAverageFilter extends PIXI.Filter {
     this.weight = weight;
     this.otherSprite = otherSprite;
     this.maskMatrix = maskMatrix;
+    this.worldTransform = new PIXI.Matrix();
   }
 
   public apply(
@@ -28,15 +30,16 @@ export class WeightedAverageFilter extends PIXI.Filter {
     input: PIXI.RenderTexture,
     output: PIXI.RenderTexture
   ): void {
+    const { width, height } = this.otherSprite;
     const filterMatrix = filterManager.calculateSpriteMatrix(
       this.maskMatrix,
       this.otherSprite
     );
     this.uniforms.weight = this.weight;
-    this.uniforms.filterMatrix = filterMatrix;
-    const x = this.otherSprite.x / this.otherSprite.width;
-    const y = this.otherSprite.y / this.otherSprite.height;
-    this.uniforms.otherPos = new Float32Array([x, y]);
+    this.uniforms.filterMatrix = filterMatrix.translate(
+      -this.worldTransform.tx / width,
+      -this.worldTransform.ty / height
+    );
     filterManager.applyFilter(this, input, output, false);
   }
 }
