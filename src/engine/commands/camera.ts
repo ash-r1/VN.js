@@ -9,6 +9,8 @@ import Crossfade from '../layer/Crossfade';
 import { layerName } from '../Renderer';
 import Base from './base';
 import {
+  CHANGE,
+  ChangeEvent,
   HIDE,
   HideEvent,
   MOVE,
@@ -33,6 +35,7 @@ export default class Camera extends Base {
     ee.on(SHOW, this.onShow);
     ee.on(HIDE, this.onHide);
     ee.on(MOVE, this.onMove);
+    ee.on(CHANGE, this.onChange);
   }
 
   onShow = (ev: ShowEvent) => {
@@ -43,6 +46,10 @@ export default class Camera extends Base {
 
   onHide = (ev: HideEvent) => {
     console.log(`hide: ${ev.name}`);
+  };
+
+  onChange = (ev: ChangeEvent) => {
+    this.moveCameraTo(position[ev.xpos] * this.r.width);
   };
 
   onMove = (ev: MoveEvent) => {
