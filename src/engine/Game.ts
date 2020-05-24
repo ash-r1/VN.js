@@ -8,7 +8,12 @@ import Message from './commands/message';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
+// internal event
+const ONCLICK = '@intl/onclick';
+
+// public events which can be used by commands
 export const NEXT = '@next';
+export const WAIT = '@wait';
 
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
@@ -50,11 +55,11 @@ export default class Game {
     this.ee = ee;
     responder.on('click', () => {
       console.log('clicked');
-      this.ee.emit(NEXT);
+      this.ee.emit(ONCLICK);
     });
     // TODO: tap? touchstart?
     responder.on('tap', () => {
-      this.ee.emit(NEXT);
+      this.ee.emit(ONCLICK);
     });
   }
 
@@ -62,7 +67,7 @@ export default class Game {
 
   waitNext(): Promise<void> {
     return new Promise((resolve) => {
-      this.ee.once(NEXT, resolve);
+      this.ee.once(ONCLICK, resolve);
     });
   }
 
@@ -79,9 +84,11 @@ export default class Game {
         // do command
         const result = await value;
         if (result.shouldWait) {
-          await this.renderer.showWaiting();
+          //await this.renderer.showWaiting();
+          this.ee.emit(WAIT);
           await this.waitNext();
-          await this.renderer.hideWaiting();
+          this.ee.emit(NEXT);
+          //await this.renderer.hideWaiting();
         }
         continue;
       }

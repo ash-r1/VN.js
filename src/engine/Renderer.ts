@@ -27,8 +27,6 @@ export default class Renderer {
   readonly ticker: PIXI.Ticker;
 
   private layers: Layers;
-  private waiting?: PIXI.DisplayObject;
-  private waitingTime: number;
 
   constructor(private app: PIXI.Application) {
     this.loader = app.loader;
@@ -52,8 +50,6 @@ export default class Renderer {
       fg,
       ui,
     };
-
-    this.waitingTime = 0;
   }
 
   load(src: string): Promise<PIXI.LoaderResource> {
@@ -127,43 +123,4 @@ export default class Renderer {
   get height(): number {
     return this.app.screen.height;
   }
-
-  /* ==========
-   * waiting
-   * ========== */
-
-  async showWaiting() {
-    // TODO: split to other. may subscribe Game's onclick/clickwait event
-    const src = 'ui/waiting-gliff.png';
-    if (!this.waiting) {
-      const resource = await this.load(src);
-      const sprite = new PIXI.Sprite(resource.texture);
-      sprite.name = '@waiting';
-      this.app.stage.addChild(sprite);
-      sprite.alpha = 0.0;
-      sprite.x = 1860;
-      sprite.y = 1020;
-      this.waiting = sprite;
-      this.waitingTime = 0;
-      this.ticker.add(this.animateWaiting);
-    }
-  }
-
-  async hideWaiting() {
-    if (this.waiting) {
-      this.app.stage.removeChild(this.waiting);
-      this.waiting = undefined;
-      this.ticker.remove(this.animateWaiting);
-    }
-  }
-
-  private animateWaiting = (t: number) => {
-    if (!this.waiting) {
-      return;
-    }
-
-    this.waitingTime += t * this.ticker.deltaMS;
-    const alpha = Math.abs(Math.sin(this.waitingTime / 800));
-    this.waiting.alpha = alpha;
-  };
 }

@@ -1,8 +1,10 @@
+import * as PIXI from 'pixi.js';
+
 import EventEmitter from 'eventemitter3';
 
 import Renderer from 'src/engine/Renderer';
 
-import { NEXT } from '../Game';
+import { NEXT, WAIT } from '../Game';
 import MessageBox from '../layer/MessageBox';
 import Base from './base';
 import { Result } from './command';
@@ -12,6 +14,7 @@ export interface ShowHideOption {
 }
 
 const ON_LAYER = 'ui';
+const WAITING_GLYPH = 'ui/waiting-gliff.png';
 
 export interface ShowOption extends ShowHideOption {
   x?: number;
@@ -21,8 +24,14 @@ type HideOption = ShowHideOption;
 
 export default class Message extends Base {
   private messageBox?: MessageBox;
+  private waiting?: PIXI.DisplayObject;
+  private waitingTime = 0;
+
   constructor(r: Renderer, private ee: EventEmitter) {
     super(r);
+
+    this.ee.on(WAIT, this.showWaiting);
+    this.ee.on(NEXT, this.hideWaiting);
   }
 
   clearText = () => {
@@ -70,4 +79,37 @@ export default class Message extends Base {
       shouldWait: false,
     };
   }
+
+  showWaiting = async () => {
+    // TODO: split to other. may subscribe Game's onclick/clickwait even
+    if (!this.waiting) {
+      const res = await this.r.load(WAITING_GLYPH);
+      const sprite = new PIXI.Sprite(res.texture);
+      this.r.AddLayer(sprite, ON_LAYER);
+      sprite.alpha = 0.0;
+      sprite.x = 1860;
+      sprite.y = 1020;
+      this.waiting = sprite;
+      this.waitingTime = 0;
+      this.r.ticker.add(this.animateWaiting);
+    }
+  };
+
+  hideWaiting = async () => {
+    if (this.waiting) {
+      this.r.RemoveLayer(this.waiting, ON_LAYER);
+      this.waiting = undefined;
+      this.r.ticker.remove(this.animateWaiting);
+    }
+  };
+
+  private animateWaiting = (t: number) => {
+    if (!this.waiting) {
+      return;
+    }
+
+    this.waitingTime += t * this.r.ticker.deltaMS;
+    const alpha = Math.abs(Math.sin(this.waitingTime / 800));
+    this.waiting.alpha = alpha;
+  };
 }
