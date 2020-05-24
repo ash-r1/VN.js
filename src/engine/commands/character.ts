@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js';
 
+import EventEmitter from 'eventemitter3';
+
 import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
@@ -33,6 +35,11 @@ const position: Record<Position, number> = {
   rightl4: 0.65,
   rightr4: 0.95,
 };
+
+const SHOW = '@character/SHOW';
+const HIDE = '@character/HIDE';
+const MOVE = '@character/MOVE';
+const CHANGE = '@character/CHANGE';
 
 export interface ShowHideOption {
   duration?: number;
@@ -74,7 +81,12 @@ export default class Character extends Base {
   defaultHideDuration = 300;
   defaultMoveDuration = 300;
 
-  constructor(r: Renderer, private name: string, faces: Face[]) {
+  constructor(
+    r: Renderer,
+    private ee: EventEmitter,
+    private name: string,
+    faces: Face[]
+  ) {
     super(r);
     this.faces = faces.reduce((prev: Record<string, Face>, current: Face) => {
       return { ...prev, [current.code]: current };
@@ -197,6 +209,7 @@ export default class Character extends Base {
       const x = position[xpos] * this.r.width;
       await this.moveTo(this.sprite, { x }, duration);
       this.xpos = xpos;
+      this.ee.emit(MOVE, { name: this.name, xpos });
     }
 
     return {
@@ -221,11 +234,13 @@ export default class Character extends Base {
         await this.move(xpos, {});
       }
       nextSprite = await this.crossfade(face, duration);
+      this.ee.emit(CHANGE, { name: this.name, face });
     } else {
       if (xpos) {
         this.xpos = xpos;
       }
       nextSprite = await this.showIntl(face, duration, this.xpos);
+      this.ee.emit(SHOW, { name: this.name, face });
     }
 
     if (nextSprite instanceof BlinkAnimationSprite) {
@@ -245,6 +260,7 @@ export default class Character extends Base {
       await this.fadeOut(this.sprite, duration);
       await this.r.RemoveLayer(this.sprite, ON);
       this.sprite = undefined;
+      this.ee.emit(HIDE, { name: this.name });
     }
     this.zIndex = defaultZIndex;
     return {

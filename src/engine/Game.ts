@@ -52,8 +52,8 @@ export default class Game {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
     this.message = new Message(renderer, ee);
-    this.ktk = new Character(renderer, 'ktk', baseFrames);
-    this.krn = new Character(renderer, 'krn', baseFrames);
+    this.ktk = new Character(renderer, ee, 'ktk', baseFrames);
+    this.krn = new Character(renderer, ee, 'krn', baseFrames);
 
     // configure click/tap
     this.ee = ee;
