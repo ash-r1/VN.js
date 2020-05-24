@@ -4,6 +4,7 @@ import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Camera from './commands/camera';
 import Character from './commands/character';
+import Filter from './commands/filter';
 import Image from './commands/image';
 import Message from './commands/message';
 import Sound from './commands/sound';
@@ -58,6 +59,7 @@ export default class Game {
   readonly kyu: Character;
   readonly icr: Character;
   readonly camera: Camera;
+  readonly filter: Filter;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
@@ -76,6 +78,7 @@ export default class Game {
     this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
     this.icr = new Character(renderer, ee, 'icr', baseFrames);
     this.camera = new Camera(renderer, ee);
+    this.filter = new Filter(renderer);
 
     // configure click/tap
     this.ee = ee;
