@@ -5,6 +5,7 @@ import Renderer from 'src/engine/Renderer';
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
 import { layerName } from '../Renderer';
+import Base from './base';
 import { Result } from './command';
 import tickPromise from './tickPromise';
 
@@ -35,7 +36,6 @@ const position: Record<Position, number> = {
 
 export interface ShowHideOption {
   duration?: number;
-  on?: layerName;
 }
 
 export interface ShowOption extends ShowHideOption {
@@ -54,68 +54,54 @@ export interface Face {
 
 type CharacterSprite = PIXI.Sprite | BlinkAnimationSprite;
 
+type CharacterSize = 'md' | 'lg';
+
+const ON = 'fg';
+
 const imagePath = (name: string, size: string, code: string) =>
   `game/images/${name}/${name} ${size} ${code}.png`;
 
-export default class Character {
+export default class Character extends Base {
   private faces: Record<string, Face>;
   private xpos: Position = 'center';
   private sprite?: CharacterSprite;
+  private size: CharacterSize = 'lg';
   defaultShowDuration = 300;
   defaultHideDuration = 300;
   defaultMoveDuration = 300;
 
-  constructor(private r: Renderer, private name: string, faces: Face[]) {
+  constructor(r: Renderer, private name: string, faces: Face[]) {
+    super(r);
     this.faces = faces.reduce((prev: Record<string, Face>, current: Face) => {
       return { ...prev, [current.code]: current };
     }, {});
   }
 
-  allResources(): string[] {
-    return Object.values(this.faces)
-      .map((face) => this.pathsFor(face))
-      .reduce((prev: string[], current: string[]) => [...prev, ...current], []);
-  }
+  // allResources(): string[] {
+  //   return Object.values(this.faces)
+  //     .map((face) => this.pathsFor(face))
+  //     .reduce((prev: string[], current: string[]) => [...prev, ...current], []);
+  // }
 
   pathsFor(face: Face): string[] {
     if (face.blink) {
       // NOTE: normal, middle, close => a, c, b
       return ['a', 'c', 'b'].map((accessory) =>
-        imagePath(this.name, 'lg', `${face.code} ${accessory}`)
+        imagePath(this.name, this.size, `${face.code} ${accessory}`)
       );
     }
-    return [imagePath(this.name, 'lg', face.code)];
+    return [imagePath(this.name, this.size, face.code)];
   }
 
-  async loadAll() {
-    await this.r.loadMulti(this.allResources());
-  }
+  // async loadAll() {
+  //   await this.r.loadMulti(this.allResources());
+  // }
 
   async loadFor(face: Face): Promise<PIXI.LoaderResource[]> {
     const paths = this.pathsFor(face);
     const resourcesMap = await this.r.loadMulti(paths);
     return paths.map((path) => {
       return resourcesMap[path];
-    });
-  }
-
-  private async fadeIn(
-    name: string,
-    on: layerName,
-    duration: number
-  ): Promise<void> {
-    await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(name, on, { alpha: ratio });
-    });
-  }
-
-  private async fadeOut(
-    name: string,
-    on: layerName,
-    duration: number
-  ): Promise<void> {
-    await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(name, on, { alpha: 1 - ratio });
     });
   }
 
@@ -139,33 +125,32 @@ export default class Character {
   }
 
   private async crossfade(
-    sprite: CharacterSprite,
     face: Face,
-    duration: number,
-    on: layerName,
-    xpos: Position
+    duration: number
   ): Promise<CharacterSprite> {
-    if (sprite instanceof BlinkAnimationSprite) {
-      sprite.gotoAndStop(0);
+    if (!this.sprite) {
+      throw new Error(`character sprite not found (name=${this.name})`);
+    }
+
+    if (this.sprite instanceof BlinkAnimationSprite) {
+      this.sprite.gotoAndStop(0);
     }
 
     const resources = await this.loadFor(face);
 
-    this.r.RemoveLayer(this.name, on);
+    this.r.RemoveLayer(this.sprite, ON);
 
-    const crossfade = new Crossfade(sprite.texture);
-    crossfade.name = this.name;
-    this.setPos(crossfade, xpos);
-    this.r.AddLayer(crossfade, on);
+    const crossfade = new Crossfade(this.sprite.texture);
+    this.setPos(crossfade, this.xpos);
+    this.r.AddLayer(crossfade, ON);
 
     await crossfade.animate(resources[0].texture, duration);
 
-    this.r.RemoveLayer(this.name, on);
+    this.r.RemoveLayer(crossfade, ON);
 
     const nextSprite = await this.genSpriteFor(face);
-    nextSprite.name = this.name;
-    this.setPos(nextSprite, xpos);
-    this.r.AddLayer(nextSprite, on);
+    this.setPos(nextSprite, this.xpos);
+    this.r.AddLayer(nextSprite, ON);
 
     return nextSprite;
   }
@@ -179,7 +164,6 @@ export default class Character {
   private async showIntl(
     face: Face,
     duration: number,
-    on: layerName,
     xpos: Position
   ): Promise<CharacterSprite> {
     const sprite = await this.genSpriteFor(face);
@@ -187,10 +171,8 @@ export default class Character {
     sprite.alpha = 0.0;
     this.setPos(sprite, xpos);
 
-    await this.r.AddLayer(sprite, on);
-
-    // FIXME: refine how to get the layer to fadeIn ...
-    await this.fadeIn(this.name, on, duration);
+    await this.r.AddLayer(sprite, ON);
+    await this.fadeIn(sprite, duration);
 
     return sprite;
   }
@@ -225,7 +207,7 @@ export default class Character {
 
   async show(
     code: string,
-    { duration = this.defaultShowDuration, on = 'fg', xpos }: ShowOption
+    { duration = this.defaultShowDuration, xpos }: ShowOption
   ): Promise<Result> {
     const face = this.faces[code];
     if (!face) {
@@ -236,21 +218,12 @@ export default class Character {
       if (this.xpos != xpos && xpos) {
         await this.move(xpos, {});
       }
-      // TODO: move at first if needed
-
-      // TODO: keep it in own field
-      nextSprite = await this.crossfade(
-        this.sprite as CharacterSprite,
-        face,
-        duration,
-        on,
-        this.xpos
-      );
+      nextSprite = await this.crossfade(face, duration);
     } else {
       if (xpos) {
         this.xpos = xpos;
       }
-      nextSprite = await this.showIntl(face, duration, on, this.xpos);
+      nextSprite = await this.showIntl(face, duration, this.xpos);
     }
 
     if (nextSprite instanceof BlinkAnimationSprite) {
@@ -265,11 +238,12 @@ export default class Character {
 
   async hide({
     duration = this.defaultHideDuration,
-    on = 'fg',
   }: HideOption): Promise<Result> {
-    await this.fadeOut(this.name, on, duration);
-    await this.r.RemoveLayer(this.name, on);
-    this.sprite = undefined;
+    if (this.sprite) {
+      await this.fadeOut(this.sprite, duration);
+      await this.r.RemoveLayer(this.sprite, ON);
+      this.sprite = undefined;
+    }
     return {
       shouldWait: false,
     };

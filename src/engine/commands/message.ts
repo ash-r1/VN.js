@@ -4,14 +4,14 @@ import Renderer from 'src/engine/Renderer';
 
 import { NEXT } from '../Game';
 import MessageBox from '../layer/MessageBox';
+import Base from './base';
 import { Result } from './command';
-import tickPromise from './tickPromise';
 
 export interface ShowHideOption {
   duration?: number;
 }
 
-const MESSAGE = '@message';
+const ON_LAYER = 'ui';
 
 export interface ShowOption extends ShowHideOption {
   x?: number;
@@ -19,24 +19,13 @@ export interface ShowOption extends ShowHideOption {
 }
 type HideOption = ShowHideOption;
 
-export default class Message {
+export default class Message extends Base {
   private messageBox?: MessageBox;
-  constructor(private r: Renderer, private ee: EventEmitter) {}
-
-  private async fadeIn(duration: number): Promise<void> {
-    await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(MESSAGE, 'ui', { alpha: ratio });
-    });
+  constructor(r: Renderer, private ee: EventEmitter) {
+    super(r);
   }
 
-  private async fadeOut(duration: number): Promise<void> {
-    await tickPromise(this.r.ticker, duration, (ratio) => {
-      this.r.SetLayerProps(MESSAGE, 'ui', { alpha: 1 - ratio });
-    });
-  }
-
-  cleanup = () => {
-    //
+  clearText = () => {
     if (this.messageBox) {
       this.messageBox.clearText();
     }
@@ -45,19 +34,18 @@ export default class Message {
   async show(text: string, { duration = 500 }: ShowOption): Promise<Result> {
     if (!this.messageBox) {
       const messageBox = await MessageBox.init(this.r);
-      messageBox.name = MESSAGE;
-      messageBox.alpha = 0.0;
+      // TODO: Fix magic number
       messageBox.y = 620;
-      await this.r.AddLayer(messageBox, 'ui');
-
-      await this.fadeIn(duration);
+      messageBox.alpha = 0.0;
+      await this.r.AddLayer(messageBox, ON_LAYER);
+      await this.fadeIn(messageBox, duration);
       this.messageBox = messageBox;
     }
 
     await this.messageBox.animateText(text);
-    console.log(text);
 
-    this.ee.once(NEXT, this.cleanup);
+    // clean up after clickwait
+    this.ee.once(NEXT, this.clearText);
 
     return {
       shouldWait: true,
@@ -65,9 +53,19 @@ export default class Message {
   }
 
   async hide({ duration = 500 }: HideOption): Promise<Result> {
-    await this.fadeOut(duration);
-    await this.r.RemoveLayer(MESSAGE, 'ui');
+    if (this.messageBox) {
+      await this.fadeOut(this.messageBox, duration);
+      await this.r.RemoveLayer(this.messageBox, ON_LAYER);
+      this.messageBox = undefined;
+    }
 
+    return {
+      shouldWait: false,
+    };
+  }
+
+  async clear(): Promise<Result> {
+    this.clearText();
     return {
       shouldWait: false,
     };

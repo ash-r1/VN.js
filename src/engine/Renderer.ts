@@ -1,29 +1,7 @@
 import * as PIXI from 'pixi.js';
 
-export interface LayerProps {
-  x?: number;
-  y?: number;
-  alpha?: number;
-  width?: number;
-  height?: number;
-  // TODO: angle
-  // TODO: filter, filterArea
-  // TODO: localTransform
-  // TODO: rotation
-}
-
-export const setLayerProps = (layer: PIXI.DisplayObject, props: LayerProps) => {
-  // TODO: make it typesafe-implementation
-  ['x', 'y', 'width', 'height', 'alpha'].forEach((property) => {
-    if (props[property]) {
-      layer[property] = props[property];
-    }
-  });
-};
-
-export type AddImageProps = LayerProps;
-
 interface Layers {
+  world: PIXI.Container;
   bg: PIXI.Container;
   fg: PIXI.Container;
   ui: PIXI.Container;
@@ -56,19 +34,20 @@ export default class Renderer {
     this.loader = app.loader;
     this.ticker = app.ticker;
 
+    const world = new PIXI.Container();
+    this.app.stage.addChild(world);
+
     const bg = new PIXI.Container();
-    bg.name = '@bg';
-    this.app.stage.addChild(bg);
+    world.addChild(bg);
 
     const fg = new PIXI.Container();
-    fg.name = '@fg';
-    this.app.stage.addChild(fg);
+    world.addChild(fg);
 
     const ui = new PIXI.Container();
-    ui.name = '@ui';
     this.app.stage.addChild(ui);
 
     this.layers = {
+      world,
       bg,
       fg,
       ui,
@@ -102,6 +81,8 @@ export default class Renderer {
         return !res;
       });
 
+      // TODO return immediately if all resoures are cached
+
       const srcSet = new Set(srcListToLoad);
       const addedLoader = Array.from(srcSet).reduce((loader, src) => {
         return loader.add(src, src);
@@ -122,53 +103,21 @@ export default class Renderer {
     });
   }
 
-  AddLayer(layer: PIXI.DisplayObject, on: layerName): PIXI.DisplayObject {
+  AddLayer(layer: PIXI.DisplayObject, on: layerName): void {
     const parent = this.layers[on];
     parent.addChild(layer);
 
-    return parent;
+    return;
   }
 
-  GetLayer(name: string, on: layerName): PIXI.DisplayObject {
-    const parent = this.layers[on];
-    const sprite = parent.getChildByName(name);
-    return sprite;
-  }
-
-  HasLayer(name: string, on: layerName): boolean {
-    const sprite = this.GetLayer(name, on);
-    return !!sprite;
-  }
-
-  RemoveLayer(name: string, on: layerName): boolean {
+  RemoveLayer(layer: PIXI.DisplayObject, on: layerName): boolean {
     const parent = this.layers[on];
 
-    const sprite = parent.getChildByName(name);
-    if (!sprite) {
-      return false;
+    if (parent.children.includes(layer)) {
+      parent.removeChild(layer);
+      return true;
     }
-
-    parent.removeChild(sprite);
-
-    return true;
-  }
-
-  // TODO: change
-  async SetLayerProps(
-    name: string,
-    on: layerName,
-    props: LayerProps
-  ): Promise<boolean> {
-    const parent = this.layers[on];
-
-    const sprite = parent.getChildByName(name);
-    if (!sprite) {
-      return false;
-    }
-
-    setLayerProps(sprite, props);
-
-    return true;
+    return false;
   }
 
   get width(): number {
