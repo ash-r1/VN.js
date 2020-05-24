@@ -57,6 +57,9 @@ export default class Character {
   private faces: Record<string, Face>;
   private xpos: Position = 'center';
   private sprite?: CharacterSprite;
+  defaultShowDuration = 300;
+  defaultHideDuration = 300;
+  defaultMoveDuration = 300;
 
   constructor(private r: Renderer, private name: string, faces: Face[]) {
     this.faces = faces.reduce((prev: Record<string, Face>, current: Face) => {
@@ -188,9 +191,37 @@ export default class Character {
     return sprite;
   }
 
+  async move(
+    xpos: Position,
+    duration = this.defaultMoveDuration
+  ): Promise<Result> {
+    // TODO: move, 移動のdurationも指定できる？ showでの自動移動は固定値になる感じで別にいいかな…
+    if (!this.sprite) {
+      throw new Error(`Character(${this.name}) is not shown`);
+    }
+
+    if (xpos != this.xpos) {
+      const start = position[this.xpos] * this.r.width;
+      const end = position[xpos] * this.r.width;
+      await tickPromise(this.r.ticker, duration, (rate) => {
+        if (this.sprite) {
+          this.sprite.x = (1 - rate) * start + rate * end;
+        } else {
+          console.error(`sprite not found for ${this.name}`);
+        }
+      });
+
+      this.xpos = xpos;
+    }
+
+    return {
+      shouldWait: false,
+    };
+  }
+
   async show(
     code: string,
-    { duration = 300, on = 'fg', xpos }: ShowOption
+    { duration = this.defaultShowDuration, on = 'fg', xpos }: ShowOption
   ): Promise<Result> {
     const face = this.faces[code];
     if (!face) {
@@ -225,9 +256,13 @@ export default class Character {
     };
   }
 
-  async hide({ duration = 300, on = 'fg' }: HideOption): Promise<Result> {
+  async hide({
+    duration = this.defaultHideDuration,
+    on = 'fg',
+  }: HideOption): Promise<Result> {
     await this.fadeOut(this.name, on, duration);
     await this.r.RemoveLayer(this.name, on);
+    this.sprite = undefined;
     return {
       shouldWait: false,
     };
