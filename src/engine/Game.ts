@@ -16,7 +16,7 @@ const ONCLICK = '@intl/onclick';
 export const NEXT = '@core/next';
 export const WAIT = '@core/wait';
 
-const baseFrames = [
+const commonFrames = [
   {
     code: 'a01',
     blink: true,
@@ -33,6 +33,10 @@ const baseFrames = [
     code: 'a04',
     blink: true,
   },
+];
+
+const baseFrames = [
+  ...commonFrames,
   {
     code: 'a05',
     blink: true,
@@ -46,16 +50,28 @@ export default class Game {
   private ee: EventEmitter;
   readonly image: Image;
   readonly message: Message;
+  readonly srt: Character;
   readonly ktk: Character;
   readonly krn: Character;
+  readonly kyu: Character;
+  readonly icr: Character;
   private camera: Camera;
 
   constructor(private renderer: Renderer, private responder: Responder) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
     this.message = new Message(renderer, ee);
+    this.srt = new Character(renderer, ee, 'srt', [
+      ...commonFrames,
+      {
+        code: 'a05a',
+        filename: 'a05 a',
+      },
+    ]);
     this.ktk = new Character(renderer, ee, 'ktk', baseFrames);
     this.krn = new Character(renderer, ee, 'krn', baseFrames);
+    this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
+    this.icr = new Character(renderer, ee, 'icr', baseFrames);
     this.camera = new Camera(renderer, ee);
 
     // configure click/tap
