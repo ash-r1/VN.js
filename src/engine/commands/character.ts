@@ -43,6 +43,10 @@ export interface ShowOption extends ShowHideOption {
 }
 type HideOption = ShowHideOption;
 
+export interface MoveOption {
+  duration?: number;
+}
+
 export interface Face {
   code: string;
   blink?: boolean;
@@ -193,7 +197,7 @@ export default class Character {
 
   async move(
     xpos: Position,
-    duration = this.defaultMoveDuration
+    { duration = this.defaultMoveDuration }: MoveOption
   ): Promise<Result> {
     // TODO: move, 移動のdurationも指定できる？ showでの自動移動は固定値になる感じで別にいいかな…
     if (!this.sprite) {
@@ -227,11 +231,11 @@ export default class Character {
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
     }
-    if (xpos) {
-      this.xpos = xpos;
-    }
     let nextSprite: CharacterSprite;
     if (this.sprite) {
+      if (this.xpos != xpos && xpos) {
+        await this.move(xpos, {});
+      }
       // TODO: move at first if needed
 
       // TODO: keep it in own field
@@ -243,6 +247,9 @@ export default class Character {
         this.xpos
       );
     } else {
+      if (xpos) {
+        this.xpos = xpos;
+      }
       nextSprite = await this.showIntl(face, duration, on, this.xpos);
     }
 
