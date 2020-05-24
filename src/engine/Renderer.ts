@@ -39,6 +39,7 @@ export default class Renderer {
     world.addChild(bg);
 
     const fg = new PIXI.Container();
+    fg.sortableChildren = true;
     world.addChild(fg);
 
     const ui = new PIXI.Container();
@@ -99,9 +100,13 @@ export default class Renderer {
     });
   }
 
-  AddLayer(layer: PIXI.DisplayObject, on: layerName): void {
+  AddLayer(layer: PIXI.DisplayObject, on: layerName, index?: number): void {
     const parent = this.layers[on];
-    parent.addChild(layer);
+    if (index) {
+      parent.addChildAt(layer, index);
+    } else {
+      parent.addChild(layer);
+    }
 
     return;
   }
@@ -114,6 +119,20 @@ export default class Renderer {
       return true;
     }
     return false;
+  }
+
+  GetLayerIndex(layer: PIXI.DisplayObject, on: layerName): number | undefined {
+    const parent = this.layers[on];
+
+    if (parent.children.includes(layer)) {
+      return parent.getChildIndex(layer);
+    }
+    return undefined;
+  }
+
+  sortLayers(on: layerName) {
+    const parent = this.layers[on];
+    parent.sortChildren();
   }
 
   get width(): number {

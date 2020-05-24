@@ -40,6 +40,7 @@ export interface ShowHideOption {
 
 export interface ShowOption extends ShowHideOption {
   xpos?: Position;
+  zIndex?: number;
 }
 type HideOption = ShowHideOption;
 
@@ -61,11 +62,14 @@ const ON = 'fg';
 const imagePath = (name: string, size: string, code: string) =>
   `game/images/${name}/${name} ${size} ${code}.png`;
 
+const defaultZIndex = 0;
+
 export default class Character extends Base {
   private faces: Record<string, Face>;
   private xpos: Position = 'center';
   private sprite?: CharacterSprite;
   private size: CharacterSize = 'lg';
+  private zIndex = defaultZIndex;
   defaultShowDuration = 300;
   defaultHideDuration = 300;
   defaultMoveDuration = 300;
@@ -143,6 +147,8 @@ export default class Character extends Base {
     const crossfade = new Crossfade(this.sprite.texture);
     this.setPos(crossfade, this.xpos);
     this.r.AddLayer(crossfade, ON);
+    crossfade.zIndex = this.zIndex;
+    this.r.sortLayers(ON);
 
     await crossfade.animate(resources[0].texture, duration);
 
@@ -151,6 +157,7 @@ export default class Character extends Base {
     const nextSprite = await this.genSpriteFor(face);
     this.setPos(nextSprite, this.xpos);
     this.r.AddLayer(nextSprite, ON);
+    nextSprite.zIndex = this.zIndex;
 
     return nextSprite;
   }
@@ -169,6 +176,7 @@ export default class Character extends Base {
     const sprite = await this.genSpriteFor(face);
     sprite.name = this.name;
     sprite.alpha = 0.0;
+    sprite.zIndex = this.zIndex;
     this.setPos(sprite, xpos);
 
     await this.r.AddLayer(sprite, ON);
@@ -198,11 +206,14 @@ export default class Character extends Base {
 
   async show(
     code: string,
-    { duration = this.defaultShowDuration, xpos }: ShowOption
+    { duration = this.defaultShowDuration, xpos, zIndex }: ShowOption
   ): Promise<Result> {
     const face = this.faces[code];
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
+    }
+    if (zIndex) {
+      this.zIndex = zIndex;
     }
     let nextSprite: CharacterSprite;
     if (this.sprite) {
@@ -234,6 +245,17 @@ export default class Character extends Base {
       await this.fadeOut(this.sprite, duration);
       await this.r.RemoveLayer(this.sprite, ON);
       this.sprite = undefined;
+    }
+    this.zIndex = defaultZIndex;
+    return {
+      shouldWait: false,
+    };
+  }
+
+  async order(zIndex: number): Promise<Result> {
+    if (this.sprite) {
+      this.sprite.zIndex = zIndex;
+      this.zIndex = zIndex;
     }
     return {
       shouldWait: false,
