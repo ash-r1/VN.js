@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 
+import { CRTFilter, CRTFilterOptions } from '@pixi/filter-crt';
 import { GodrayFilter } from '@pixi/filter-godray';
 import {
   ShockwaveFilter,
@@ -35,9 +36,36 @@ export interface ShockwaveOptions extends ShockwaveFilterOptions {
   loopAt?: number;
 }
 
+export type CRTOptions = CRTFilterOptions;
+
 export default class Filter extends Base {
   async reset(on: layerName): Promise<Result> {
     this.r.layers[on].filters = [];
+    return {
+      shouldWait: false,
+    };
+  }
+
+  async crt(on: layerName, { ...options }: CRTOptions): Promise<Result> {
+    const filter = new CRTFilter(options);
+
+    this.r.layers[on].filters = [filter];
+    const { ticker } = this.r;
+    let t = 0;
+    const tick = (delta: number) => {
+      const ms = delta * ticker.deltaMS;
+      t += ms;
+      filter.time = t / 100;
+
+      // remove itself automatically after removed
+      if (!this.r.layers[on].filters.includes(filter)) {
+        ticker.remove(tick);
+        return;
+      }
+      // TODO: can we capsulate this method?
+    };
+    ticker.add(tick);
+
     return {
       shouldWait: false,
     };
