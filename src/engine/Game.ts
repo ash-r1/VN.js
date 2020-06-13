@@ -3,6 +3,8 @@ import EventEmitter from 'eventemitter3';
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Image from './commands/image';
+import Message from './commands/message';
+import { WAITING_GLYPH } from './commands/message';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -46,6 +48,7 @@ const baseFrames = [
 export default class Game {
   private ee: EventEmitter;
   readonly image: Image;
+  readonly message: Message;
 
   constructor(
     private loader: PIXI.Loader,
@@ -54,6 +57,7 @@ export default class Game {
   ) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
+    this.message = new Message(renderer, ee);
 
     // configure click/tap
     this.ee = ee;
@@ -82,6 +86,9 @@ export default class Game {
     // Load All at first...
 
     // TODO: loading view
+
+    this.loader.add(WAITING_GLYPH);
+
     while (true) {
       const { value: command, done } = scenario.next();
       if (done) {
@@ -111,6 +118,8 @@ export default class Game {
   async run(generator: (game: Game) => ScenarioGenerator) {
     await this.loadAll(generator);
     // TODO: control race condition of loading ...?
+
+    this.message.texture = this.loader.resources[WAITING_GLYPH].texture;
 
     const scenario = generator(this);
 

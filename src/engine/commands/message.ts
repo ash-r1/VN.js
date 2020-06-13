@@ -7,14 +7,14 @@ import Renderer from 'src/engine/Renderer';
 import { NEXT, WAIT } from '../Game';
 import MessageBox from '../layer/MessageBox';
 import Base from './base';
-import { Result } from './command';
+import { Command, NoResourceCommand } from './command';
 
 export interface ShowHideOption {
   duration?: number;
 }
 
 const ON_LAYER = 'ui';
-const WAITING_GLYPH = 'ui/waiting-gliff.png';
+export const WAITING_GLYPH = 'ui/waiting-gliff.png';
 
 export interface ShowOption extends ShowHideOption {
   x?: number;
@@ -26,6 +26,7 @@ export default class Message extends Base {
   private messageBox?: MessageBox;
   private waiting?: PIXI.DisplayObject;
   private waitingTime = 0;
+  public texture?: PIXI.Texture;
 
   constructor(r: Renderer, private ee: EventEmitter) {
     super(r);
@@ -40,51 +41,51 @@ export default class Message extends Base {
     }
   };
 
-  async show(text: string, { duration = 500 }: ShowOption): Promise<Result> {
-    if (!this.messageBox) {
-      const messageBox = await MessageBox.init(this.r);
-      // TODO: Fix magic number
-      messageBox.y = 620;
-      messageBox.alpha = 0.0;
-      await this.r.AddLayer(messageBox, ON_LAYER);
-      await this.fadeIn(messageBox, duration);
-      this.messageBox = messageBox;
-    }
+  show(text: string, { duration = 500 }: ShowOption): Command {
+    const src = 'game/textbox.png';
+    return new Command(src, async (resources) => {
+      if (!this.messageBox) {
+        const resource = resources[src];
+        const messageBox = new MessageBox(resource.texture);
+        // TODO: Fix magic number
+        messageBox.y = 620;
+        messageBox.alpha = 0.0;
+        await this.r.AddLayer(messageBox, ON_LAYER);
+        await this.fadeIn(messageBox, duration);
+        this.messageBox = messageBox;
+      }
 
-    await this.messageBox.animateText(text);
+      await this.messageBox.animateText(text);
 
-    // clean up after clickwait
-    this.ee.once(NEXT, this.clearText);
+      // clean up after clickwait
+      this.ee.once(NEXT, this.clearText);
 
-    return {
-      shouldWait: true,
-    };
+      return {
+        wait: true,
+      };
+    });
   }
 
-  async hide({ duration = 500 }: HideOption): Promise<Result> {
-    if (this.messageBox) {
-      await this.fadeOut(this.messageBox, duration);
-      await this.r.RemoveLayer(this.messageBox, ON_LAYER);
-      this.messageBox = undefined;
-    }
-
-    return {
-      shouldWait: false,
-    };
+  hide({ duration = 500 }: HideOption): Command {
+    return new NoResourceCommand(async () => {
+      if (this.messageBox) {
+        await this.fadeOut(this.messageBox, duration);
+        await this.r.RemoveLayer(this.messageBox, ON_LAYER);
+        this.messageBox = undefined;
+      }
+    });
   }
 
-  async clear(): Promise<Result> {
-    this.clearText();
-    return {
-      shouldWait: false,
-    };
+  clear(): Command {
+    return new NoResourceCommand(async () => {
+      this.clearText();
+    });
   }
 
   showWaiting = async () => {
     // TODO: split to other. may subscribe Game's onclick/clickwait even
     if (!this.waiting) {
-      const res = await this.r.load(WAITING_GLYPH);
-      const sprite = new PIXI.Sprite(res.texture);
+      const sprite = new PIXI.Sprite(this.texture);
       this.r.AddLayer(sprite, ON_LAYER);
       sprite.alpha = 0.0;
       sprite.x = 1860;

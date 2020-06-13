@@ -26,11 +26,6 @@ export default class MessageBox extends PIXI.Container {
     this.text = text;
   }
 
-  static async init(r: Renderer): Promise<MessageBox> {
-    const frame = await r.load('game/textbox.png');
-    return new MessageBox(frame.texture);
-  }
-
   async animateText(text: string) {
     // show text with interval
     this.text.text = text;
