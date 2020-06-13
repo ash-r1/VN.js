@@ -2,12 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
-import Camera from './commands/camera';
-import Character from './commands/character';
-import Filter from './commands/filter';
 import Image from './commands/image';
-import Message from './commands/message';
-import Sound from './commands/sound';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -51,34 +46,14 @@ const baseFrames = [
 export default class Game {
   private ee: EventEmitter;
   readonly image: Image;
-  readonly sound: Sound;
-  readonly message: Message;
-  readonly srt: Character;
-  readonly ktk: Character;
-  readonly krn: Character;
-  readonly kyu: Character;
-  readonly icr: Character;
-  readonly camera: Camera;
-  readonly filter: Filter;
 
-  constructor(private renderer: Renderer, private responder: Responder) {
+  constructor(
+    private loader: PIXI.Loader,
+    private renderer: Renderer,
+    private responder: Responder
+  ) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
-    this.sound = new Sound(renderer);
-    this.message = new Message(renderer, ee);
-    this.srt = new Character(renderer, ee, 'srt', [
-      ...commonFrames,
-      {
-        code: 'a05a',
-        filename: 'a05 a',
-      },
-    ]);
-    this.ktk = new Character(renderer, ee, 'ktk', baseFrames);
-    this.krn = new Character(renderer, ee, 'krn', baseFrames);
-    this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
-    this.icr = new Character(renderer, ee, 'icr', baseFrames);
-    this.camera = new Camera(renderer, ee);
-    this.filter = new Filter(renderer);
 
     // configure click/tap
     this.ee = ee;
@@ -101,18 +76,51 @@ export default class Game {
     });
   }
 
-  async run(generator: (game: Game) => ScenarioGenerator) {
+  async loadAll(generator: (game: Game) => ScenarioGenerator) {
     const scenario = generator(this);
+
+    // Load All at first...
+
+    // TODO: loading view
     while (true) {
-      // TODO: このnextの発火をクリック待ちなどで制御すればエンジンの基礎構造が（あっさり）完成するのでは？
-      const { value, done } = scenario.next();
+      const { value: command, done } = scenario.next();
+      if (done) {
+        break;
+      }
+      if (!command) {
+        continue;
+      }
+      this.loader.add(command.paths);
+    }
+
+    // TODO: show loading window
+    console.log('loading...');
+
+    await new Promise((resolve) => {
+      this.loader.load(resolve);
+    });
+
+    console.log('loading finished');
+  }
+
+  async run(generator: (game: Game) => ScenarioGenerator) {
+    await this.loadAll(generator);
+    // TODO: control race condition of loading ...?
+
+    const scenario = generator(this);
+
+    // after that, Execute
+    while (true) {
+      const { value: command, done } = scenario.next();
       if (done) {
         console.log('done.');
         break;
       }
-      if (value) {
+      if (command) {
+        // 絞るべきなのか、単にloaderの持つresourcesを全部渡すべきかわからない
+        const resources = command.resources(this.loader.resources);
         // do command
-        const result = await value;
+        const result = await command.exec(resources);
         if (result.shouldWait) {
           //await this.renderer.showWaiting();
           this.ee.emit(WAIT);
@@ -122,9 +130,7 @@ export default class Game {
         }
         continue;
       }
-      console.error(
-        'scenario generator returned invalid (non-promise?) value.'
-      );
+      console.error('scenario generator returned invalid value.');
     }
   }
 

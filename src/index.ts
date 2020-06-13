@@ -8,7 +8,7 @@ import FontFaceObserver from 'fontfaceobserver';
 import Game from './engine/Game';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
-import scenario1 from './scenario/scenario1';
+import scenario from './scenario/scenario0';
 
 const canvas = document.getElementById('game');
 
@@ -28,10 +28,10 @@ document.body.appendChild(app.view);
 
 const renderer = new Renderer(app);
 const responder = new Responder(app);
-const game = new Game(renderer, responder);
+const game = new Game(app.loader, renderer, responder);
 
 (async () => {
   const notoSerif = new FontFaceObserver('Noto Serif JP');
   await notoSerif.load();
-  game.run(scenario1);
+  game.run(scenario);
 })();

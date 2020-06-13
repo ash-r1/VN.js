@@ -22,14 +22,12 @@ export type layerName = keyof Layers;
  *
  */
 export default class Renderer {
-  private loader: PIXI.Loader;
   // TODO: wrap this ticker... ?
   readonly ticker: PIXI.Ticker;
 
   layers: Layers;
 
   constructor(private app: PIXI.Application) {
-    this.loader = app.loader;
     this.ticker = app.ticker;
 
     const world = new PIXI.Container();
@@ -51,53 +49,6 @@ export default class Renderer {
       fg,
       ui,
     };
-  }
-
-  load(src: string): Promise<PIXI.LoaderResource> {
-    return new Promise((resolve) => {
-      const cache = this.loader.resources[src];
-      if (cache) {
-        resolve(cache);
-        return;
-      }
-      this.loader.add(src, src).load((loader, resources) => {
-        const resource = resources[src];
-        resolve(resource);
-      });
-    });
-  }
-
-  loadMulti(srcList: string[]): Promise<Record<string, PIXI.LoaderResource>> {
-    return new Promise((resolve) => {
-      const caches: Record<string, PIXI.LoaderResource> = {};
-      const srcListToLoad = srcList.filter((src) => {
-        const res = this.loader.resources[src];
-        if (res) {
-          caches[src] = res;
-        }
-        return !res;
-      });
-
-      // TODO return immediately if all resoures are cached
-
-      const srcSet = new Set(srcListToLoad);
-      const addedLoader = Array.from(srcSet).reduce((loader, src) => {
-        return loader.add(src, src);
-      }, this.loader);
-      addedLoader.load((loader, resources) => {
-        // TODO: check if resources certainly has all of srcList properties
-        const result: Record<string, PIXI.LoaderResource> = srcList.reduce(
-          (prev, current) => {
-            return {
-              ...prev,
-              [current]: resources[current],
-            };
-          },
-          {}
-        );
-        resolve({ ...caches, ...result });
-      });
-    });
   }
 
   AddLayer(layer: PIXI.DisplayObject, on: layerName, index?: number): void {

@@ -1,3 +1,3 @@
-import { Result } from 'src/engine/commands/command';
+import { Command } from 'src/engine/commands/command';
 
-export type ScenarioGenerator = Generator<Promise<Result>, void>;
+export type ScenarioGenerator = Generator<Command, void>;
