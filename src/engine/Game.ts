@@ -90,7 +90,12 @@ export default class Game {
       if (!command) {
         continue;
       }
-      this.loader.add(command.paths);
+      const pathsShouldBeLoaded = command.paths.filter(
+        (path) => !this.loader.resources[path]
+      );
+      if (pathsShouldBeLoaded) {
+        this.loader.add(pathsShouldBeLoaded);
+      }
     }
 
     // TODO: show loading window
@@ -121,12 +126,10 @@ export default class Game {
         const resources = command.resources(this.loader.resources);
         // do command
         const result = await command.exec(resources);
-        if (result.shouldWait) {
-          //await this.renderer.showWaiting();
+        if (result && result.wait) {
           this.ee.emit(WAIT);
           await this.waitNext();
           this.ee.emit(NEXT);
-          //await this.renderer.hideWaiting();
         }
         continue;
       }

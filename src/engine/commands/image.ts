@@ -51,10 +51,6 @@ export default class Image extends Base {
         await this.fadeIn(layer, duration);
 
         this.layers.set(name, { layer, on });
-
-        return {
-          shouldWait: false,
-        };
       }
     );
   }
@@ -75,9 +71,6 @@ export default class Image extends Base {
         await this.r.AddLayer(layer, on);
         await this.fadeIn(layer, duration);
         this.layers.set(name, { layer, on });
-        return {
-          shouldWait: false,
-        };
       }
     );
   }
@@ -90,9 +83,6 @@ export default class Image extends Base {
         this.r.RemoveLayer(layer.layer, layer.on);
         this.layers.delete(name);
       }
-      return {
-        shouldWait: false,
-      };
     });
   }
 }

@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
 
-import Game from 'src/engine/Game';
-
 /**
  * Result of command
  */
@@ -9,12 +7,12 @@ export interface Result {
   /**
    * true if game should wait until user interaction
    */
-  shouldWait: boolean;
+  wait?: boolean;
 }
 
 export type Exec = (
   resources: Record<string, PIXI.LoaderResource>
-) => Promise<Result>;
+) => Promise<Result | void>;
 
 export class Command {
   private _paths: string[];
