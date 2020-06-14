@@ -12,6 +12,7 @@ import Image from './commands/image';
 import Message from './commands/message';
 import { WAITING_GLYPH } from './commands/message';
 import Sound from './commands/sound';
+import System from './commands/system';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -54,6 +55,7 @@ const baseFrames = [
  */
 export default class Game {
   private ee: EventEmitter;
+  readonly system: System;
   readonly image: Image;
   readonly message: Message;
   readonly srt: Character;
@@ -71,6 +73,7 @@ export default class Game {
     responder: Responder
   ) {
     const ee = new EventEmitter();
+    this.system = new System(renderer, ee);
     this.image = new Image(renderer);
     this.sound = new Sound(renderer);
     this.message = new Message(renderer, ee);
