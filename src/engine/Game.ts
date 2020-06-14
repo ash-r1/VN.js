@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
+import Character from './commands/character';
 import Image from './commands/image';
 import Message from './commands/message';
 import { WAITING_GLYPH } from './commands/message';
@@ -49,6 +50,11 @@ export default class Game {
   private ee: EventEmitter;
   readonly image: Image;
   readonly message: Message;
+  readonly srt: Character;
+  readonly ktk: Character;
+  readonly krn: Character;
+  readonly kyu: Character;
+  readonly icr: Character;
 
   constructor(
     private loader: PIXI.Loader,
@@ -58,6 +64,17 @@ export default class Game {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
     this.message = new Message(renderer, ee);
+    this.srt = new Character(renderer, ee, 'srt', [
+      ...commonFrames,
+      {
+        code: 'a05a',
+        filename: 'a05 a',
+      },
+    ]);
+    this.ktk = new Character(renderer, ee, 'ktk', baseFrames);
+    this.krn = new Character(renderer, ee, 'krn', baseFrames);
+    this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
+    this.icr = new Character(renderer, ee, 'icr', baseFrames);
 
     // configure click/tap
     this.ee = ee;

@@ -6,12 +6,15 @@ import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
-import { layerName } from '../Renderer';
 import Base from './base';
-import { Result } from './command';
-import tickPromise from './tickPromise';
+import { Command, NoResourceCommand } from './command';
+import Face, { CharacterSprite } from './face';
 
-// TODO: position adjustment
+export interface FaceOption {
+  code: string;
+  blink?: boolean;
+  filename?: string;
+}
 
 export type Xpos =
   | 'mleft'
@@ -36,16 +39,11 @@ export const position: Record<Xpos, number> = {
   rightr4: 0.95,
 };
 
-export interface Face {
-  code: string;
-  blink?: boolean;
-  filename?: string;
-}
-
 export const SHOW = '@character/SHOW';
 export const HIDE = '@character/HIDE';
 export const MOVE = '@character/MOVE';
 export const CHANGE = '@character/CHANGE';
+
 export interface ShowEvent {
   name: string;
   face: Face;
@@ -75,14 +73,9 @@ export interface MoveOption {
   duration?: number;
 }
 
-type CharacterSprite = PIXI.Sprite | BlinkAnimationSprite;
-
 type CharacterSize = 'md' | 'lg';
 
 const ON = 'fg';
-
-const imagePath = (name: string, size: string, code: string) =>
-  `game/images/${name}/${name} ${size} ${code}.png`;
 
 const defaultZIndex = 0;
 
@@ -100,64 +93,23 @@ export default class Character extends Base {
     r: Renderer,
     private ee: EventEmitter,
     private name: string,
-    faces: Face[]
+    faceOpts: FaceOption[]
   ) {
     super(r);
-    this.faces = faces.reduce((prev: Record<string, Face>, current: Face) => {
-      return { ...prev, [current.code]: current };
-    }, {});
+    this.faces = faceOpts.reduce(
+      (prev: Record<string, Face>, opt: FaceOption) => {
+        return {
+          ...prev,
+          [opt.code]: new Face(name, opt.code, opt.blink, opt.filename),
+        };
+      },
+      {}
+    );
   }
 
-  // allResources(): string[] {
-  //   return Object.values(this.faces)
-  //     .map((face) => this.pathsFor(face))
-  //     .reduce((prev: string[], current: string[]) => [...prev, ...current], []);
-  // }
-
-  pathsFor(face: Face): string[] {
-    const filename = face.filename ?? face.code;
-    if (face.blink) {
-      // NOTE: normal, middle, close => a, c, b
-      return ['a', 'c', 'b'].map((accessory) =>
-        imagePath(this.name, this.size, `${filename} ${accessory}`)
-      );
-    }
-    return [imagePath(this.name, this.size, filename)];
-  }
-
-  // async loadAll() {
-  //   await this.r.loadMulti(this.allResources());
-  // }
-
-  async loadFor(face: Face): Promise<PIXI.LoaderResource[]> {
-    const paths = this.pathsFor(face);
-    const resourcesMap = await this.r.loadMulti(paths);
-    return paths.map((path) => {
-      return resourcesMap[path];
-    });
-  }
-
-  async genSpriteFor(face: Face): Promise<CharacterSprite> {
-    const resources = await this.loadFor(face);
-    if (face.blink) {
-      if (resources.length != 3) {
-        throw new Error('resources for blink face count must equals to 3');
-      }
-      return new BlinkAnimationSprite(
-        resources[0].texture,
-        resources[1].texture,
-        resources[2].texture
-      );
-    }
-
-    if (resources.length != 1) {
-      throw new Error('resources for no-blink face count must equals to 1');
-    }
-    return new PIXI.Sprite(resources[0].texture);
-  }
-
-  private async crossfade(
+  private async crossfadeIntl(
     face: Face,
+    resources: Record<string, PIXI.LoaderResource>,
     duration: number
   ): Promise<CharacterSprite> {
     if (!this.sprite) {
@@ -168,8 +120,6 @@ export default class Character extends Base {
       this.sprite.gotoAndStop(0);
     }
 
-    const resources = await this.loadFor(face);
-
     this.r.RemoveLayer(this.sprite, ON);
 
     const crossfade = new Crossfade(this.sprite.texture);
@@ -178,11 +128,11 @@ export default class Character extends Base {
     crossfade.zIndex = this.zIndex;
     this.r.sortLayers(ON);
 
-    await crossfade.animate(resources[0].texture, duration);
+    await crossfade.animate(resources[face[0]].texture, duration);
 
     this.r.RemoveLayer(crossfade, ON);
 
-    const nextSprite = await this.genSpriteFor(face);
+    const nextSprite = await face.genSprite(this.size, resources);
     this.setPos(nextSprite, this.xpos);
     this.r.AddLayer(nextSprite, ON);
     nextSprite.zIndex = this.zIndex;
@@ -198,10 +148,11 @@ export default class Character extends Base {
 
   private async showIntl(
     face: Face,
+    resources: Record<string, PIXI.LoaderResource>,
     duration: number,
     xpos: Xpos
   ): Promise<CharacterSprite> {
-    const sprite = await this.genSpriteFor(face);
+    const sprite = await face.genSprite(this.size, resources);
     sprite.name = this.name;
     sprite.alpha = 0.0;
     sprite.zIndex = this.zIndex;
@@ -213,10 +164,7 @@ export default class Character extends Base {
     return sprite;
   }
 
-  async move(
-    xpos: Xpos,
-    { duration = this.defaultMoveDuration }: MoveOption
-  ): Promise<Result> {
+  private async moveIntl(xpos: Xpos, duration: number): Promise<void> {
     if (!this.sprite) {
       throw new Error(`Character(${this.name}) is not shown`);
     }
@@ -228,83 +176,92 @@ export default class Character extends Base {
       const ev: MoveEvent = { name: this.name, xpos };
       this.ee.emit(MOVE, ev);
     }
-
-    return {
-      shouldWait: false,
-    };
   }
 
-  async show(
+  move(
+    xpos: Xpos,
+    { duration = this.defaultMoveDuration }: MoveOption
+  ): Command {
+    return new NoResourceCommand(async () => {
+      await this.moveIntl(xpos, duration);
+    });
+  }
+
+  show(
     code: string,
     { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption
-  ): Promise<Result> {
+  ): Command {
     const face = this.faces[code];
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
     }
-    if (size) {
-      this.size = size;
-    }
-    if (zIndex) {
-      this.zIndex = zIndex;
-    }
-    let nextSprite: CharacterSprite;
-    if (this.sprite) {
-      if (this.xpos != xpos && xpos) {
-        await this.move(xpos, {});
-      }
-      nextSprite = await this.crossfade(face, duration);
-      const ev: ChangeEvent = {
-        name: this.name,
-        face,
-        xpos: this.xpos,
-      };
-      this.ee.emit(CHANGE, ev);
-    } else {
-      if (xpos) {
-        this.xpos = xpos;
-      }
-      nextSprite = await this.showIntl(face, duration, this.xpos);
-      const ev: ShowEvent = {
-        name: this.name,
-        face,
-        xpos: this.xpos,
-      };
-      this.ee.emit(SHOW, ev);
-    }
+    const newSize = size ?? this.size;
+    const filepaths = face.paths(newSize);
 
-    if (nextSprite instanceof BlinkAnimationSprite) {
-      nextSprite.play();
-    }
-    this.sprite = nextSprite;
+    return new Command(
+      filepaths,
+      async (resources: Record<string, PIXI.LoaderResource>) => {
+        this.size = newSize;
 
-    return {
-      shouldWait: false,
-    };
+        if (zIndex) {
+          this.zIndex = zIndex;
+        }
+        let nextSprite: CharacterSprite;
+        if (this.sprite) {
+          if (this.xpos != xpos && xpos) {
+            await this.moveIntl(xpos, this.defaultMoveDuration);
+          }
+          nextSprite = await this.crossfadeIntl(face, resources, duration);
+          const ev: ChangeEvent = {
+            name: this.name,
+            face,
+            xpos: this.xpos,
+          };
+          this.ee.emit(CHANGE, ev);
+        } else {
+          if (xpos) {
+            this.xpos = xpos;
+          }
+          nextSprite = await this.showIntl(
+            face,
+            resources,
+            duration,
+            this.xpos
+          );
+          const ev: ShowEvent = {
+            name: this.name,
+            face,
+            xpos: this.xpos,
+          };
+          this.ee.emit(SHOW, ev);
+        }
+
+        if (nextSprite instanceof BlinkAnimationSprite) {
+          nextSprite.play();
+        }
+        this.sprite = nextSprite;
+      }
+    );
   }
 
-  async hide({
-    duration = this.defaultHideDuration,
-  }: HideOption): Promise<Result> {
-    if (this.sprite) {
-      await this.fadeOut(this.sprite, duration);
-      await this.r.RemoveLayer(this.sprite, ON);
-      this.sprite = undefined;
-      this.ee.emit(HIDE, { name: this.name });
-    }
-    this.zIndex = defaultZIndex;
-    return {
-      shouldWait: false,
-    };
+  hide({ duration = this.defaultHideDuration }: HideOption): Command {
+    return new NoResourceCommand(async () => {
+      if (this.sprite) {
+        await this.fadeOut(this.sprite, duration);
+        await this.r.RemoveLayer(this.sprite, ON);
+        this.sprite = undefined;
+        this.ee.emit(HIDE, { name: this.name });
+      }
+      this.zIndex = defaultZIndex;
+    });
   }
 
-  async order(zIndex: number): Promise<Result> {
-    if (this.sprite) {
-      this.sprite.zIndex = zIndex;
-      this.zIndex = zIndex;
-    }
-    return {
-      shouldWait: false,
-    };
+  order(zIndex: number): Command {
+    return new NoResourceCommand(async () => {
+      if (this.sprite) {
+        this.sprite.zIndex = zIndex;
+        this.zIndex = zIndex;
+      }
+    });
   }
 }
