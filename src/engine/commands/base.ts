@@ -24,15 +24,30 @@ export default abstract class Base {
     return new PIXI.Point(this.r.width / 2.0, this.r.height / 2.0);
   }
 
+  // deprecated. move this logic into image module
   protected setLayerProps(layer: PIXI.DisplayObject, props: LayerProps) {
     // TODO: make it typesafe-implementation
-    ['x', 'y', 'width', 'height', 'alpha'].forEach((property) => {
-      if (props[property]) {
-        layer[property] = props[property];
-      }
-    });
+    if (props.x) {
+      layer.x = props.x;
+    }
+    if (props.y) {
+      layer.y = props.y;
+    }
+    if (props.alpha) {
+      layer.alpha = props.alpha;
+    }
+
     if (props.scale) {
       layer.scale.set(props.scale, props.scale);
+    }
+
+    if (layer instanceof PIXI.Sprite) {
+      if (props.width) {
+        layer.width = props.width;
+      }
+      if (props.height) {
+        layer.height = props.height;
+      }
     }
   }
 

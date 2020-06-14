@@ -1,3 +1,4 @@
+import { IResourceDictionary } from 'pixi.js';
 import * as PIXI from 'pixi.js';
 
 /**
@@ -10,37 +11,36 @@ export interface Result {
   wait?: boolean;
 }
 
-export type Exec = (
-  resources: Record<string, PIXI.LoaderResource>
-) => Promise<Result | void>;
+type CommandPromise = Promise<Result> | Promise<void>;
+type SingleExec = (resources: PIXI.LoaderResource) => CommandPromise;
+type Exec = (resources: IResourceDictionary) => CommandPromise;
 
-export class Command {
-  private _paths: string[];
-  get paths(): string[] {
-    return this._paths;
+export type PureCommand = CommandPromise;
+
+export abstract class BaseCommand {
+  abstract get paths(): string[];
+  abstract exec(resources: IResourceDictionary): CommandPromise;
+}
+
+export class ResourceCommand extends BaseCommand {
+  constructor(private _path: string, private _exec: SingleExec) {
+    super();
   }
 
-  resources(resources: PIXI.IResourceDictionary): PIXI.IResourceDictionary {
-    return this.paths.reduce(
-      (prev, path) => ({
-        ...prev,
-        [path]: resources[path],
-      }),
-      {}
-    );
+  get paths() {
+    return [this._path];
   }
 
-  constructor(res: string | string[], public exec: Exec) {
-    if (typeof res === 'string') {
-      this._paths = [res];
-    } else {
-      this._paths = res;
-    }
+  exec(resources: IResourceDictionary): CommandPromise {
+    const resource = resources[this._path];
+    return this._exec(resource);
   }
 }
 
-export class NoResourceCommand extends Command {
-  constructor(exec: Exec) {
-    super([], exec);
+export class MultipleResourcesCommand extends BaseCommand {
+  constructor(public readonly paths: string[], public exec: Exec) {
+    super();
   }
 }
+
+export type Command = PureCommand | BaseCommand;

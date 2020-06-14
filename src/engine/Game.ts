@@ -1,9 +1,12 @@
+import { IResourceDictionary } from 'pixi.js';
+
 import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Camera from './commands/camera';
 import Character from './commands/character';
+import { BaseCommand, Result } from './commands/command';
 import Image from './commands/image';
 import Message from './commands/message';
 import { WAITING_GLYPH } from './commands/message';
@@ -60,8 +63,8 @@ export default class Game {
 
   constructor(
     private loader: PIXI.Loader,
-    private renderer: Renderer,
-    private responder: Responder
+    renderer: Renderer,
+    responder: Responder
   ) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
@@ -117,11 +120,13 @@ export default class Game {
       if (!command) {
         continue;
       }
-      const pathsShouldBeLoaded = command.paths.filter(
-        (path) => !this.loader.resources[path]
-      );
-      if (pathsShouldBeLoaded) {
-        this.loader.add(pathsShouldBeLoaded);
+      if (command instanceof BaseCommand) {
+        const pathsShouldBeLoaded = command.paths.filter(
+          (path) => !this.loader.resources[path]
+        );
+        if (pathsShouldBeLoaded) {
+          this.loader.add(pathsShouldBeLoaded);
+        }
       }
     }
 
@@ -150,19 +155,28 @@ export default class Game {
         console.log('done.');
         break;
       }
-      if (command) {
-        // 絞るべきなのか、単にloaderの持つresourcesを全部渡すべきかわからない
-        const resources = command.resources(this.loader.resources);
-        // do command
-        const result = await command.exec(resources);
-        if (result && result.wait) {
-          this.ee.emit(WAIT);
-          await this.waitNext();
-          this.ee.emit(NEXT);
-        }
+      if (!command) {
+        console.error('scenario generator returned invalid value.');
         continue;
       }
-      console.error('scenario generator returned invalid value.');
+
+      let result: Result | void;
+      if (command instanceof BaseCommand) {
+        // BaseCommand
+        const resources: IResourceDictionary = command.paths.reduce(
+          (prev, path) => ({ ...prev, [path]: this.loader.resources[path] }),
+          {}
+        );
+        result = await command.exec(resources);
+      } else {
+        // PureCommand
+        result = await command;
+      }
+      if (result && result.wait) {
+        this.ee.emit(WAIT);
+        await this.waitNext();
+        this.ee.emit(NEXT);
+      }
     }
   }
 

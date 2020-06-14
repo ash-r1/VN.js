@@ -7,7 +7,7 @@ import Renderer from 'src/engine/Renderer';
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
 import Base from './base';
-import { Command, NoResourceCommand } from './command';
+import { Command, MultipleResourcesCommand } from './command';
 import Face, { CharacterSprite } from './face';
 
 export interface FaceOption {
@@ -128,7 +128,7 @@ export default class Character extends Base {
     crossfade.zIndex = this.zIndex;
     this.r.sortLayers(ON);
 
-    await crossfade.animate(resources[face[0]].texture, duration);
+    await crossfade.animate(resources[0].texture, duration);
 
     this.r.RemoveLayer(crossfade, ON);
 
@@ -178,13 +178,11 @@ export default class Character extends Base {
     }
   }
 
-  move(
+  async move(
     xpos: Xpos,
     { duration = this.defaultMoveDuration }: MoveOption
-  ): Command {
-    return new NoResourceCommand(async () => {
-      await this.moveIntl(xpos, duration);
-    });
+  ): Promise<void> {
+    await this.moveIntl(xpos, duration);
   }
 
   show(
@@ -198,7 +196,7 @@ export default class Character extends Base {
     const newSize = size ?? this.size;
     const filepaths = face.paths(newSize);
 
-    return new Command(
+    return new MultipleResourcesCommand(
       filepaths,
       async (resources: Record<string, PIXI.LoaderResource>) => {
         this.size = newSize;
@@ -244,24 +242,22 @@ export default class Character extends Base {
     );
   }
 
-  hide({ duration = this.defaultHideDuration }: HideOption): Command {
-    return new NoResourceCommand(async () => {
-      if (this.sprite) {
-        await this.fadeOut(this.sprite, duration);
-        await this.r.RemoveLayer(this.sprite, ON);
-        this.sprite = undefined;
-        this.ee.emit(HIDE, { name: this.name });
-      }
-      this.zIndex = defaultZIndex;
-    });
+  async hide({
+    duration = this.defaultHideDuration,
+  }: HideOption): Promise<void> {
+    if (this.sprite) {
+      await this.fadeOut(this.sprite, duration);
+      await this.r.RemoveLayer(this.sprite, ON);
+      this.sprite = undefined;
+      this.ee.emit(HIDE, { name: this.name });
+    }
+    this.zIndex = defaultZIndex;
   }
 
-  order(zIndex: number): Command {
-    return new NoResourceCommand(async () => {
-      if (this.sprite) {
-        this.sprite.zIndex = zIndex;
-        this.zIndex = zIndex;
-      }
-    });
+  async order(zIndex: number): Promise<void> {
+    if (this.sprite) {
+      this.sprite.zIndex = zIndex;
+      this.zIndex = zIndex;
+    }
   }
 }

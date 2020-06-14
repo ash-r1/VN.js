@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import { layerName } from '../Renderer';
 import Base from './base';
-import { Command, NoResourceCommand } from './command';
+import { Command, ResourceCommand } from './command';
 
 export interface ShowHideOption {
   duration?: number;
@@ -34,12 +34,11 @@ export default class Image extends Base {
     }: Omit<ShowOption, 'on'>
   ): Command {
     const filepath = `game/images/bg ${src}.png`;
-    return new Command(
+    return new ResourceCommand(
       filepath,
-      async (resources: Record<string, PIXI.LoaderResource>) => {
+      async (resource: PIXI.LoaderResource) => {
         const on = 'bg';
-        const texture = resources[filepath].texture;
-        const layer = new PIXI.Sprite(texture);
+        const layer = new PIXI.Sprite(resource.texture);
         layer.anchor.set(0.5, 0.5);
         this.setLayerProps(layer, {
           x,
@@ -61,11 +60,10 @@ export default class Image extends Base {
     { duration = 500, on = 'fg', ...option }: ShowOption
   ): Command {
     const filepath = `game/images/${src}.png`;
-    return new Command(
+    return new ResourceCommand(
       filepath,
-      async (resources: Record<string, PIXI.LoaderResource>) => {
-        const texture = resources[filepath].texture;
-        const layer = new PIXI.Sprite(texture);
+      async (resource: PIXI.LoaderResource) => {
+        const layer = new PIXI.Sprite(resource.texture);
         layer.anchor.set(0.5, 0.5);
         this.setLayerProps(layer, { ...option, alpha: 0 });
         await this.r.AddLayer(layer, on);
@@ -75,14 +73,12 @@ export default class Image extends Base {
     );
   }
 
-  hide(name: string, { duration = 500 }: HideOption): Command {
-    return new NoResourceCommand(async () => {
-      const layer = this.layers.get(name);
-      if (layer) {
-        await this.fadeOut(layer.layer, duration);
-        this.r.RemoveLayer(layer.layer, layer.on);
-        this.layers.delete(name);
-      }
-    });
+  async hide(name: string, { duration = 500 }: HideOption): Promise<void> {
+    const layer = this.layers.get(name);
+    if (layer) {
+      await this.fadeOut(layer.layer, duration);
+      this.r.RemoveLayer(layer.layer, layer.on);
+      this.layers.delete(name);
+    }
   }
 }

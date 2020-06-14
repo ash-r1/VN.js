@@ -7,7 +7,7 @@ import Renderer from 'src/engine/Renderer';
 import { NEXT, WAIT } from '../Game';
 import MessageBox from '../layer/MessageBox';
 import Base from './base';
-import { Command, NoResourceCommand } from './command';
+import { Command, ResourceCommand } from './command';
 
 export interface ShowHideOption {
   duration?: number;
@@ -35,7 +35,7 @@ export default class Message extends Base {
     this.ee.on(NEXT, this.hideWaiting);
   }
 
-  clearText = () => {
+  private clearTextIntl = () => {
     if (this.messageBox) {
       this.messageBox.clearText();
     }
@@ -43,9 +43,8 @@ export default class Message extends Base {
 
   show(text: string, { duration = 500 }: ShowOption): Command {
     const src = 'game/textbox.png';
-    return new Command(src, async (resources) => {
+    return new ResourceCommand(src, async (resource) => {
       if (!this.messageBox) {
-        const resource = resources[src];
         const messageBox = new MessageBox(resource.texture);
         // TODO: Fix magic number
         messageBox.y = 620;
@@ -58,7 +57,7 @@ export default class Message extends Base {
       await this.messageBox.animateText(text);
 
       // clean up after clickwait
-      this.ee.once(NEXT, this.clearText);
+      this.ee.once(NEXT, this.clearTextIntl);
 
       return {
         wait: true,
@@ -66,23 +65,19 @@ export default class Message extends Base {
     });
   }
 
-  hide({ duration = 500 }: HideOption): Command {
-    return new NoResourceCommand(async () => {
-      if (this.messageBox) {
-        await this.fadeOut(this.messageBox, duration);
-        await this.r.RemoveLayer(this.messageBox, ON_LAYER);
-        this.messageBox = undefined;
-      }
-    });
+  async hide({ duration = 500 }: HideOption): Promise<void> {
+    if (this.messageBox) {
+      await this.fadeOut(this.messageBox, duration);
+      await this.r.RemoveLayer(this.messageBox, ON_LAYER);
+      this.messageBox = undefined;
+    }
   }
 
-  clear(): Command {
-    return new NoResourceCommand(async () => {
-      this.clearText();
-    });
+  async clear(): Promise<void> {
+    this.clearTextIntl();
   }
 
-  showWaiting = async () => {
+  private showWaiting = async () => {
     // TODO: split to other. may subscribe Game's onclick/clickwait even
     if (!this.waiting) {
       const sprite = new PIXI.Sprite(this.texture);
@@ -96,7 +91,7 @@ export default class Message extends Base {
     }
   };
 
-  hideWaiting = async () => {
+  private hideWaiting = async () => {
     if (this.waiting) {
       this.r.RemoveLayer(this.waiting, ON_LAYER);
       this.waiting = undefined;
