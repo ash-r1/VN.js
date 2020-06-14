@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
+import Camera from './commands/camera';
 import Character from './commands/character';
 import Image from './commands/image';
 import Message from './commands/message';
@@ -55,6 +56,7 @@ export default class Game {
   readonly krn: Character;
   readonly kyu: Character;
   readonly icr: Character;
+  readonly camera: Camera;
 
   constructor(
     private loader: PIXI.Loader,
@@ -75,6 +77,7 @@ export default class Game {
     this.krn = new Character(renderer, ee, 'krn', baseFrames);
     this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
     this.icr = new Character(renderer, ee, 'icr', baseFrames);
+    this.camera = new Camera(renderer, ee);
 
     // configure click/tap
     this.ee = ee;

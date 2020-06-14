@@ -1,13 +1,8 @@
-import * as PIXI from 'pixi.js';
-
 import EventEmitter from 'eventemitter3';
 
 import { Result } from 'src/engine/commands/command';
 import Renderer from 'src/engine/Renderer';
 
-import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
-import Crossfade from '../layer/Crossfade';
-import { layerName } from '../Renderer';
 import Base from './base';
 import {
   CHANGE,
@@ -42,21 +37,21 @@ export default class Camera extends Base {
   async lock(): Promise<Result> {
     this.locked = true;
     return {
-      shouldWait: false,
+      wait: false,
     };
   }
 
   async unlock(): Promise<Result> {
     this.locked = false;
     return {
-      shouldWait: false,
+      wait: false,
     };
   }
 
   async move(xpos: Xpos): Promise<Result> {
     await this.moveCameraTo(position[xpos] * this.r.width, true);
     return {
-      shouldWait: false,
+      wait: false,
     };
   }
 
