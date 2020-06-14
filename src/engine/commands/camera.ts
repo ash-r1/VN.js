@@ -16,6 +16,7 @@ import {
   ShowEvent,
   Xpos,
 } from './character';
+import { BEGIN as PARALLEL_BEGIN, END as PARALLEL_END } from './parallel';
 
 // TODO: position adjustment
 
@@ -24,9 +25,13 @@ import {
  */
 export default class Camera extends Base {
   private locked = false;
+  private onParallel = false;
 
   constructor(r: Renderer, private ee: EventEmitter) {
     super(r);
+
+    ee.on(PARALLEL_BEGIN, this.onParallelBegin);
+    ee.on(PARALLEL_END, this.onParallelEnd);
 
     ee.on(SHOW, this.onShow);
     ee.on(HIDE, this.onHide);
@@ -55,6 +60,14 @@ export default class Camera extends Base {
     };
   }
 
+  onParallelBegin = () => {
+    this.onParallel = true;
+  };
+
+  onParallelEnd = () => {
+    this.onParallel = false;
+  };
+
   onShow = (ev: ShowEvent) => {
     // TODO: wait until moving? how to do it...?
     // Plan: Hook yield on Game instance?
@@ -73,8 +86,12 @@ export default class Camera extends Base {
     this.moveCameraTo(position[ev.xpos] * this.r.width);
   };
 
+  get shouldStay() {
+    return this.locked || this.onParallel;
+  }
+
   private moveCameraTo = async (x: number, force = false) => {
-    if (this.locked && !force) {
+    if (this.shouldStay && !force) {
       return;
     }
     const pos = x - this.r.width / 2.0;
