@@ -1,58 +1,51 @@
-import * as PIXI from 'pixi.js';
-
 import PIXISound from 'pixi-sound';
 
-import { layerName } from '../Renderer';
 import Base from './base';
-import { Result } from './command';
+import { Command, ResourceCommand } from './command';
 
 interface SoundOption {
   volume?: number;
 }
 
 interface BGMOption extends SoundOption {
-  //
   loop?: boolean;
+}
+
+interface StopOption {
+  todo?: number;
+  // fade: number;
 }
 
 export default class Sound extends Base {
   private playing?: PIXISound.Sound;
 
-  async play(
-    filename: string,
-    { loop = true, ...option }: BGMOption
-  ): Promise<Result> {
-    // stop at first
-    await stop();
-
+  play(filename: string, { loop = true, ...option }: BGMOption): Command {
     const src = `game/sounds/${filename}.mp3`;
-    const resource = await this.r.load(src);
-    const sound = resource.sound;
-    sound.play({ ...option, loop });
-    this.playing = sound;
 
-    return {
-      shouldWait: false,
-    };
+    return new ResourceCommand(src, async (resource) => {
+      if (this.playing) {
+        this.playing.stop();
+        this.playing = undefined;
+      }
+      const sound = resource.sound;
+      sound.play({ ...option, loop });
+      this.playing = sound;
+    });
   }
 
-  async se(filename: string, option: SoundOption): Promise<Result> {
+  se(filename: string, option: SoundOption): Command {
     const src = `game/sounds/${filename}.mp3`;
-    const resource = await this.r.load(src);
-    resource.sound.play({ ...option, loop: false });
 
-    return {
-      shouldWait: false,
-    };
+    return new ResourceCommand(src, async (resource) => {
+      const sound = resource.sound;
+      sound.play({ ...option, loop: false });
+    });
   }
 
-  async stop(): Promise<Result> {
+  async stop({ todo }: StopOption): Promise<void> {
     if (this.playing) {
       this.playing.stop();
       this.playing = undefined;
     }
-    return {
-      shouldWait: false,
-    };
   }
 }

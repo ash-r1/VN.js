@@ -10,6 +10,7 @@ import { BaseCommand, Result } from './commands/command';
 import Image from './commands/image';
 import Message from './commands/message';
 import { WAITING_GLYPH } from './commands/message';
+import Sound from './commands/sound';
 import Renderer from './Renderer';
 import Responder from './Responder';
 
@@ -59,6 +60,7 @@ export default class Game {
   readonly krn: Character;
   readonly kyu: Character;
   readonly icr: Character;
+  readonly sound: Sound;
   readonly camera: Camera;
 
   constructor(
@@ -68,6 +70,7 @@ export default class Game {
   ) {
     const ee = new EventEmitter();
     this.image = new Image(renderer);
+    this.sound = new Sound(renderer);
     this.message = new Message(renderer, ee);
     this.srt = new Character(renderer, ee, 'srt', [
       ...commonFrames,
