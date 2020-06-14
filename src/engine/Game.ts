@@ -6,7 +6,7 @@ import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Camera from './commands/camera';
 import Character from './commands/character';
-import { BaseCommand, Result } from './commands/command';
+import { BaseCommand, execCommand, Result } from './commands/command';
 import Filter from './commands/filter';
 import Image from './commands/image';
 import Message from './commands/message';
@@ -166,18 +166,7 @@ export default class Game {
         continue;
       }
 
-      let result: Result | void;
-      if (command instanceof BaseCommand) {
-        // BaseCommand
-        const resources: IResourceDictionary = command.paths.reduce(
-          (prev, path) => ({ ...prev, [path]: this.loader.resources[path] }),
-          {}
-        );
-        result = await command.exec(resources);
-      } else {
-        // PureCommand
-        result = await command;
-      }
+      const result = await execCommand(command, this.loader.resources);
       if (result && result.wait) {
         this.ee.emit(WAIT);
         await this.waitNext();
