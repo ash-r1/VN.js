@@ -1,5 +1,3 @@
-import * as PIXI from 'pixi.js';
-
 import { CRTFilter, CRTFilterOptions } from '@pixi/filter-crt';
 import { GodrayFilter } from '@pixi/filter-godray';
 import {
@@ -42,11 +40,11 @@ export default class Filter extends Base {
   async reset(on: layerName): Promise<Result> {
     this.r.layers[on].filters = [];
     return {
-      shouldWait: false,
+      wait: false,
     };
   }
 
-  async crt(on: layerName, { ...options }: CRTOptions): Promise<Result> {
+  async crt(on: layerName, { ...options }: CRTOptions): Promise<void> {
     const filter = new CRTFilter(options);
 
     this.r.layers[on].filters = [filter];
@@ -65,16 +63,12 @@ export default class Filter extends Base {
       // TODO: can we capsulate this method?
     };
     ticker.add(tick);
-
-    return {
-      shouldWait: false,
-    };
   }
 
   async shockwave(
     on: layerName,
     { loopAt, ...options }: ShockwaveOptions
-  ): Promise<Result> {
+  ): Promise<void> {
     const filter = new ShockwaveFilter(this.center, options);
 
     this.r.layers[on].filters = [filter];
@@ -102,16 +96,12 @@ export default class Filter extends Base {
       // TODO: can we capsulate this method?
     };
     ticker.add(tick);
-
-    return {
-      shouldWait: false,
-    };
   }
 
   async godray(
     on: layerName,
     { angle, gain, lacunarity, speed = 1.0 }: GodrayOptions
-  ): Promise<Result> {
+  ): Promise<void> {
     const filter = new GodrayFilter();
     if (angle) {
       filter.angle = angle;
@@ -138,16 +128,12 @@ export default class Filter extends Base {
       // TODO: can we capsulate this method?
     };
     ticker.add(tick);
-
-    return {
-      shouldWait: false,
-    };
   }
 
   async twist(
     on: layerName,
     { duration = 500, maxAngle = 3.0, radiusRate = 1.0 }: TwistOptions
-  ): Promise<Result> {
+  ): Promise<void> {
     const filter = new TwistFilter(
       (Math.min(this.r.width, this.r.height) / 2) * radiusRate
     );
@@ -158,9 +144,5 @@ export default class Filter extends Base {
     tickPromise(this.r.ticker, duration, (rate) => {
       filter.angle = rate * maxAngle;
     });
-
-    return {
-      shouldWait: false,
-    };
   }
 }

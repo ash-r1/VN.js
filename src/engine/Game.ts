@@ -7,6 +7,7 @@ import { ScenarioGenerator } from 'src/engine/scenario/generator';
 import Camera from './commands/camera';
 import Character from './commands/character';
 import { BaseCommand, Result } from './commands/command';
+import Filter from './commands/filter';
 import Image from './commands/image';
 import Message from './commands/message';
 import { WAITING_GLYPH } from './commands/message';
@@ -62,6 +63,7 @@ export default class Game {
   readonly icr: Character;
   readonly sound: Sound;
   readonly camera: Camera;
+  readonly filter: Filter;
 
   constructor(
     private loader: PIXI.Loader,
@@ -84,6 +86,7 @@ export default class Game {
     this.kyu = new Character(renderer, ee, 'kyu', baseFrames);
     this.icr = new Character(renderer, ee, 'icr', baseFrames);
     this.camera = new Camera(renderer, ee);
+    this.filter = new Filter(renderer);
 
     // configure click/tap
     this.ee = ee;
