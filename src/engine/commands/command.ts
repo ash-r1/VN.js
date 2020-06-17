@@ -12,18 +12,34 @@ export interface Result {
 }
 
 type CommandPromise = Promise<Result> | Promise<void>;
-type SingleExec = (resources: PIXI.LoaderResource) => CommandPromise;
-type Exec = (resources: IResourceDictionary) => CommandPromise;
+type NoResourceExec = () => CommandPromise;
+type SingleResourceExec = (resource: PIXI.LoaderResource) => CommandPromise;
+type MultipleResourcesExec = (resources: IResourceDictionary) => CommandPromise;
 
-export type PureCommand = CommandPromise;
-
-export abstract class BaseCommand {
+export abstract class Command {
   abstract get paths(): string[];
   abstract exec(resources: IResourceDictionary): CommandPromise;
 }
 
-export class ResourceCommand extends BaseCommand {
-  constructor(private _path: string, private _exec: SingleExec) {
+export class PureCommand extends Command {
+  constructor(private _exec: NoResourceExec) {
+    super();
+  }
+
+  get paths() {
+    return [];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  exec(resources: IResourceDictionary): CommandPromise {
+    return this._exec();
+  }
+}
+
+export const pure = (exec: NoResourceExec) => new PureCommand(exec);
+
+export class ResourceCommand extends Command {
+  constructor(private _path: string, private _exec: SingleResourceExec) {
     super();
   }
 
@@ -37,28 +53,11 @@ export class ResourceCommand extends BaseCommand {
   }
 }
 
-export class MultipleResourcesCommand extends BaseCommand {
-  constructor(public readonly paths: string[], public exec: Exec) {
+export class MultipleResourcesCommand extends Command {
+  constructor(
+    public readonly paths: string[],
+    public exec: MultipleResourcesExec
+  ) {
     super();
   }
 }
-
-export const execCommand = (
-  command: Command,
-  resources: PIXI.IResourceDictionary
-): Promise<void | Result> => {
-  if (command instanceof BaseCommand) {
-    const commandResources = command.paths.reduce(
-      (prev, path) => ({
-        ...prev,
-        [path]: resources[path],
-      }),
-      {}
-    );
-    return command.exec(commandResources);
-  } else {
-    return command;
-  }
-};
-
-export type Command = PureCommand | BaseCommand;

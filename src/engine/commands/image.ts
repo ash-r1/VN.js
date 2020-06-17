@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import { layerName } from '../Renderer';
 import Base from './base';
-import { Command, ResourceCommand } from './command';
+import { Command, pure, ResourceCommand } from './command';
 
 export interface ShowHideOption {
   duration?: number;
@@ -73,12 +73,14 @@ export default class Image extends Base {
     );
   }
 
-  async hide(name: string, { duration = 500 }: HideOption): Promise<void> {
-    const layer = this.layers.get(name);
-    if (layer) {
-      await this.fadeOut(layer.layer, duration);
-      this.r.RemoveLayer(layer.layer, layer.on);
-      this.layers.delete(name);
-    }
+  hide(name: string, { duration = 500 }: HideOption): Command {
+    return pure(async () => {
+      const layer = this.layers.get(name);
+      if (layer) {
+        await this.fadeOut(layer.layer, duration);
+        this.r.RemoveLayer(layer.layer, layer.on);
+        this.layers.delete(name);
+      }
+    });
   }
 }

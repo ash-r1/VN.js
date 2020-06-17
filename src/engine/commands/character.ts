@@ -7,7 +7,7 @@ import Renderer from 'src/engine/Renderer';
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
 import Base from './base';
-import { Command, MultipleResourcesCommand } from './command';
+import { Command, MultipleResourcesCommand, pure } from './command';
 import Face, { CharacterSprite } from './face';
 
 export interface FaceOption {
@@ -78,12 +78,13 @@ type CharacterSize = 'md' | 'lg';
 const ON = 'fg';
 
 const defaultZIndex = 0;
+const defaultSize = 'lg';
 
 export default class Character extends Base {
   private faces: Record<string, Face>;
   private xpos: Xpos = 'center';
   private sprite?: CharacterSprite;
-  private size: CharacterSize = 'lg';
+  private size: CharacterSize = defaultSize;
   private zIndex = defaultZIndex;
   defaultShowDuration = 300;
   defaultHideDuration = 300;
@@ -107,6 +108,10 @@ export default class Character extends Base {
     );
   }
 
+  reset() {
+    this.size = defaultSize;
+  }
+
   private async crossfadeIntl(
     face: Face,
     resources: Record<string, PIXI.LoaderResource>,
@@ -128,7 +133,12 @@ export default class Character extends Base {
     crossfade.zIndex = this.zIndex;
     this.r.sortLayers(ON);
 
-    await crossfade.animate(resources[0].texture, duration);
+    const resource = resources[face.paths(this.size)[0]];
+    if (!resource) {
+      debugger;
+      throw new Error('resource not found');
+    }
+    await crossfade.animate(resource.texture, duration);
 
     this.r.RemoveLayer(crossfade, ON);
 
@@ -166,6 +176,7 @@ export default class Character extends Base {
 
   private async moveIntl(xpos: Xpos, duration: number): Promise<void> {
     if (!this.sprite) {
+      debugger;
       throw new Error(`Character(${this.name}) is not shown`);
     }
 
@@ -178,17 +189,24 @@ export default class Character extends Base {
     }
   }
 
-  async move(
+  move(
     xpos: Xpos,
     { duration = this.defaultMoveDuration }: MoveOption
-  ): Promise<void> {
-    await this.moveIntl(xpos, duration);
+  ): Command {
+    return pure(async () => {
+      await this.moveIntl(xpos, duration);
+    });
   }
 
   show(
     code: string,
     { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption
   ): Command {
+    // FIXME: ここでthisを参照してしまうせいで、sizeの解釈がおかしくなってしまう。
+    // preloadとは別で逐次ロードも行うべきか...sizeの変更は内部でも行う、という方針もあるが
+    // また、エンジンとしての設計の問題としては、これが根本的に難しいしくみになっているべきなので、そこの解決策も考えたい。
+    // 結局は「状態」をどこまで許容するかっぽい。Functionalにするなら、本来はここでthisにアクセス出来ちゃいけないんだけど、thisへのアクセスを禁止する方法が思いつかない。
+    // Fail-Safeとしては、実行前に改めて確認して、必要ならロードするべきだとは思う。
     const face = this.faces[code];
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
@@ -242,16 +260,16 @@ export default class Character extends Base {
     );
   }
 
-  async hide({
-    duration = this.defaultHideDuration,
-  }: HideOption): Promise<void> {
-    if (this.sprite) {
-      await this.fadeOut(this.sprite, duration);
-      await this.r.RemoveLayer(this.sprite, ON);
-      this.sprite = undefined;
-      this.ee.emit(HIDE, { name: this.name });
-    }
-    this.zIndex = defaultZIndex;
+  hide({ duration = this.defaultHideDuration }: HideOption): Command {
+    return pure(async () => {
+      if (this.sprite) {
+        await this.fadeOut(this.sprite, duration);
+        await this.r.RemoveLayer(this.sprite, ON);
+        this.sprite = undefined;
+        this.ee.emit(HIDE, { name: this.name });
+      }
+      this.zIndex = defaultZIndex;
+    });
   }
 
   async order(zIndex: number): Promise<void> {

@@ -6,7 +6,7 @@ import { ScenarioGenerator } from 'src/engine/scenario/generator';
 
 import Camera from './commands/camera';
 import Character from './commands/character';
-import { BaseCommand, execCommand, Result } from './commands/command';
+import { Command } from './commands/command';
 import Filter from './commands/filter';
 import Image from './commands/image';
 import Message from './commands/message';
@@ -112,12 +112,29 @@ export default class Game {
     });
   }
 
-  async loadAll(generator: (game: Game) => ScenarioGenerator) {
+  async safeAddToLoader(paths: string[]) {
+    // TODO: wait if the loader is loading
+    const pathsShouldBeLoaded = paths.filter(
+      (path) => !this.loader.resources[path]
+    );
+    if (pathsShouldBeLoaded) {
+      this.loader.add(pathsShouldBeLoaded);
+    }
+  }
+
+  async load() {
+    await new Promise((resolve) => {
+      this.loader.load(resolve);
+    });
+  }
+
+  async loadScenarioResources(generator: (game: Game) => ScenarioGenerator) {
     const scenario = generator(this);
 
     // Load All at first...
 
     // TODO: loading view
+    console.log('loading...');
 
     this.loader.add(WAITING_GLYPH);
 
@@ -126,31 +143,27 @@ export default class Game {
       if (done) {
         break;
       }
-      if (!command) {
-        continue;
-      }
-      if (command instanceof BaseCommand) {
-        const pathsShouldBeLoaded = command.paths.filter(
-          (path) => !this.loader.resources[path]
-        );
-        if (pathsShouldBeLoaded) {
-          this.loader.add(pathsShouldBeLoaded);
-        }
+      if (command) {
+        await this.safeAddToLoader(command.paths);
       }
     }
 
-    // TODO: show loading window
-    console.log('loading...');
-
-    await new Promise((resolve) => {
-      this.loader.load(resolve);
-    });
+    await this.load();
 
     console.log('loading finished');
   }
 
+  async safeResources(paths: string[]): Promise<IResourceDictionary> {
+    await this.safeAddToLoader(paths);
+    await this.load();
+
+    return Object.fromEntries(
+      paths.map((path) => [path, this.loader.resources[path]])
+    );
+  }
+
   async run(generator: (game: Game) => ScenarioGenerator) {
-    await this.loadAll(generator);
+    await this.loadScenarioResources(generator);
     // TODO: control race condition of loading ...?
 
     this.message.texture = this.loader.resources[WAITING_GLYPH].texture;
@@ -169,7 +182,12 @@ export default class Game {
         continue;
       }
 
-      const result = await execCommand(command, this.loader.resources);
+      // NOTE: The command might has state-based paths. (e.g. size based character image)
+      //       So, we need to try loading resources for safe.
+
+      console.log('executing: ', command);
+      const resources = await this.safeResources(command.paths);
+      const result = await command.exec(resources);
       if (result && result.wait) {
         this.ee.emit(WAIT);
         await this.waitNext();

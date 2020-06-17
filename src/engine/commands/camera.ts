@@ -1,6 +1,5 @@
 import EventEmitter from 'eventemitter3';
 
-import { Result } from 'src/engine/commands/command';
 import Renderer from 'src/engine/Renderer';
 
 import Base from './base';
@@ -16,6 +15,7 @@ import {
   ShowEvent,
   Xpos,
 } from './character';
+import { Command, pure } from './command';
 import { BEGIN as PARALLEL_BEGIN, END as PARALLEL_END } from './parallel';
 
 // TODO: position adjustment
@@ -39,25 +39,25 @@ export default class Camera extends Base {
     ee.on(CHANGE, this.onChange);
   }
 
-  async lock(): Promise<Result> {
-    this.locked = true;
-    return {
-      wait: false,
-    };
+  lock(): Command {
+    return pure(async () => {
+      this.locked = true;
+    });
   }
 
-  async unlock(): Promise<Result> {
-    this.locked = false;
-    return {
-      wait: false,
-    };
+  unlock(): Command {
+    return pure(async () => {
+      this.locked = false;
+    });
   }
 
-  async move(xpos: Xpos): Promise<Result> {
-    await this.moveCameraTo(position[xpos] * this.r.width, true);
-    return {
-      wait: false,
-    };
+  move(xpos: Xpos): Command {
+    return pure(async () => {
+      await this.moveCameraTo(position[xpos] * this.r.width, true);
+      return {
+        wait: false,
+      };
+    });
   }
 
   onParallelBegin = () => {

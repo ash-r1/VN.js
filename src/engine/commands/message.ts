@@ -7,7 +7,7 @@ import Renderer from 'src/engine/Renderer';
 import { NEXT, WAIT } from '../Game';
 import MessageBox from '../layer/MessageBox';
 import Base from './base';
-import { Command, ResourceCommand } from './command';
+import { Command, pure, ResourceCommand } from './command';
 
 export interface ShowHideOption {
   duration?: number;
@@ -65,12 +65,14 @@ export default class Message extends Base {
     });
   }
 
-  async hide({ duration = 500 }: HideOption): Promise<void> {
-    if (this.messageBox) {
-      await this.fadeOut(this.messageBox, duration);
-      await this.r.RemoveLayer(this.messageBox, ON_LAYER);
-      this.messageBox = undefined;
-    }
+  hide({ duration = 500 }: HideOption): Command {
+    return pure(async () => {
+      if (this.messageBox) {
+        await this.fadeOut(this.messageBox, duration);
+        await this.r.RemoveLayer(this.messageBox, ON_LAYER);
+        this.messageBox = undefined;
+      }
+    });
   }
 
   async clear(): Promise<void> {

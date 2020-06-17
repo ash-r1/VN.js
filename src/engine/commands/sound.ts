@@ -1,7 +1,7 @@
 import PIXISound from 'pixi-sound';
 
 import Base from './base';
-import { Command, ResourceCommand } from './command';
+import { Command, pure, ResourceCommand } from './command';
 
 interface SoundOption {
   volume?: number;
@@ -42,10 +42,12 @@ export default class Sound extends Base {
     });
   }
 
-  async stop({ todo }: StopOption): Promise<void> {
-    if (this.playing) {
-      this.playing.stop();
-      this.playing = undefined;
-    }
+  stop({ todo }: StopOption): Command {
+    return pure(async () => {
+      if (this.playing) {
+        this.playing.stop();
+        this.playing = undefined;
+      }
+    });
   }
 }
