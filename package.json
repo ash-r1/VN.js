@@ -27,7 +27,7 @@
     "start": "webpack-dev-server --hot --inline --watch-content-base --content-base public/",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "yarn lint --fix",
-    "deploy": "yarn build && aws --profile=ash s3 sync build s3://vnjs-web"
+    "deploy": "yarn build && aws --profile=akn s3 sync build s3://vnjs-web"
   },
   "dependencies": {
     "eventemitter3": "^4.0.4",
