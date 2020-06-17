@@ -211,14 +211,15 @@ export default class Character extends Base {
     if (!face) {
       throw new Error(`undefined face for code=${code}`);
     }
-    const newSize = size ?? this.size;
-    const filepaths = face.paths(newSize);
+    this.size = size ?? this.size;
+    const filepaths = face.paths(this.size);
+    // size state is necessary for the following paths detections in preload phase, save it.
 
     return new MultipleResourcesCommand(
       filepaths,
       async (resources: Record<string, PIXI.LoaderResource>) => {
-        this.size = newSize;
-
+        // store it again, for execution
+        this.size = size ?? this.size;
         if (zIndex) {
           this.zIndex = zIndex;
         }

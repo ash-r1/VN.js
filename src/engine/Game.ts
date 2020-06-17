@@ -113,7 +113,11 @@ export default class Game {
   }
 
   async safeAddToLoader(paths: string[]) {
-    // TODO: wait if the loader is loading
+    if (this.loader.loading) {
+      await new Promise((resolve) => {
+        this.loader.on('complete', resolve);
+      });
+    }
     const pathsShouldBeLoaded = paths.filter(
       (path) => !this.loader.resources[path]
     );
@@ -167,6 +171,13 @@ export default class Game {
     // TODO: control race condition of loading ...?
 
     this.message.texture = this.loader.resources[WAITING_GLYPH].texture;
+
+    // before execution, reset some modules.
+    this.srt.reset();
+    this.ktk.reset();
+    this.krn.reset();
+    this.kyu.reset();
+    this.icr.reset();
 
     const scenario = generator(this);
 
