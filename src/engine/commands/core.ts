@@ -11,7 +11,7 @@ const timeout = (duration: number) =>
     setTimeout(resolve, duration);
   });
 
-export default class System extends Base {
+export default class Core extends Base {
   constructor(r: Renderer, private ee: EventEmitter) {
     super(r);
   }
