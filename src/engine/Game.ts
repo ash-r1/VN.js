@@ -7,6 +7,7 @@ import { Scenario } from 'src/engine/scenario/scenario';
 import Camera from './commands/camera';
 import Character from './commands/character';
 import { Command } from './commands/command';
+import Control from './commands/controls/control';
 import Core from './commands/core';
 import Filter from './commands/filter';
 import Image from './commands/image';
@@ -55,6 +56,7 @@ const baseFrames = [
  */
 export default class Game {
   private ee: EventEmitter;
+  readonly _: Control;
   readonly core: Core;
   readonly image: Image;
   readonly message: Message;
@@ -73,6 +75,7 @@ export default class Game {
     responder: Responder
   ) {
     const ee = new EventEmitter();
+    this._ = new Control(ee);
     this.core = new Core(renderer, ee);
     this.image = new Image(renderer);
     this.sound = new Sound(renderer);

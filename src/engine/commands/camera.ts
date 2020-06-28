@@ -16,7 +16,10 @@ import {
   Xpos,
 } from './character';
 import { Command, pure } from './command';
-import { BEGIN as PARALLEL_BEGIN, END as PARALLEL_END } from './parallel';
+import {
+  BEGIN as PARALLEL_BEGIN,
+  END as PARALLEL_END,
+} from './controls/parallel';
 
 // TODO: position adjustment
 
