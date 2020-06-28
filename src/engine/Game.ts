@@ -2,7 +2,7 @@ import { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import { ScenarioGenerator } from 'src/engine/scenario/generator';
+import { Scenario } from 'src/engine/scenario/scenario';
 
 import Camera from './commands/camera';
 import Character from './commands/character';
@@ -132,9 +132,7 @@ export default class Game {
     });
   }
 
-  async loadScenarioResources(generator: (game: Game) => ScenarioGenerator) {
-    const scenario = generator(this);
-
+  async loadScenarioResources(scenario: Command[]) {
     // Load All at first...
 
     // TODO: loading view
@@ -142,14 +140,12 @@ export default class Game {
 
     this.loader.add(WAITING_GLYPH);
 
-    while (true) {
-      const { value: command, done } = scenario.next();
-      if (done) {
-        break;
-      }
-      if (command) {
-        await this.safeAddToLoader(command.paths);
-      }
+    let cursor = 0;
+
+    while (cursor < scenario.length) {
+      const command = scenario[cursor];
+      cursor++;
+      await this.safeAddToLoader(command.paths);
     }
 
     await this.load();
@@ -166,8 +162,9 @@ export default class Game {
     );
   }
 
-  async run(generator: (game: Game) => ScenarioGenerator) {
-    await this.loadScenarioResources(generator);
+  async run(generator: Scenario) {
+    const scenario = generator(this);
+    await this.loadScenarioResources(scenario);
     // TODO: control race condition of loading ...?
 
     this.message.texture = this.loader.resources[WAITING_GLYPH].texture;
@@ -179,25 +176,19 @@ export default class Game {
     this.kyu.reset();
     this.icr.reset();
 
-    const scenario = generator(this);
+    let cursor = 0;
 
     // after that, Execute
-    while (true) {
-      const { value: command, done } = scenario.next();
-      if (done) {
-        console.log('done.');
-        break;
-      }
-      if (!command) {
-        console.error('scenario generator returned invalid value.');
-        continue;
-      }
+    while (cursor < scenario.length) {
+      const command = scenario[cursor];
+      cursor++;
 
       // NOTE: The command might has state-based paths. (e.g. size based character image)
       //       So, we need to try loading resources for safe.
-
-      console.log('executing: ', command);
       const resources = await this.safeResources(command.paths);
+
+      // exec it after loading.
+      console.log('exec: ', command);
       const result = await command.exec(resources);
       if (result && result.wait) {
         this.ee.emit(WAIT);
@@ -205,6 +196,8 @@ export default class Game {
         this.ee.emit(NEXT);
       }
     }
+
+    alert('END');
   }
 
   // TODO: クリック時の瞬時表示などをするにはRxJSとか使った方が綺麗に書けるのかも知れない

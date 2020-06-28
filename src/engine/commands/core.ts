@@ -20,6 +20,19 @@ export default class Core extends Base {
     return new ParallelCommand(commands, this.ee);
   }
 
+  ifElse(
+    condition: () => boolean,
+    positives: Command[],
+    negatives: Command[]
+  ): Command[] {
+    // TODO: wrap with Command, return resources for both of them.
+    if (condition()) {
+      return positives;
+    } else {
+      return negatives;
+    }
+  }
+
   clickwait(options = {}): Command {
     return pure(async () => {
       return { wait: true };
