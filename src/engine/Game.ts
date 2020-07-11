@@ -59,13 +59,13 @@ export default class Game {
   readonly _: Control;
   readonly core: Core;
   readonly image: Image;
+  readonly sound: Sound;
   readonly message: Message;
   readonly srt: Character;
   readonly ktk: Character;
   readonly krn: Character;
   readonly kyu: Character;
   readonly icr: Character;
-  readonly sound: Sound;
   readonly camera: Camera;
   readonly filter: Filter;
 
