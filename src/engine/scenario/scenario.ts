@@ -53,10 +53,10 @@ export class ScenarioIterator implements IterableIterator<Row> {
   }
 
   jump(label: string): void {
-    const cursor = this.labelCursors.get(label);
-    if (!cursor) {
+    if (!this.labelCursors.has(label)) {
       throw new Error(`label not found (label=${label})`);
     }
-    this.cursor = cursor;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.cursor = this.labelCursors.get(label)!;
   }
 }
