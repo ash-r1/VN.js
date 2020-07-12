@@ -22,20 +22,17 @@ export class Jump {
 
 export class ScenarioIterator implements IterableIterator<Row> {
   private cursor = 0;
-  private labelCursors: Record<string, number>;
+  private labelCursors: Map<string, number>;
 
   constructor(private scenario: Scenario) {
-    this.labelCursors = scenario.reduce<Record<string, number>>(
+    this.labelCursors = scenario.reduce<Map<string, number>>(
       (prev, row, index) => {
         if (row instanceof Label) {
-          return {
-            ...prev,
-            [row.label]: index,
-          };
+          return prev.set(row.label, index);
         }
         return prev;
       },
-      {}
+      new Map()
     );
   }
 
@@ -56,6 +53,10 @@ export class ScenarioIterator implements IterableIterator<Row> {
   }
 
   jump(label: string): void {
-    this.cursor = this.labelCursors[label];
+    const cursor = this.labelCursors.get(label);
+    if (!cursor) {
+      throw new Error(`label not found (label=${label})`);
+    }
+    this.cursor = cursor;
   }
 }
