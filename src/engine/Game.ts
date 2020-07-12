@@ -2,8 +2,8 @@ import { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import { Scenario } from 'src/engine/scenario/scenario';
-
+import scenario0 from '../scenario/scenario0';
+import scenario1 from '../scenario/scenario1';
 import Camera from './commands/camera';
 import Character from './commands/character';
 import { Command } from './commands/command';
@@ -16,6 +16,8 @@ import { WAITING_GLYPH } from './commands/message';
 import Sound from './commands/sound';
 import Renderer from './Renderer';
 import Responder from './Responder';
+import { Label, ScenarioFactory, ScenarioIterator } from './scenario/scenario';
+import { Jump } from './scenario/scenario';
 
 // internal event
 const ONCLICK = '@intl/onclick';
@@ -55,6 +57,8 @@ const baseFrames = [
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。
  */
 export default class Game {
+  readonly scenarios: Record<string, ScenarioFactory>;
+  private iter: ScenarioIterator;
   private ee: EventEmitter;
   readonly _: Control;
   readonly core: Core;
@@ -74,6 +78,13 @@ export default class Game {
     renderer: Renderer,
     responder: Responder
   ) {
+    this.scenarios = {
+      // TODO: better implementation
+      scenario0,
+      scenario1,
+    };
+    this.iter = new ScenarioIterator([]);
+
     const ee = new EventEmitter();
     this._ = new Control(ee);
     this.core = new Core(renderer, ee);
@@ -107,8 +118,6 @@ export default class Game {
     });
   }
 
-  //TODO: この辺りのimageとかの渡し方は今後改善しよう
-
   waitNext(): Promise<void> {
     return new Promise((resolve) => {
       this.ee.once(ONCLICK, resolve);
@@ -135,25 +144,9 @@ export default class Game {
     });
   }
 
-  async loadScenarioResources(scenario: Command[]) {
-    // Load All at first...
-
-    // TODO: loading view
-    console.log('loading...');
-
+  async loadBasicResources() {
     this.loader.add(WAITING_GLYPH);
-
-    let cursor = 0;
-
-    while (cursor < scenario.length) {
-      const command = scenario[cursor];
-      cursor++;
-      await this.safeAddToLoader(command.paths);
-    }
-
     await this.load();
-
-    console.log('loading finished');
   }
 
   async safeResources(paths: string[]): Promise<IResourceDictionary> {
@@ -165,42 +158,57 @@ export default class Game {
     );
   }
 
-  async run(generator: Scenario) {
-    const scenario = generator(this);
-    await this.loadScenarioResources(scenario);
-    // TODO: control race condition of loading ...?
+  async jumpToScenario(scenarioName: string) {
+    const scenario = this.scenarios[scenarioName](this);
+    this.iter = new ScenarioIterator(scenario);
+    // NOTE: loadScenarioResources will break game-state on jump, just stop to do this.
+    // TBD: preloading issue
+    // await this.loadScenarioResources(scenario);
+  }
 
+  async run(entryPoint: string) {
+    await this.loadBasicResources();
     this.message.texture = this.loader.resources[WAITING_GLYPH].texture;
 
-    // before execution, reset some modules.
-    this.srt.reset();
-    this.ktk.reset();
-    this.krn.reset();
-    this.kyu.reset();
-    this.icr.reset();
+    this.jumpToScenario(entryPoint);
 
-    let cursor = 0;
+    await this.loop();
+  }
 
-    // after that, Execute
-    while (cursor < scenario.length) {
-      const command = scenario[cursor];
-      cursor++;
+  async loop() {
+    while (true) {
+      const iterResult = this.iter.next();
+      if (iterResult.done) {
+        break;
+      }
+      const row = iterResult.value;
 
-      // NOTE: The command might has state-based paths. (e.g. size based character image)
-      //       So, we need to try loading resources for safe.
-      const resources = await this.safeResources(command.paths);
+      if (row instanceof Command) {
+        const command = row;
+        const resources = await this.safeResources(command.paths);
 
-      // exec it after loading.
-      console.log('exec: ', command);
-      const result = await command.exec(resources);
-      if (result && result.wait) {
-        this.ee.emit(WAIT);
-        await this.waitNext();
-        this.ee.emit(NEXT);
+        // exec it after loading.
+        const result = await command.exec(resources);
+        if (result && result.wait) {
+          this.ee.emit(WAIT);
+          await this.waitNext();
+          this.ee.emit(NEXT);
+        }
+      } else if (row instanceof Label) {
+        // TODO: store label for game saving feature?
+        console.debug('label: ', row.label);
+      } else if (row instanceof Jump) {
+        if (row.scenario) {
+          this.jumpToScenario(row.scenario);
+        }
+        if (row.label) {
+          this.iter.jump(row.label);
+        }
+        // Exec them on the next loop
       }
     }
 
-    alert('END');
+    console.error('END');
   }
 
   // TODO: クリック時の瞬時表示などをするにはRxJSとか使った方が綺麗に書けるのかも知れない

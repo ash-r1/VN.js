@@ -108,10 +108,6 @@ export default class Character extends Base {
     );
   }
 
-  reset() {
-    this.size = defaultSize;
-  }
-
   private async crossfadeIntl(
     face: Face,
     resources: Record<string, PIXI.LoaderResource>,
