@@ -19,7 +19,7 @@ interface StopOption {
 export default class Sound extends Base {
   private playing?: PIXISound.Sound;
 
-  play(filename: string, { loop = true, ...option }: BGMOption): Command {
+  play(filename: string, { loop = true, ...option }: BGMOption = {}): Command {
     const src = `game/sounds/${filename}.mp3`;
 
     return new ResourceCommand(src, async (resource) => {
@@ -33,7 +33,7 @@ export default class Sound extends Base {
     });
   }
 
-  se(filename: string, option: SoundOption): Command {
+  se(filename: string, option: SoundOption = {}): Command {
     const src = `game/sounds/${filename}.mp3`;
 
     return new ResourceCommand(src, async (resource) => {
@@ -42,7 +42,7 @@ export default class Sound extends Base {
     });
   }
 
-  stop({ todo }: StopOption): Command {
+  stop({ todo }: StopOption = {}): Command {
     return pure(async () => {
       if (this.playing) {
         this.playing.stop();

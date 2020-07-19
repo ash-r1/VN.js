@@ -41,7 +41,7 @@ export default class Message extends Base {
     }
   };
 
-  show(text: string, { duration = 500 }: ShowOption): Command {
+  show(text: string, { duration = 500 }: ShowOption = {}): Command {
     const src = 'game/textbox.png';
     return new ResourceCommand(src, async (resource) => {
       if (!this.messageBox) {
@@ -65,7 +65,7 @@ export default class Message extends Base {
     });
   }
 
-  hide({ duration = 500 }: HideOption): Command {
+  hide({ duration = 500 }: HideOption = {}): Command {
     return pure(async () => {
       if (this.messageBox) {
         await this.fadeOut(this.messageBox, duration);

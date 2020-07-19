@@ -15,7 +15,7 @@ export default class Core extends Base {
     super(r);
   }
 
-  clickwait(options = {}): Command {
+  clickwait(): Command {
     return pure(async () => {
       return { wait: true };
     });

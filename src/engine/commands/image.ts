@@ -31,7 +31,7 @@ export default class Image extends Base {
       x = this.r.width / 2,
       y = this.r.height / 2,
       scale = 1.05,
-    }: Omit<ShowOption, 'on'>
+    }: Omit<ShowOption, 'on'> = {}
   ): Command {
     const filepath = `game/images/bg ${src}.png`;
     return new ResourceCommand(
@@ -57,7 +57,7 @@ export default class Image extends Base {
   show(
     name: string,
     src: string,
-    { duration = 500, on = 'fg', ...option }: ShowOption
+    { duration = 500, on = 'fg', ...option }: ShowOption = {}
   ): Command {
     const filepath = `game/images/${src}.png`;
     return new ResourceCommand(
@@ -73,7 +73,7 @@ export default class Image extends Base {
     );
   }
 
-  hide(name: string, { duration = 500 }: HideOption): Command {
+  hide(name: string, { duration = 500 }: HideOption = {}): Command {
     return pure(async () => {
       const layer = this.layers.get(name);
       if (layer) {

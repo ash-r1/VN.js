@@ -187,7 +187,7 @@ export default class Character extends Base {
 
   move(
     xpos: Xpos,
-    { duration = this.defaultMoveDuration }: MoveOption
+    { duration = this.defaultMoveDuration }: MoveOption = {}
   ): Command {
     return pure(async () => {
       await this.moveIntl(xpos, duration);
@@ -196,7 +196,7 @@ export default class Character extends Base {
 
   show(
     code: string,
-    { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption
+    { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption = {}
   ): Command {
     // FIXME: ここでthisを参照してしまうせいで、sizeの解釈がおかしくなってしまう。
     // preloadとは別で逐次ロードも行うべきか...sizeの変更は内部でも行う、という方針もあるが
@@ -257,7 +257,7 @@ export default class Character extends Base {
     );
   }
 
-  hide({ duration = this.defaultHideDuration }: HideOption): Command {
+  hide({ duration = this.defaultHideDuration }: HideOption = {}): Command {
     return pure(async () => {
       if (this.sprite) {
         await this.fadeOut(this.sprite, duration);

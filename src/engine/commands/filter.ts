@@ -43,7 +43,7 @@ export default class Filter extends Base {
     });
   }
 
-  crt(on: layerName, { ...options }: CRTOptions): Command {
+  crt(on: layerName, { ...options }: CRTOptions = {}): Command {
     return pure(async () => {
       const filter = new CRTFilter(options);
 
@@ -66,7 +66,10 @@ export default class Filter extends Base {
     });
   }
 
-  shockwave(on: layerName, { loopAt, ...options }: ShockwaveOptions): Command {
+  shockwave(
+    on: layerName,
+    { loopAt, ...options }: ShockwaveOptions = {}
+  ): Command {
     return pure(async () => {
       const filter = new ShockwaveFilter(this.center, options);
 
@@ -100,7 +103,7 @@ export default class Filter extends Base {
 
   godray(
     on: layerName,
-    { angle, gain, lacunarity, speed = 1.0 }: GodrayOptions
+    { angle, gain, lacunarity, speed = 1.0 }: GodrayOptions = {}
   ): Command {
     return pure(async () => {
       const filter = new GodrayFilter();
@@ -134,7 +137,7 @@ export default class Filter extends Base {
 
   twist(
     on: layerName,
-    { duration = 500, maxAngle = 3.0, radiusRate = 1.0 }: TwistOptions
+    { duration = 500, maxAngle = 3.0, radiusRate = 1.0 }: TwistOptions = {}
   ): Command {
     return pure(async () => {
       const filter = new TwistFilter(
