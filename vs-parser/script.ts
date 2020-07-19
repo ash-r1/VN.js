@@ -4,8 +4,6 @@ import fs from 'fs';
 
 import { ParsimmonLang } from './parsimmon.lang';
 
-// interfaces?
-
 export interface Index {
   start: number;
   line: number;
@@ -48,6 +46,7 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
     switch (chunkName) {
       case 'param':
         params.push(chunkValue);
+        break;
       case 'keywordParam': {
         const keyword = chunkValue[0] as string;
         const value = chunkValue[2] as string;
@@ -59,6 +58,7 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
         }
         const map = params[params.length - 1] as KeywordParams;
         map.set(keyword, value);
+        break;
       }
     }
   });
@@ -103,11 +103,10 @@ export class Text extends StatementBase {
   constructor(st: Record<string, any>) {
     super(st);
     this.body = st['value'];
-    //
   }
 }
 
-type Statement = Comment | Command | SystemCommand | Label | Text;
+export type Statement = Comment | Command | SystemCommand | Label | Text;
 
 const parseLine = (obj: any): Statement | undefined => {
   if (obj['name'] !== 'line') {
@@ -131,9 +130,8 @@ export class Script {
   readonly statements: Statement[];
 
   static parse(body: string) {
-    const result = ParsimmonLang.Script.tryParse(body);
-    const script = new Script(result);
-    return script;
+    const struct = ParsimmonLang.Script.tryParse(body);
+    return new Script(struct);
   }
 
   constructor(chunks: Array<object>) {
@@ -141,22 +139,4 @@ export class Script {
       .map((chunk) => parseLine(chunk))
       .filter((s) => s) as Statement[];
   }
-}
-
-if (process.argv.length <= 2) {
-  console.error('USAGE: parse.ts your-scenario.vs');
-  process.exit(1);
-}
-
-const fileName = process.argv[2];
-
-const body = fs.readFileSync(fileName, 'utf-8');
-
-try {
-  const script = Script.parse(body);
-  script.statements.forEach((st) => {
-    console.log(st);
-  });
-} catch (e) {
-  console.error(e.message);
 }

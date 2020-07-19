@@ -1,6 +1,7 @@
 import fs from 'fs';
 
-import { Script } from './script';
+import { ParsimmonLang } from '../parsimmon.lang';
+import { Script } from '../script';
 
 if (process.argv.length <= 2) {
   console.error('USAGE: parse.ts your-scenario.vs');
@@ -12,7 +13,9 @@ const fileName = process.argv[2];
 const body = fs.readFileSync(fileName, 'utf-8');
 
 try {
-  const script = Script.parse(body);
+  const struct = ParsimmonLang.Script.tryParse(body);
+  console.log(JSON.stringify(struct, null, 2));
+  const script = new Script(struct);
   script.statements.forEach((st) => {
     console.log(st);
   });

@@ -2,8 +2,7 @@ import { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import scenario0 from '../scenario/scenario0';
-import scenario1 from '../scenario/scenario1';
+import scenarios from '../scenario';
 import Camera from './commands/camera';
 import Character from './commands/character';
 import { Command } from './commands/command';
@@ -78,11 +77,7 @@ export default class Game {
     renderer: Renderer,
     responder: Responder
   ) {
-    this.scenarios = {
-      // TODO: better implementation
-      scenario0,
-      scenario1,
-    };
+    this.scenarios = scenarios;
     this.iter = new ScenarioIterator([]);
 
     const ee = new EventEmitter();
