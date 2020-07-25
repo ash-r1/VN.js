@@ -39,7 +39,6 @@ export type Params = Array<string | KeywordParams>;
 
 function parseParams(chunks: Array<Record<string, any>>): Params {
   const params: Params = [];
-  //
   chunks.forEach((chunk) => {
     const chunkName = chunk['name'];
     const chunkValue = chunk['value'];
@@ -84,8 +83,8 @@ export class SystemCommand extends StatementBase {
   constructor(st: Record<string, any>) {
     super(st);
     const v = st['value'];
-    this.func = v[1][0];
-    this.params = parseParams(v[2]);
+    this.func = v[1];
+    this.params = parseParams(v[3]);
   }
 }
 
@@ -122,6 +121,8 @@ const parseLine = (obj: any): Statement | null => {
       return new Comment(st);
     case 'command':
       return new Command(st);
+    case 'systemCommand':
+      return new SystemCommand(st);
     case 'label':
       return new Label(st);
     case 'text':
