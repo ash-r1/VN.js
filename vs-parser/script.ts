@@ -108,11 +108,14 @@ export class Text extends StatementBase {
 
 export type Statement = Comment | Command | SystemCommand | Label | Text;
 
-const parseLine = (obj: any): Statement | undefined => {
+const parseLine = (obj: any): Statement | null => {
   if (obj['name'] !== 'line') {
     throw new Error('name must be line');
   }
   const value = obj['value'];
+  if (typeof value === 'string') {
+    return null;
+  }
   const st = value[0];
   switch (st['name']) {
     case 'comment':
@@ -123,6 +126,8 @@ const parseLine = (obj: any): Statement | undefined => {
       return new Label(st);
     case 'text':
       return new Text(st);
+    default:
+      throw new Error(`unknwon statement: ${JSON.stringify(st, null, 2)}`);
   }
 };
 
@@ -137,6 +142,6 @@ export class Script {
   constructor(chunks: Array<object>) {
     this.statements = chunks
       .map((chunk) => parseLine(chunk))
-      .filter((s) => s) as Statement[];
+      .filter((s): s is Statement => s !== null);
   }
 }
