@@ -4,6 +4,7 @@ import {
   Command,
   Comment,
   Label,
+  Parallel,
   Params,
   Script,
   Statement,
@@ -36,7 +37,7 @@ export class Generator {
   }
   formatStatement(st: Statement): string {
     if (st instanceof Comment) {
-      return `// ${st.body}`;
+      return `//${st.body}`;
     } else if (st instanceof Command) {
       return `g.${st.module}.${st.func}(${this.formatParams(st.params)}),`;
     } else if (st instanceof SystemCommand) {
@@ -45,6 +46,13 @@ export class Generator {
       return `g._.label('${st.body}'),`;
     } else if (st instanceof Text) {
       return `g.message.show('${st.body}'),`;
+    } else if (st instanceof Parallel) {
+      return `g._.parallel(
+        //
+        ${st.statements
+          .map((subStatement) => `${this.formatStatement(subStatement)}\n`)
+          .join('')}
+      ),`;
     } else {
       return '';
     }

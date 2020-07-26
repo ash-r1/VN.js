@@ -27,10 +27,9 @@ export class StatementBase {
 
 export class Comment extends StatementBase {
   readonly body: string;
-  constructor(st: Record<string, any>) {
+  constructor(st: Record<string, any>, body: string) {
     super(st);
-    this.body = st['value'];
-    //
+    this.body = body;
   }
 }
 
@@ -112,7 +111,7 @@ export const parseParallelizableLine = (
 ): ParallelizableStatement | null => {
   switch (st['name']) {
     case 'comment':
-      return new Comment(st);
+      return new Comment(st, st.value[2]);
     case 'command':
       return new Command(st);
     case 'text':
@@ -123,7 +122,7 @@ export const parseParallelizableLine = (
 };
 
 export class Parallel extends StatementBase {
-  readonly statements: ParallelizableStatement;
+  readonly statements: ParallelizableStatement[];
   constructor(st: Record<string, any>) {
     super(st);
     const value = st['value'];
@@ -156,7 +155,7 @@ const parseLine = (obj: any): Statement | null => {
   const st = value[0];
   switch (st['name']) {
     case 'comment':
-      return new Comment(st);
+      return new Comment(st, st.value[2]);
     case 'command':
       return new Command(st);
     case 'systemCommand':
