@@ -105,7 +105,45 @@ export class Text extends StatementBase {
   }
 }
 
-export type Statement = Comment | Command | SystemCommand | Label | Text;
+export type ParallelizableStatement = Comment | Command | Text;
+
+export const parseParallelizableLine = (
+  st: Record<string, any>
+): ParallelizableStatement | null => {
+  switch (st['name']) {
+    case 'comment':
+      return new Comment(st);
+    case 'command':
+      return new Command(st);
+    case 'text':
+      return new Text(st);
+    default:
+      throw new Error(`unknown statement: ${JSON.stringify(st, null, 2)}`);
+  }
+};
+
+export class Parallel extends StatementBase {
+  readonly statements: ParallelizableStatement;
+  constructor(st: Record<string, any>) {
+    super(st);
+    const value = st['value'];
+    const subcommands = value[2];
+    this.statements = subcommands
+      .map((subcommand: any) => parseParallelizableLine(subcommand[1]))
+      .filter(
+        (s: ParallelizableStatement | null): s is ParallelizableStatement =>
+          s !== null
+      );
+  }
+}
+
+export type Statement =
+  | Comment
+  | Command
+  | SystemCommand
+  | Label
+  | Text
+  | Parallel;
 
 const parseLine = (obj: any): Statement | null => {
   if (obj['name'] !== 'line') {
@@ -127,8 +165,10 @@ const parseLine = (obj: any): Statement | null => {
       return new Label(st);
     case 'text':
       return new Text(st);
+    case 'parallel':
+      return new Parallel(st);
     default:
-      throw new Error(`unknwon statement: ${JSON.stringify(st, null, 2)}`);
+      throw new Error(`unknown statement: ${JSON.stringify(st, null, 2)}`);
   }
 };
 

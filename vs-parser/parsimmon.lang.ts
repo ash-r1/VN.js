@@ -20,8 +20,8 @@ const KeywordParam = P.seq(ParamName, P.string('='), Value).node(
 );
 const Param = Value.node('param');
 
-const Comment = P.string('#').then(P.regexp(/.*/)).node('comment');
-const Text = P.regexp(/.+/).node('text');
+const Comment = P.seq(optSpaces, P.string('#'), P.regexp(/.*/)).node('comment');
+const Text = P.regexp(/[^@].*/).node('text');
 const Label = P.string('*').then(P.regexp(/.+/)).node('label');
 
 const CommandModule = P.regexp(/[a-zA-Z0-9]+/);
@@ -44,9 +44,16 @@ const SystemCommand = P.seq(
   optSpaces
 ).node('systemCommand');
 
+const ParallelStatement = P.seq(
+  P.string('@@parallel'),
+  NL,
+  P.seq(P.string('  '), P.alt(Comment, Command, Text), End).atLeast(2)
+).node('parallel');
+
 export const ParsimmonLang = P.createLanguage({
   Script: (r) => r.Line.many(),
-  Line: (r) => P.alt(P.seq(r.Statement, End), NL).node('line'),
-  Statement: () => P.alt(Comment, SystemCommand, Command, Label, Text),
+  Line: (r) => P.alt(NL, P.seq(r.Statement, End)).node('line'),
+  Statement: () =>
+    P.alt(Comment, ParallelStatement, SystemCommand, Command, Label, Text),
   Command: () => Command,
 });

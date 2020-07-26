@@ -22,4 +22,5 @@ try {
   fs.writeFileSync(tsPath, ts);
 } catch (e) {
   console.error(e.message);
+  process.exit(1);
 }
