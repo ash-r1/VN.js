@@ -5,7 +5,12 @@
   "author": "Ash <ash.suzuki.r1@gmail.com>",
   "license": "MPL",
   "private": true,
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "module": "dist/index.es.js",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/change-case": "^2.3.1",
     "@types/eventemitter3": "^2.0.2",
     "@types/fontfaceobserver": "^0.0.6",
@@ -20,6 +25,9 @@
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "parsimmon": "^1.14.0",
     "prettier": "^2.0.5",
+    "rollup": "^2.26.5",
+    "rollup-plugin-string": "^3.0.0",
+    "rollup-plugin-typescript2": "^0.27.2",
     "ts-loader": "^7.0.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.2",
@@ -28,12 +36,16 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "build": "webpack && rm -rf build && mkdir build && cp -r dist/* build && cp -r public/* build",
-    "start": "webpack-dev-server --hot --inline --watch-content-base --content-base public/",
+    "build": "rollup -c",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "yarn lint --fix",
     "deploy": "yarn build && aws --profile=akn s3 sync build s3://vnjs-web"
   },
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
   "dependencies": {
     "eventemitter3": "^4.0.4",
     "fontfaceobserver": "^2.1.0",

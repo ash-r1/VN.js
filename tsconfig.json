@@ -4,15 +4,15 @@
     "paths": {
       "src/*": ["src/*"]
     },
-    "outDir": "./dist/",
     "sourceMap": true,
     "noImplicitAny": true,
-    "module": "commonjs",
+    "module": "ES2015",
     "esModuleInterop": true,
     "lib": ["dom", "es2019"],
     "target": "es5",
-    "jsx": "react",
-    "strict": true
+    "strict": true,
+    "declaration": true,
+    "declarationDir": "types"
   },
   "include": [
     "./src/**/*"
