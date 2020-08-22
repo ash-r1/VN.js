@@ -17,14 +17,13 @@
     "parse": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
   },
   "bin": {
-    "generate-vs": "src/bin/cross-env.js",
-    "cross-env-shell": "src/bin/cross-env-shell.js"
+    "generate-vs": "bin/generate.js"
   },
   "files": [
     "dist",
     "src",
-    "types",
-    "bin"
+    "bin",
+    "types"
   ],
   "dependencies": {
     "eventemitter3": "^4.0.4",
