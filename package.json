@@ -12,12 +12,19 @@
     "build": "rollup -c",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "yarn lint --fix",
-    "deploy": "yarn build && aws --profile=akn s3 sync build s3://vnjs-web"
+    "deploy": "yarn build && aws --profile=akn s3 sync build s3://vnjs-web",
+    "generate": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/generate",
+    "parse": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
+  },
+  "bin": {
+    "generate-vs": "src/bin/cross-env.js",
+    "cross-env-shell": "src/bin/cross-env-shell.js"
   },
   "files": [
     "dist",
     "src",
-    "types"
+    "types",
+    "bin"
   ],
   "dependencies": {
     "eventemitter3": "^4.0.4",
