@@ -61,7 +61,7 @@ export class Generator {
   run(script: Script, name: string): string {
     const scenarioName = camelCase(name);
     const ts = `
-import { ScenarioFactory } from 'vn.js';
+import { ScenarioFactory } from '@ash-r1/vn.js';
 import Game from 'src/game';
 
 const ${scenarioName}: ScenarioFactory<Game> = (g: Game) => {
