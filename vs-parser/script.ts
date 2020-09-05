@@ -25,10 +25,9 @@ export class StatementBase {
 
 export class Comment extends StatementBase {
   readonly body: string;
-  constructor(st: Record<string, any>) {
+  constructor(st: Record<string, any>, body: string) {
     super(st);
-    this.body = st['value'];
-    //
+    this.body = body;
   }
 }
 
@@ -37,7 +36,6 @@ export type Params = Array<string | KeywordParams>;
 
 function parseParams(chunks: Array<Record<string, any>>): Params {
   const params: Params = [];
-  //
   chunks.forEach((chunk) => {
     const chunkName = chunk['name'];
     const chunkValue = chunk['value'];
@@ -82,8 +80,8 @@ export class SystemCommand extends StatementBase {
   constructor(st: Record<string, any>) {
     super(st);
     const v = st['value'];
-    this.func = v[1][0];
-    this.params = parseParams(v[2]);
+    this.func = v[1];
+    this.params = parseParams(v[3]);
   }
 }
 
@@ -104,23 +102,70 @@ export class Text extends StatementBase {
   }
 }
 
-export type Statement = Comment | Command | SystemCommand | Label | Text;
+export type ParallelizableStatement = Comment | Command | Text;
 
-const parseLine = (obj: any): Statement | undefined => {
+export const parseParallelizableLine = (
+  st: Record<string, any>
+): ParallelizableStatement | null => {
+  switch (st['name']) {
+    case 'comment':
+      return new Comment(st, st.value[2]);
+    case 'command':
+      return new Command(st);
+    case 'text':
+      return new Text(st);
+    default:
+      throw new Error(`unknown statement: ${JSON.stringify(st, null, 2)}`);
+  }
+};
+
+export class Parallel extends StatementBase {
+  readonly statements: ParallelizableStatement[];
+  constructor(st: Record<string, any>) {
+    super(st);
+    const value = st['value'];
+    const subcommands = value[2];
+    this.statements = subcommands
+      .map((subcommand: any) => parseParallelizableLine(subcommand[1]))
+      .filter(
+        (s: ParallelizableStatement | null): s is ParallelizableStatement =>
+          s !== null
+      );
+  }
+}
+
+export type Statement =
+  | Comment
+  | Command
+  | SystemCommand
+  | Label
+  | Text
+  | Parallel;
+
+const parseLine = (obj: any): Statement | null => {
   if (obj['name'] !== 'line') {
     throw new Error('name must be line');
   }
   const value = obj['value'];
+  if (typeof value === 'string') {
+    return null;
+  }
   const st = value[0];
   switch (st['name']) {
     case 'comment':
-      return new Comment(st);
+      return new Comment(st, st.value[2]);
     case 'command':
       return new Command(st);
+    case 'systemCommand':
+      return new SystemCommand(st);
     case 'label':
       return new Label(st);
     case 'text':
       return new Text(st);
+    case 'parallel':
+      return new Parallel(st);
+    default:
+      throw new Error(`unknown statement: ${JSON.stringify(st, null, 2)}`);
   }
 };
 
@@ -135,6 +180,6 @@ export class Script {
   constructor(chunks: Array<object>) {
     this.statements = chunks
       .map((chunk) => parseLine(chunk))
-      .filter((s) => s) as Statement[];
+      .filter((s): s is Statement => s !== null);
   }
 }
