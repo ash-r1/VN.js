@@ -70,7 +70,7 @@ export default class BaseGame {
   async safeAddToLoader(paths: string[]) {
     if (this.loader.loading) {
       await new Promise((resolve) => {
-        this.loader.on('complete', resolve);
+        this.loader.onComplete.once(resolve);
       });
     }
     const pathsShouldBeLoaded = paths.filter(

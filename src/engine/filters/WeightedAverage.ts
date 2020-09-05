@@ -40,6 +40,6 @@ export class WeightedAverageFilter extends PIXI.Filter {
       -this.worldTransform.tx / width,
       -this.worldTransform.ty / height
     );
-    filterManager.applyFilter(this, input, output, false);
+    filterManager.applyFilter(this, input, output, PIXI.CLEAR_MODES.NO);
   }
 }
