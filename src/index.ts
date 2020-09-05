@@ -16,12 +16,14 @@ import { WAITING_GLYPH } from './engine/commands/message';
 import Sound from './engine/commands/sound';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
+import Runner from './engine/Runner';
 
 export {
   // PIXI
   PIXI,
   // Core
   BaseGame,
+  Runner,
   Renderer,
   Responder,
   // Commands

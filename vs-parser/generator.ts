@@ -56,7 +56,7 @@ export class Generator {
 import { ScenarioFactory } from 'vn.js';
 import Game from 'src/game';
 
-const ${scenarioName}: ScenarioFactory = (g: Game) => {
+const ${scenarioName}: ScenarioFactory<Game> = (g: Game) => {
   return [
     ${script.statements.map((st) => this.formatStatement(st)).join('    \n')}
   ];

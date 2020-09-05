@@ -4,7 +4,7 @@ import BaseGame from '../BaseGame';
 
 export type Row = Command | Label | Jump;
 export type Scenario = Row[];
-export type ScenarioFactory = (game: BaseGame) => Scenario;
+export type ScenarioFactory<Game extends BaseGame> = (game: Game) => Scenario;
 
 export class Label {
   constructor(readonly label: string) {}
