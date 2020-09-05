@@ -1,6 +1,6 @@
 {
   "name": "@ash-r1/vn.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "git@github.com:ash-r1/VN.js.git",
   "author": "Ash <ash.suzuki.r1@gmail.com>",
   "license": "MPL",
@@ -24,8 +24,10 @@
     "types"
   ],
   "dependencies": {
+    "change-case": "^4.1.1",
     "eventemitter3": "^4.0.4",
     "fontfaceobserver": "^2.1.0",
+    "parsimmon": "^1.14.0",
     "pixi-filters": "^3.1.1",
     "pixi-sound": "^3.0.5",
     "pixi.js": "^5.3.3",
@@ -38,12 +40,10 @@
     "@types/parsimmon": "^1.10.2",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
-    "change-case": "^4.1.1",
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-simple-import-sort": "^5.0.3",
-    "parsimmon": "^1.14.0",
     "prettier": "^2.0.5",
     "rollup": "^2.26.5",
     "rollup-plugin-string": "^3.0.0",
