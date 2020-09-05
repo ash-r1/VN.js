@@ -1,4 +1,4 @@
-import PIXI from 'pixi.js';
+import * as PIXI from 'pixi.js';
 
 // To modify PIXI.loader before initialization, we must include pixi-sound here.
 import 'pixi-sound';
