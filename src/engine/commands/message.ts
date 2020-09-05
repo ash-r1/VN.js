@@ -4,7 +4,7 @@ import EventEmitter from 'eventemitter3';
 
 import Renderer from 'src/engine/Renderer';
 
-import { NEXT, WAIT } from '../Game';
+import { NEXT, WAIT } from '../BaseGame';
 import MessageBox from '../layer/MessageBox';
 import Base from './base';
 import { Command, pure, ResourceCommand } from './command';

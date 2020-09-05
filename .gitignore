@@ -1,4 +1,6 @@
 /dist
+/bin
+/types
 /node_modules
 /public/game
 /build

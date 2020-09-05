@@ -1,10 +1,10 @@
 import { Command } from 'src/engine/commands/command';
 
-import Game from '../Game';
+import BaseGame from '../BaseGame';
 
 export type Row = Command | Label | Jump;
 export type Scenario = Row[];
-export type ScenarioFactory = (game: Game) => Scenario;
+export type ScenarioFactory<Game extends BaseGame> = (game: Game) => Scenario;
 
 export class Label {
   constructor(readonly label: string) {}

@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import fs from 'fs';
-
 import { ParsimmonLang } from './parsimmon.lang';
 
 export interface Index {
