@@ -1,4 +1,4 @@
-import { IResourceDictionary } from 'pixi.js';
+import PIXI, { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 

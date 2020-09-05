@@ -539,13 +539,6 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@types/change-case@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@types/change-case/-/change-case-2.3.1.tgz#dbaf4efb63ad8586ab8819179a790904ccb6a837"
-  integrity sha1-269O+2OthYariBkXmnkJBMy2qDc=
-  dependencies:
-    change-case "*"
-
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -565,13 +558,6 @@
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
-
-"@types/eventemitter3@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@types/eventemitter3/-/eventemitter3-2.0.2.tgz#94b57c2568c4f09479d64812f625317b12a6edd0"
-  integrity sha1-lLV8JWjE8JR51kgS9iUxexKm7dA=
-  dependencies:
-    eventemitter3 "*"
 
 "@types/events@*":
   version "3.0.0"
@@ -611,13 +597,6 @@
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/@types/parsimmon/-/parsimmon-1.10.2.tgz#2ac8480e1230c1c212cb6a2fed001bc87201aed8"
   integrity sha512-WVugAiBoLsmay9IPrLJoMnmLTP0cWPbc4w5c5suTevyhaJW9TWGyPbkFraNUk5YULf8vQ5C/3NBEQcIs6XfTcg==
-
-"@types/pixi.js@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@types/pixi.js/-/pixi.js-5.0.0.tgz#3fbd6d9d26cb563a0f2870e0ea767bc62dddf1b8"
-  integrity sha512-yZqQBR043lRBlBZci2cx6hgmX0fvBfYIqFm6VThlnueXEjitxd3coy+BGsqsZ7+ary7O//+ks4aJRhC5MJoHqA==
-  dependencies:
-    pixi.js "*"
 
 "@types/resolve@1.17.1":
   version "1.17.1"
@@ -1346,7 +1325,7 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-change-case@*, change-case@^4.1.1:
+change-case@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/change-case/-/change-case-4.1.1.tgz#d5005709275952e7963fed7b91e4f9fdb6180afa"
   integrity sha512-qRlUWn/hXnX1R1LBDF/RelJLiqNjKjUqlmuBVSEIyye8kq49CXqkZWKmi8XeUAdDXWFOcGLUMZ+aHn3Q5lzUXw==
@@ -2130,15 +2109,15 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
-eventemitter3@*, eventemitter3@^4.0.0, eventemitter3@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.4.tgz#b5463ace635a083d018bdc7c917b4c5f10a85384"
-  integrity sha512-rlaVLnVxtxvoyLsQQFBx53YmXHDxRIzzTLbdfxqi4yocpSjAxXwkU0cScM5JgSKMqEhrZpnvQ2D9gjylR0AimQ==
-
 eventemitter3@^3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-3.1.2.tgz#2d3d48f9c346698fce83a85d7d664e98535df6e7"
   integrity sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==
+
+eventemitter3@^4.0.0, eventemitter3@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.4.tgz#b5463ace635a083d018bdc7c917b4c5f10a85384"
+  integrity sha512-rlaVLnVxtxvoyLsQQFBx53YmXHDxRIzzTLbdfxqi4yocpSjAxXwkU0cScM5JgSKMqEhrZpnvQ2D9gjylR0AimQ==
 
 events@^3.0.0:
   version "3.1.0"
@@ -4085,7 +4064,7 @@ pixi-sound@^3.0.4:
     "@pixi/ticker" "^5.0.1"
     "@pixi/utils" "^5.0.1"
 
-pixi.js@*, pixi.js@^5.2.4:
+pixi.js@^5.2.4:
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-5.2.4.tgz#272b172c44e3cb77f7a7851d252576e75b0a4c87"
   integrity sha512-QNmWPI1VscGleR2jUDiBlH9Lq8wh5mqi6K8RRUpW3O1xOXAKDTpD/TPA9EHzkYI9axag/AcChS7aiJVnwV2ytw==

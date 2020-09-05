@@ -35,11 +35,8 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
-    "@types/change-case": "^2.3.1",
-    "@types/eventemitter3": "^2.0.2",
     "@types/fontfaceobserver": "^0.0.6",
     "@types/parsimmon": "^1.10.2",
-    "@types/pixi.js": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "change-case": "^4.1.1",
