@@ -2,7 +2,6 @@ import { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import scenarios from '../scenario';
 import Camera from './commands/camera';
 import Character from './commands/character';
 import { Command } from './commands/command';
@@ -75,7 +74,8 @@ export default class Game {
   constructor(
     private loader: PIXI.Loader,
     renderer: Renderer,
-    responder: Responder
+    responder: Responder,
+    scenarios: Record<string, ScenarioFactory>
   ) {
     this.scenarios = scenarios;
     this.iter = new ScenarioIterator([]);

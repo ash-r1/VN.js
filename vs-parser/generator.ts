@@ -53,8 +53,8 @@ export class Generator {
   run(script: Script, name: string): string {
     const scenarioName = camelCase(name);
     const ts = `
-import Game from 'src/engine/Game';
-import { ScenarioFactory } from '../engine/scenario/scenario';
+import { ScenarioFactory } from 'vn.js';
+import Game from 'src/game';
 
 const ${scenarioName}: ScenarioFactory = (g: Game) => {
   return [
