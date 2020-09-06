@@ -1,8 +1,10 @@
 {
-    "name": "vnjs",
-    "displayName": "vnjs",
+    "name": "vnjs-syntax",
+    "displayName": "VN.js Syntax",
+    "publisher": "AshR1",
+    "repository": "git@github.com:ash-r1/VN.js.git",
     "description": "Syntax Highlighting for vnjs-script (.vs)",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "engines": {
         "vscode": "^1.48.0"
     },
