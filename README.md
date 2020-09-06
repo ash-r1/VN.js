@@ -1,5 +1,7 @@
 # VN.js
 
+![Node.js CI](https://github.com/ash-r1/VN.js/workflows/Node.js%20CI/badge.svg)
+
 PIXI.js (5.x) + TypeScript Based Visual Novel Game Engine
 
 ⚠️ It's still under development. You CANNOT use it on your product yet.
