@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "repository": "git@github.com:ash-r1/VN.js.git",
   "author": "Ash <ash.suzuki.r1@gmail.com>",
-  "license": "MPL",
+  "license": "MPL-2.0",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "module": "dist/index.es.js",
