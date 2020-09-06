@@ -10,11 +10,11 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src/**/*.ts",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "npm run lint --fix",
     "test": "jest",
     "coverage": "jest --coverage",
-    "generate": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/generate",
-    "parse": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
+    "generate": "npm ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/generate",
+    "parse": "npm ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
   },
   "bin": {
     "generate-vs": "bin/generate.js"
