@@ -3,7 +3,6 @@ import Parsimmon from 'parsimmon';
 const P = Parsimmon;
 
 const NL = P.newline;
-const End = P.alt(NL, P.eof);
 
 const spaces = P.regexp(/[ \t]+/);
 const optSpaces = P.regexp(/[ \t]*/);
@@ -21,7 +20,8 @@ const KeywordParam = P.seq(ParamName, P.string('='), Value).node(
 const Param = Value.node('param');
 
 const Comment = P.seq(optSpaces, P.string('#'), P.regexp(/.*/)).node('comment');
-const Text = P.regexp(/[^@].*/).node('text');
+const Text = P.regexp(/[^*@\n].*(\n[^*@\n].*)*/).node('text');
+const OneLineText = P.regexp(/[^*@\n].*/).node('text');
 const Label = P.string('*').then(P.regexp(/.+/)).node('label');
 
 const CommandModule = P.regexp(/[a-zA-Z0-9]+/);
@@ -46,12 +46,12 @@ const SystemCommand = P.seq(
 
 const ParallelStatement = P.seq(
   P.string('@@parallel'),
-  P.seq(NL, P.string('  '), P.alt(Comment, Command, Text)).atLeast(2)
+  P.seq(NL, P.string('  '), P.alt(Comment, Command, OneLineText)).atLeast(2)
 ).node('parallel');
 
 export const ParsimmonLang = P.createLanguage({
   Script: (r) => r.Line.many(),
-  Line: (r) => P.alt(NL, P.seq(r.Statement, End)).node('line'),
+  Line: (r) => P.alt(NL, P.seq(r.Statement, P.end)).node('line'),
   Statement: () =>
     P.alt(Comment, ParallelStatement, SystemCommand, Command, Label, Text),
 });
