@@ -114,11 +114,10 @@ Captain: For great justice.
   #comment
   @mod.exec1 a=1
   @mod.exec2 b=2
-  some text to be shown
 `);
     expect(st).toBeInstanceOf(Parallel);
     const parallel = st as Parallel;
-    expect(parallel.statements).toHaveLength(4);
+    expect(parallel.statements).toHaveLength(3);
     const statements = parallel.statements;
     expect(statements[0]).toBeInstanceOf(Comment);
     expect((statements[0] as Comment).body).toBe('comment');
@@ -134,10 +133,6 @@ Captain: For great justice.
     expect(cmd2.module).toBe('mod');
     expect(cmd2.func).toBe('exec2');
     expect(cmd2.params).toEqual([new Map([['b', '2']])]);
-
-    expect(statements[3]).toBeInstanceOf(Text);
-    const txt = statements[3] as Text;
-    expect(txt.body).toBe('some text to be shown');
   });
 
   xit('parses command with comment', () => {
@@ -161,7 +156,6 @@ Captain: For great justice.
   #comment
   @mod.exec1 a=1
   @mod.exec2 b=2
-  some text to be shown
 #end paralel process
 `);
     const sts = script.statements;

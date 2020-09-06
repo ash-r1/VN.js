@@ -102,7 +102,7 @@ export class Text extends StatementBase {
   }
 }
 
-export type ParallelizableStatement = Comment | Command | Text;
+export type ParallelizableStatement = Comment | Command;
 
 export const parseParallelizableLine = (
   st: Record<string, any>
@@ -112,8 +112,6 @@ export const parseParallelizableLine = (
       return new Comment(st, st.value[2]);
     case 'command':
       return new Command(st);
-    case 'text':
-      return new Text(st);
     default:
       throw new Error(`unknown statement: ${JSON.stringify(st, null, 2)}`);
   }
