@@ -54,5 +54,4 @@ export const ParsimmonLang = P.createLanguage({
   Line: (r) => P.alt(NL, P.seq(r.Statement, End)).node('line'),
   Statement: () =>
     P.alt(Comment, ParallelStatement, SystemCommand, Command, Label, Text),
-  Command: () => Command,
 });
