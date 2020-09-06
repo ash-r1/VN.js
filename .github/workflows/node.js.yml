@@ -5,8 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ '**' ]
-    tags: [ '**' ]
+    branches: [ 'master' ]
   release:
     types: [ 'created' ]
   pull_request:
