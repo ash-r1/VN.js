@@ -1,30 +1,30 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "VNJS",
-	"patterns": [
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "VNJS",
+  "patterns": [
     {
       "include": "#label"
     },
-		{
-			"include": "#comment"
-		},
-		{
-			"include": "#command"
-		},
-		{
-			"include": "#parallel"
-		},
-		{
-			"include": "#system-command"
-		},
-		{
-			"include": "#command-in-parallel"
-		},
-		{
-			"include": "#comment-in-parallel"
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#command"
+    },
+    {
+      "include": "#parallel"
+    },
+    {
+      "include": "#system-command"
+    },
+    {
+      "include": "#command-in-parallel"
+    },
+    {
+      "include": "#comment-in-parallel"
     }
   ],
-	"repository": {
+  "repository": {
     "label": {
       "patterns": [{
         "match": "^(\\*)(.*)$",
@@ -44,9 +44,9 @@
         "match": "^#.*$"
       }]
     },
-		"command": {
-			"patterns": [{
-				"match": "^(@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+    "command": {
+      "patterns": [{
+        "match": "^(@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
         "captures": {
           "1": {
             "name": "keyword.control.vnjs"
@@ -80,10 +80,10 @@
             }]
           }
         }
-			}]
+      }]
     },
-		"parallel": {
-			"patterns": [{
+    "parallel": {
+      "patterns": [{
         "match": "^(@@)(parallel)$",
         "captures": {
           "1": {
@@ -93,11 +93,11 @@
             "name": "entity.name.class.vnjs-parallel"
           }
         }
-			}]
+      }]
     },
-		"system-command": {
+    "system-command": {
       "patterns": [{
-				"match": "^(@@)([^\\s.@][^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+        "match": "^(@@)([^\\s.@][^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
         "captures": {
           "1": {
             "name": "keyword.control.vnjs"
@@ -136,9 +136,9 @@
         "match": "^  #.*$"
       }]
     },
-		"command-in-parallel": {
+    "command-in-parallel": {
       "patterns": [{
-				"match": "^  (@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+        "match": "^  (@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
         "captures": {
           "1": {
             "name": "keyword.control.vnjs"
@@ -172,8 +172,8 @@
             }]
           }
         }
-			}]
-		}
-	},
-	"scopeName": "source.vnjs"
+      }]
+    }
+  },
+  "scopeName": "source.vnjs"
 }
