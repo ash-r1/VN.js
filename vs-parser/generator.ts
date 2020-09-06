@@ -45,7 +45,7 @@ export class Generator {
     } else if (st instanceof Label) {
       return `g._.label('${st.body}'),`;
     } else if (st instanceof Text) {
-      return `g.message.show('${st.body}'),`;
+      return `g.message.show(\`${st.body}\`),`;
     } else if (st instanceof Parallel) {
       return `g._.parallel(
         //
