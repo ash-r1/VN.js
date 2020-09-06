@@ -2,30 +2,177 @@
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "VNJS",
 	"patterns": [
+    {
+      "include": "#label"
+    },
 		{
-			"include": "#keywords"
+			"include": "#comment"
 		},
 		{
-			"include": "#strings"
-		}
-	],
+			"include": "#command"
+		},
+		{
+			"include": "#parallel"
+		},
+		{
+			"include": "#system-command"
+		},
+		{
+			"include": "#command-in-parallel"
+		},
+		{
+			"include": "#comment-in-parallel"
+    }
+  ],
 	"repository": {
-		"keywords": {
+    "label": {
+      "patterns": [{
+        "match": "^(\\*)(.*)$",
+        "captures": {
+          "1": {
+            "name": "keyword.control.vnjs"
+          },
+          "2": {
+            "name": "keyword.label.vnjs"
+          }
+        }
+      }]
+    },
+    "comment": {
+      "patterns": [{
+        "name": "comment.line.vnjs-comment",
+        "match": "^#.*$"
+      }]
+    },
+		"command": {
 			"patterns": [{
-				"name": "keyword.control.vnjs-script",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "^(@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+        "captures": {
+          "1": {
+            "name": "keyword.control.vnjs"
+          },
+          "2": {
+            "name": "variable.vnjs"
+          },
+          "3": {
+            "name": "entity.name.function.vnjs"
+          },
+          "4": {
+            "patterns": [{
+              "match": "[^\\s]+",
+              "name" : "string.vnjs.vnjs"
+            }]
+          },
+          "7": {
+            "patterns": [{
+              "match": "([^\\s=]+)(=)([^\\s=]+)",
+              "captures": {
+                "1": {
+                  "name" : "variable.name.vnjs-keywordparam-key"
+                },
+                "2": {
+                  "name" : "keyword.operator.vnjs"
+                },
+                "3": {
+                  "name" : "string.vnjs"
+                }
+              }
+            }]
+          }
+        }
 			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.vnjs-script",
-			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.vnjs-script",
-					"match": "\\\\."
-				}
-			]
+    },
+		"parallel": {
+			"patterns": [{
+        "match": "^(@@)(parallel)$",
+        "captures": {
+          "1": {
+            "name": "keyword.control.vnjs-parallel"
+          },
+          "2": {
+            "name": "entity.name.class.vnjs-parallel"
+          }
+        }
+			}]
+    },
+		"system-command": {
+      "patterns": [{
+				"match": "^(@@)([^\\s.@][^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+        "captures": {
+          "1": {
+            "name": "keyword.control.vnjs"
+          },
+          "2": {
+            "name": "variable.vnjs"
+          },
+          "3": {
+            "patterns": [{
+              "match": "[^\\s]+",
+              "name" : "string.vnjs.vnjs"
+            }]
+          },
+          "6": {
+            "patterns": [{
+              "match": "([^\\s=]+)(=)([^\\s=]+)",
+              "captures": {
+                "1": {
+                  "name" : "variable.name.vnjs-keywordparam-key"
+                },
+                "2": {
+                  "name" : "keyword.operator.vnjs"
+                },
+                "3": {
+                  "name" : "string.vnjs"
+                }
+              }
+            }]
+          }
+        }
+      }]
+    },
+    "comment-in-parallel": {
+      "patterns": [{
+        "name": "comment.line.vnjs-comment",
+        "match": "^  #.*$"
+      }]
+    },
+		"command-in-parallel": {
+      "patterns": [{
+				"match": "^  (@)([^\\s.@][^\\s.]+)\\.([^\\s.]+)(([\\s]+([^\\s=]+))*)(([\\s]+([^\\s=]+)(=)([^\\s=]+))*)$",
+        "captures": {
+          "1": {
+            "name": "keyword.control.vnjs"
+          },
+          "2": {
+            "name": "variable.vnjs"
+          },
+          "3": {
+            "name": "entity.name.function.vnjs"
+          },
+          "4": {
+            "patterns": [{
+              "match": "[^\\s]+",
+              "name" : "string.vnjs.vnjs"
+            }]
+          },
+          "7": {
+            "patterns": [{
+              "match": "([^\\s=]+)(=)([^\\s=]+)",
+              "captures": {
+                "1": {
+                  "name" : "variable.name.vnjs-keywordparam-key"
+                },
+                "2": {
+                  "name" : "keyword.operator.vnjs"
+                },
+                "3": {
+                  "name" : "string.vnjs"
+                }
+              }
+            }]
+          }
+        }
+			}]
 		}
 	},
 	"scopeName": "source.vnjs"
