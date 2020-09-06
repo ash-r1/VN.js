@@ -124,9 +124,9 @@ export class Parallel extends StatementBase {
   constructor(st: Record<string, any>) {
     super(st);
     const value = st['value'];
-    const subcommands = value[2];
+    const subcommands = value[1];
     this.statements = subcommands
-      .map((subcommand: any) => parseParallelizableLine(subcommand[1]))
+      .map((subcommand: any) => parseParallelizableLine(subcommand[2]))
       .filter(
         (s: ParallelizableStatement | null): s is ParallelizableStatement =>
           s !== null
