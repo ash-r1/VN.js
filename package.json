@@ -13,6 +13,7 @@
     "lint:fix": "npm run lint --fix",
     "test": "jest",
     "coverage": "jest --coverage",
+    "prepublishOnly": "npm run build",
     "generate": "npm ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/generate",
     "parse": "npm ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
   },
