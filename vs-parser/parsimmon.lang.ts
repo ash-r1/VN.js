@@ -46,8 +46,7 @@ const SystemCommand = P.seq(
 
 const ParallelStatement = P.seq(
   P.string('@@parallel'),
-  NL,
-  P.seq(P.string('  '), P.alt(Comment, Command, Text), End).atLeast(2)
+  P.seq(NL, P.string('  '), P.alt(Comment, Command, Text)).atLeast(2)
 ).node('parallel');
 
 export const ParsimmonLang = P.createLanguage({
