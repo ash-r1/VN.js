@@ -12,6 +12,7 @@
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "yarn lint --fix",
     "test": "jest",
+    "coverage": "jest --coverage",
     "generate": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/generate",
     "parse": "yarn ts-node --compiler-options '{\"module\":\"commonjs\"}' vs-parser/cmd/parse"
   },
