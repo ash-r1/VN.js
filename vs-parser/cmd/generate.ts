@@ -11,17 +11,19 @@ if (process.argv.length <= 3) {
   process.exit(1);
 }
 
-const src = process.argv[2];
-const dst = process.argv[3];
+(async () => {
+  const src = process.argv[2];
+  const dst = process.argv[3];
 
-const body = fs.readFileSync(src, 'utf-8');
+  const body = fs.readFileSync(src, 'utf-8');
 
-try {
-  const script = Script.parse(body);
-  const g = new Generator();
-  const ts = g.run(script, path.parse(src).name);
-  fs.writeFileSync(dst, ts);
-} catch (e) {
-  console.error(e.message);
-  process.exit(1);
-}
+  try {
+    const script = Script.parse(body);
+    const g = new Generator();
+    const ts = await g.run(script, path.parse(src).name);
+    fs.writeFileSync(dst, ts);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+})();
