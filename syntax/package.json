@@ -4,7 +4,7 @@
     "publisher": "AshR1",
     "repository": "git@github.com:ash-r1/VN.js.git",
     "description": "Syntax Highlighting for vnjs-script (.vs)",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "engines": {
         "vscode": "^1.48.0"
     },
