@@ -76,10 +76,10 @@ export default abstract class Base {
   ): Promise<void> {
     const { x, y } = layer;
     await tickPromise(this.r.ticker, duration, (rate) => {
-      if (pos.x) {
+      if (pos.x !== undefined) {
         layer.x = (1 - rate) * x + rate * pos.x;
       }
-      if (pos.y) {
+      if (pos.y !== undefined) {
         layer.y = (1 - rate) * y + rate * pos.y;
       }
     });
