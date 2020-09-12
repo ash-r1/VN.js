@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { Node } from 'parsimmon';
+
 import { ParsimmonLang } from './parsimmon.lang';
 
 export interface Index {
@@ -31,8 +33,15 @@ export class Comment extends StatementBase {
   }
 }
 
-export type KeywordParams = Map<string, string>;
+export type KeywordParams = Map<string, string | number>;
 export type Params = Array<string | KeywordParams>;
+
+type StringValueNode = Node<
+  'double-quoted-string' | 'single-quoted-string' | 'raw-string',
+  string
+>;
+type NumberValueNode = Node<'number', string>;
+type ValueNode = StringValueNode | NumberValueNode;
 
 function parseParams(chunks: Array<Record<string, any>>): Params {
   const params: Params = [];
@@ -41,11 +50,13 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
     const chunkValue = chunk['value'];
     switch (chunkName) {
       case 'param':
-        params.push(chunkValue);
+        const valueNode = chunkValue as ValueNode;
+        params.push(valueNode.value);
         break;
       case 'keywordParam': {
         const keyword = chunkValue[0] as string;
-        const value = chunkValue[2] as string;
+        const valueNode = chunkValue[2] as ValueNode;
+        const { name, value } = valueNode;
         if (
           params.length === 0 ||
           typeof params[params.length - 1] === 'string'
@@ -53,7 +64,11 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
           params.push(new Map());
         }
         const map = params[params.length - 1] as KeywordParams;
-        map.set(keyword, value);
+        if (name === 'number') {
+          map.set(keyword, parseFloat(value));
+        } else {
+          map.set(keyword, value);
+        }
         break;
       }
     }

@@ -12,7 +12,12 @@ const AttrValue = (quote: string) =>
     .then(P.regexp(new RegExp(`(\\\\.|[^${quote}])*`)))
     .skip(P.string(quote));
 
-const Value = P.alt(AttrValue('"'), AttrValue("'"), P.regexp(/[^\s=]+/));
+const Value = P.alt(
+  P.regexp(/[0-9]([0-9]?\.?[0-9]+)?/).node('number'),
+  AttrValue('"').node('double-quoted-string'),
+  AttrValue("'").node('single-quoted-stirng'),
+  P.regexp(/[^\s=]+/).node('raw-string')
+);
 const ParamName = P.regexp(/[a-zA-Z0-9]+/);
 const KeywordParam = P.seq(ParamName, P.string('='), Value).node(
   'keywordParam'

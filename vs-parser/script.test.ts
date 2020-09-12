@@ -30,12 +30,12 @@ describe(Script, () => {
     const arbits = cmd.params[3] as KeywordParams;
     expect(arbits.size).toBe(3);
     expect(arbits.get('d')).toBe('α');
-    expect(arbits.get('e')).toBe('1');
+    expect(arbits.get('e')).toBe(1);
     expect(arbits.get('f')).toBe('true');
   });
 
   it('parses system command', () => {
-    const st = parseSingle('@@exec a b c d=α e=1 f=true');
+    const st = parseSingle('@@exec a b c d=α e=1.2 f=true');
     expect(st).toBeInstanceOf(SystemCommand);
     const cmd = st as SystemCommand;
     expect(cmd.func).toBe('exec');
@@ -46,7 +46,7 @@ describe(Script, () => {
     const arbits = cmd.params[3] as KeywordParams;
     expect(arbits.size).toBe(3);
     expect(arbits.get('d')).toBe('α');
-    expect(arbits.get('e')).toBe('1');
+    expect(arbits.get('e')).toBe(1.2);
     expect(arbits.get('f')).toBe('true');
   });
 
@@ -126,13 +126,13 @@ Captain: For great justice.
     const cmd1 = statements[1] as Command;
     expect(cmd1.module).toBe('mod');
     expect(cmd1.func).toBe('exec1');
-    expect(cmd1.params).toEqual([new Map([['a', '1']])]);
+    expect(cmd1.params).toEqual([new Map([['a', 1]])]);
 
     expect(statements[2]).toBeInstanceOf(Command);
     const cmd2 = statements[2] as Command;
     expect(cmd2.module).toBe('mod');
     expect(cmd2.func).toBe('exec2');
-    expect(cmd2.params).toEqual([new Map([['b', '2']])]);
+    expect(cmd2.params).toEqual([new Map([['b', 2]])]);
   });
 
   xit('parses command with comment', () => {
@@ -143,7 +143,7 @@ Captain: For great justice.
     const cmd = sts[0] as Command;
     expect(cmd.module).toBe('mod');
     expect(cmd.func).toBe('exec');
-    expect(cmd.params).toBe([new Map([['a', '1']])]);
+    expect(cmd.params).toBe([new Map([['a', 1]])]);
     expect(sts[1]).toBeInstanceOf(Comment);
     const comment = sts[1] as Comment;
     expect(comment.body).toBe('foobar');
