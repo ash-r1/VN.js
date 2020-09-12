@@ -76,4 +76,27 @@ export default [
       commonjs({ extensions: ['.ts', '.js'] }),
     ],
   },
+  // generate-watch
+  {
+    input: 'vs-parser/cmd/generate-watch.ts',
+    output: [
+      // CommonJS用出力
+      {
+        file: 'bin/generate-watch.js',
+        format: 'cjs',
+        sourcemap: false,
+        banner,
+      },
+    ],
+    // 他モジュールは含めない
+    external: [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.devDependencies || {}),
+    ],
+    plugins: [
+      resolve(),
+      typescript({ useTsconfigDeclarationDir: true }),
+      commonjs({ extensions: ['.ts', '.js'] }),
+    ],
+  },
 ];
