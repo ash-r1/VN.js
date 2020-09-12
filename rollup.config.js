@@ -43,9 +43,11 @@ export default [
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
+      // TBD
+      'url',
     ],
     plugins: [
-      resolve(),
+      resolve({ preferBuiltins: true }),
       typescript({ useTsconfigDeclarationDir: true }),
       commonjs({ extensions: ['.ts', '.js'] }),
       string({
@@ -69,6 +71,8 @@ export default [
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
+      'path',
+      'fs',
     ],
     plugins: [
       resolve(),
@@ -92,6 +96,9 @@ export default [
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
+      'path',
+      'util',
+      'fs',
     ],
     plugins: [
       resolve(),
