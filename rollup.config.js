@@ -43,9 +43,11 @@ export default [
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
+      // TBD
+      'url',
     ],
     plugins: [
-      resolve(),
+      resolve({ preferBuiltins: true }),
       typescript({ useTsconfigDeclarationDir: true }),
       commonjs({ extensions: ['.ts', '.js'] }),
       string({
@@ -69,6 +71,34 @@ export default [
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.devDependencies || {}),
+      'path',
+      'fs',
+    ],
+    plugins: [
+      resolve(),
+      typescript({ useTsconfigDeclarationDir: true }),
+      commonjs({ extensions: ['.ts', '.js'] }),
+    ],
+  },
+  // generate-watch
+  {
+    input: 'vs-parser/cmd/generate-watch.ts',
+    output: [
+      // CommonJS用出力
+      {
+        file: 'bin/generate-watch.js',
+        format: 'cjs',
+        sourcemap: false,
+        banner,
+      },
+    ],
+    // 他モジュールは含めない
+    external: [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.devDependencies || {}),
+      'path',
+      'util',
+      'fs',
     ],
     plugins: [
       resolve(),

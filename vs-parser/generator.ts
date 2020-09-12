@@ -1,4 +1,5 @@
 import { camelCase } from 'change-case';
+import { ESLint } from 'eslint';
 
 import {
   Command,
@@ -45,7 +46,7 @@ export class Generator {
     } else if (st instanceof Label) {
       return `g._.label('${st.body}'),`;
     } else if (st instanceof Text) {
-      return `g.message.show('${st.body}'),`;
+      return `g.message.show(\`${st.body}\`),`;
     } else if (st instanceof Parallel) {
       return `g._.parallel(
         //
@@ -58,7 +59,7 @@ export class Generator {
     }
   }
 
-  run(script: Script, name: string): string {
+  generateTs(script: Script, name: string): string {
     const scenarioName = camelCase(name);
     const ts = `
 import { ScenarioFactory } from '@ash-r1/vn.js';
@@ -72,5 +73,23 @@ const ${scenarioName}: ScenarioFactory<Game> = (g: Game) => {
 export default ${scenarioName};
 `;
     return ts;
+  }
+
+  async lint(ts: string): Promise<string> {
+    const eslint = new ESLint({ fix: true });
+    const result = await eslint.lintText(ts);
+    return result[0].output ?? ts;
+  }
+
+  async run(script: Script, name: string): Promise<string> {
+    const ts = this.generateTs(script, name);
+    try {
+      const linted = await this.lint(ts);
+      return linted;
+    } catch (e) {
+      console.error('eslint error: ');
+      console.error(e);
+      return ts;
+    }
   }
 }

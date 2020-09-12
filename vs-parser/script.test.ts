@@ -71,17 +71,53 @@ describe(Script, () => {
     expect(txt.body).toBe('メッセージ');
   });
 
+  it('parses multi-lined text', () => {
+    const vs = `
+Mechanic: Somebody set up us the bomb.
+Operator: Main screen turn on.
+CATS: All your base are belong to us.
+`;
+    const st = parseSingle(vs);
+    const txt = st as Text;
+    expect(txt.body).toBe(
+      'Mechanic: Somebody set up us the bomb.\nOperator: Main screen turn on.\nCATS: All your base are belong to us.'
+    );
+  });
+
+  it('parses multi sentences', () => {
+    const vs = `
+Mechanic: Somebody set up us the bomb.
+Operator: Main screen turn on.
+
+CATS: All your base are belong to us.
+
+
+CATS: You have no chance to survive make your time.
+Captain: Move 'ZIG'.
+Captain: For great justice.
+`;
+    const script = Script.parse(vs);
+    const sts = script.statements as Text[];
+    expect(sts).toHaveLength(3);
+    expect(sts[0].body).toBe(
+      'Mechanic: Somebody set up us the bomb.\nOperator: Main screen turn on.'
+    );
+    expect(sts[1].body).toBe('CATS: All your base are belong to us.');
+    expect(sts[2].body).toBe(
+      "CATS: You have no chance to survive make your time.\nCaptain: Move 'ZIG'.\nCaptain: For great justice."
+    );
+  });
+
   it('parses parallel commands', () => {
     const st = parseSingle(`
 @@parallel
   #comment
   @mod.exec1 a=1
   @mod.exec2 b=2
-  some text to be shown
 `);
     expect(st).toBeInstanceOf(Parallel);
     const parallel = st as Parallel;
-    expect(parallel.statements).toHaveLength(4);
+    expect(parallel.statements).toHaveLength(3);
     const statements = parallel.statements;
     expect(statements[0]).toBeInstanceOf(Comment);
     expect((statements[0] as Comment).body).toBe('comment');
@@ -97,10 +133,6 @@ describe(Script, () => {
     expect(cmd2.module).toBe('mod');
     expect(cmd2.func).toBe('exec2');
     expect(cmd2.params).toEqual([new Map([['b', '2']])]);
-
-    expect(statements[3]).toBeInstanceOf(Text);
-    const txt = statements[3] as Text;
-    expect(txt.body).toBe('some text to be shown');
   });
 
   xit('parses command with comment', () => {
@@ -124,7 +156,6 @@ describe(Script, () => {
   #comment
   @mod.exec1 a=1
   @mod.exec2 b=2
-  some text to be shown
 #end paralel process
 `);
     const sts = script.statements;

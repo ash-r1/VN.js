@@ -21,9 +21,9 @@ export default class Core extends Base {
     });
   }
 
-  wait(duration: number): Command {
+  wait(duration: string): Command {
     return pure(async () => {
-      await timeout(duration);
+      await timeout(parseFloat(duration));
     });
   }
 }
