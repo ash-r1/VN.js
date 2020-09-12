@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
+import BlinkAnimationSprite from '../../layer/BlinkAnimationSprite';
 
 export type CharacterSprite = PIXI.Sprite | BlinkAnimationSprite;
 

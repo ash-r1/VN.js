@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import Renderer from 'src/engine/Renderer';
 
-import tickPromise from './tickPromise';
+import tickPromise from '../modules/tickPromise';
 
 export interface LayerProps {
   x?: number;

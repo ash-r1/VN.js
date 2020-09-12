@@ -9,7 +9,7 @@ import { TwistFilter } from '@pixi/filter-twist';
 import { layerName } from '../Renderer';
 import Base from './base';
 import { Command, pure } from './command';
-import tickPromise from './tickPromise';
+import tickPromise from './modules/tickPromise';
 
 export interface DurationOptions {
   duration?: number;

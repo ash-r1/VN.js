@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-import tickPromise from '../commands/tickPromise';
+import tickPromise from '../commands/modules/tickPromise';
 import { WeightedAverageFilter } from '../filters/WeightedAverage';
 
 export default class Crossfade extends PIXI.Sprite {

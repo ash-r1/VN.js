@@ -8,7 +8,7 @@ import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 import Crossfade from '../layer/Crossfade';
 import Base from './base';
 import { Command, MultipleResourcesCommand, pure } from './command';
-import Face, { CharacterSprite } from './face';
+import Face, { CharacterSprite } from './modules/face';
 
 export interface FaceOption {
   code: string;
