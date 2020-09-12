@@ -16,29 +16,6 @@ export interface FaceOption {
   filename?: string;
 }
 
-export type Xpos =
-  | 'mleft'
-  | 'mright'
-  | 'center'
-  | 'left3'
-  | 'right3'
-  | 'leftl4'
-  | 'leftr4'
-  | 'rightl4'
-  | 'rightr4';
-
-export const position: Record<Xpos, number> = {
-  mleft: 0.2,
-  mright: 0.8,
-  center: 0.5,
-  left3: 0.1,
-  right3: 0.9,
-  leftl4: 0.05,
-  leftr4: 0.35,
-  rightl4: 0.65,
-  rightr4: 0.95,
-};
-
 export const SHOW = '@character/SHOW';
 export const HIDE = '@character/HIDE';
 export const MOVE = '@character/MOVE';
@@ -47,14 +24,14 @@ export const CHANGE = '@character/CHANGE';
 export interface ShowEvent {
   name: string;
   face: Face;
-  xpos: Xpos;
+  xpos: number;
 }
 export interface HideEvent {
   name: string;
 }
 export interface MoveEvent {
   name: string;
-  xpos: Xpos;
+  xpos: number;
 }
 export type ChangeEvent = ShowEvent;
 
@@ -63,7 +40,7 @@ export interface ShowHideOption {
 }
 
 export interface ShowOption extends ShowHideOption {
-  xpos?: Xpos;
+  xpos?: number;
   size?: CharacterSize;
   zIndex?: number;
 }
@@ -82,7 +59,7 @@ const defaultSize = 'lg';
 
 export default class Character extends Base {
   private faces: Record<string, Face>;
-  private xpos: Xpos = 'center';
+  private xpos = 0.5;
   private sprite?: CharacterSprite;
   private size: CharacterSize = defaultSize;
   private zIndex = defaultZIndex;
@@ -146,9 +123,9 @@ export default class Character extends Base {
     return nextSprite;
   }
 
-  setPos(sprite: PIXI.Sprite, xpos: Xpos) {
+  setPos(sprite: PIXI.Sprite, xpos: number) {
     sprite.anchor.set(0.5, 1.0);
-    sprite.x = (position[xpos] * 0.7 + 0.15) * this.r.width;
+    sprite.x = xpos * this.r.width;
     sprite.y = this.r.height;
   }
 
@@ -156,7 +133,7 @@ export default class Character extends Base {
     face: Face,
     resources: Record<string, PIXI.LoaderResource>,
     duration: number,
-    xpos: Xpos
+    xpos: number
   ): Promise<CharacterSprite> {
     const sprite = await face.genSprite(this.size, resources);
     sprite.name = this.name;
@@ -170,14 +147,14 @@ export default class Character extends Base {
     return sprite;
   }
 
-  private async moveIntl(xpos: Xpos, duration: number): Promise<void> {
+  private async moveIntl(xpos: number, duration: number): Promise<void> {
     if (!this.sprite) {
       debugger;
       throw new Error(`Character(${this.name}) is not shown`);
     }
 
     if (xpos != this.xpos) {
-      const x = position[xpos] * this.r.width;
+      const x = xpos * this.r.width;
       await this.moveTo(this.sprite, { x }, duration);
       this.xpos = xpos;
       const ev: MoveEvent = { name: this.name, xpos };
@@ -186,11 +163,11 @@ export default class Character extends Base {
   }
 
   move(
-    xpos: Xpos,
+    xpos: string,
     { duration = this.defaultMoveDuration }: MoveOption = {}
   ): Command {
     return pure(async () => {
-      await this.moveIntl(xpos, duration);
+      await this.moveIntl(parseFloat(xpos), duration);
     });
   }
 
@@ -198,11 +175,6 @@ export default class Character extends Base {
     code: string,
     { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption = {}
   ): Command {
-    // FIXME: ここでthisを参照してしまうせいで、sizeの解釈がおかしくなってしまう。
-    // preloadとは別で逐次ロードも行うべきか...sizeの変更は内部でも行う、という方針もあるが
-    // また、エンジンとしての設計の問題としては、これが根本的に難しいしくみになっているべきなので、そこの解決策も考えたい。
-    // 結局は「状態」をどこまで許容するかっぽい。Functionalにするなら、本来はここでthisにアクセス出来ちゃいけないんだけど、thisへのアクセスを禁止する方法が思いつかない。
-    // Fail-Safeとしては、実行前に改めて確認して、必要ならロードするべきだとは思う。
     const face = this.faces[code];
     if (!face) {
       throw new Error(`undefined face for code=${code}`);

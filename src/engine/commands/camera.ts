@@ -10,10 +10,8 @@ import {
   HideEvent,
   MOVE,
   MoveEvent,
-  position,
   SHOW,
   ShowEvent,
-  Xpos,
 } from './character';
 import { Command, pure } from './command';
 import {
@@ -54,9 +52,9 @@ export default class Camera extends Base {
     });
   }
 
-  move(xpos: Xpos): Command {
+  move(xpos: number): Command {
     return pure(async () => {
-      await this.moveCameraTo(position[xpos] * this.r.width, true);
+      await this.moveCameraTo(xpos * this.r.width, true);
       return {
         wait: false,
       };
@@ -74,7 +72,7 @@ export default class Camera extends Base {
   onShow = (ev: ShowEvent) => {
     // TODO: wait until moving? how to do it...?
     // Plan: Hook yield on Game instance?
-    this.moveCameraTo(position[ev.xpos] * this.r.width);
+    this.moveCameraTo(ev.xpos * this.r.width);
   };
 
   onHide = (ev: HideEvent) => {
@@ -82,11 +80,11 @@ export default class Camera extends Base {
   };
 
   onChange = (ev: ChangeEvent) => {
-    this.moveCameraTo(position[ev.xpos] * this.r.width);
+    this.moveCameraTo(ev.xpos * this.r.width);
   };
 
   onMove = (ev: MoveEvent) => {
-    this.moveCameraTo(position[ev.xpos] * this.r.width);
+    this.moveCameraTo(ev.xpos * this.r.width);
   };
 
   get shouldStay() {
@@ -99,8 +97,9 @@ export default class Camera extends Base {
     }
     const pos = x - this.r.width / 2.0;
     const { bg, fg } = this.r.layers;
-    // limit to 5% for bg
+    // 5% for bg
     this.moveTo(bg, { x: -pos * 0.05 }, 500);
+    // 10% for fg
     await this.moveTo(fg, { x: -pos * 0.1 }, 500);
     // TODO Promise.all to do them concurrently?
     // ... or, create "moveMultiTo"-ish method to exact one ticker hook animation?
