@@ -7,6 +7,7 @@ import {
   Label,
   Parallel,
   Params,
+  ParamValue,
   Script,
   Statement,
   SystemCommand,
@@ -17,22 +18,25 @@ function escapeSingleQuote(src: string): string {
   return src.replace(`'`, `\\'`);
 }
 
+const formatParam = (v: ParamValue) => {
+  if (typeof v === 'string') {
+    return `'${escapeSingleQuote(v)}'`;
+  } else {
+    return `${v}`;
+  }
+};
+
 export class Generator {
   formatParams(params: Params): string {
     return params
       .map((param) => {
-        if (typeof param === 'string') {
-          return `'${escapeSingleQuote(param)}'`;
-        } else if (param instanceof Map) {
+        if (param instanceof Map) {
           const base = Array.from(param)
-            .map(
-              ([k, v]) => `'${escapeSingleQuote(k)}': '${escapeSingleQuote(v)}'`
-            )
+            .map(([k, v]) => `'${escapeSingleQuote(k)}': ${formatParam(v)}`)
             .join(',');
           return `{ ${base} }`;
-        } else {
-          return '';
         }
+        return formatParam(param);
       })
       .join(', ');
   }

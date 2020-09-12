@@ -33,8 +33,9 @@ export class Comment extends StatementBase {
   }
 }
 
-export type KeywordParams = Map<string, string | number>;
-export type Params = Array<string | KeywordParams>;
+export type ParamValue = string | number;
+export type KeywordParams = Map<string, ParamValue>;
+export type Params = Array<ParamValue | KeywordParams>;
 
 type StringValueNode = Node<
   'double-quoted-string' | 'single-quoted-string' | 'raw-string',
@@ -42,6 +43,15 @@ type StringValueNode = Node<
 >;
 type NumberValueNode = Node<'number', string>;
 type ValueNode = StringValueNode | NumberValueNode;
+
+const parseValue = (v: ValueNode): ParamValue => {
+  const { name, value } = v;
+  if (name === 'number') {
+    return parseFloat(value);
+  } else {
+    return value;
+  }
+};
 
 function parseParams(chunks: Array<Record<string, any>>): Params {
   const params: Params = [];
@@ -51,12 +61,11 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
     switch (chunkName) {
       case 'param':
         const valueNode = chunkValue as ValueNode;
-        params.push(valueNode.value);
+        params.push(parseValue(valueNode));
         break;
       case 'keywordParam': {
         const keyword = chunkValue[0] as string;
         const valueNode = chunkValue[2] as ValueNode;
-        const { name, value } = valueNode;
         if (
           params.length === 0 ||
           typeof params[params.length - 1] === 'string'
@@ -64,11 +73,7 @@ function parseParams(chunks: Array<Record<string, any>>): Params {
           params.push(new Map());
         }
         const map = params[params.length - 1] as KeywordParams;
-        if (name === 'number') {
-          map.set(keyword, parseFloat(value));
-        } else {
-          map.set(keyword, value);
-        }
+        map.set(keyword, parseValue(valueNode));
         break;
       }
     }

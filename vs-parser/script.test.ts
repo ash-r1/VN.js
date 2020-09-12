@@ -34,6 +34,16 @@ describe(Script, () => {
     expect(arbits.get('f')).toBe('true');
   });
 
+  it('parses command with number param', () => {
+    const st = parseSingle('@mod.exec 0.25');
+    expect(st).toBeInstanceOf(Command);
+    const cmd = st as Command;
+    expect(cmd.module).toBe('mod');
+    expect(cmd.func).toBe('exec');
+    expect(cmd.params).toHaveLength(1);
+    expect(cmd.params[0]).toBe(0.25);
+  });
+
   it('parses system command', () => {
     const st = parseSingle('@@exec a b c d=α e=1.2 f=true');
     expect(st).toBeInstanceOf(SystemCommand);
