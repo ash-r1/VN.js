@@ -17,7 +17,7 @@ export interface LayerProps {
   // TODO: rotation
 }
 
-export default abstract class Base {
+export default abstract class CommandBase {
   constructor(protected r: Renderer) {}
 
   protected get center(): PIXI.Point {

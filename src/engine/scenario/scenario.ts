@@ -1,4 +1,4 @@
-import { Command } from 'src/engine/commands/command';
+import { Command } from 'src/engine/commands/base/commands';
 
 import BaseGame from '../BaseGame';
 

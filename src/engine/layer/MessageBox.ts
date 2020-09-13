@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
 
-import Renderer from '../Renderer';
-
 export default class MessageBox extends PIXI.Container {
   private frame: PIXI.Sprite;
   private text: PIXI.Text;

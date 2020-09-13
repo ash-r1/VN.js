@@ -2,23 +2,17 @@ import PIXI, { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import Camera from './commands/camera';
-import Control from './commands/controls/control';
-import Core from './commands/core';
-import Filter from './commands/filter';
-import Image from './commands/image';
-import Message from './commands/message';
-import { WAITING_GLYPH } from './commands/message';
-import Sound from './commands/sound';
+import Camera from './commands/Camera';
+import Control from './commands/controls/Control';
+import Core from './commands/Core';
+import Filter from './commands/filters';
+import Image from './commands/Image';
+import Message from './commands/Message';
+import { WAITING_GLYPH } from './commands/Message';
+import Sound from './commands/Sound';
+import { ONCLICK } from './constants/events';
 import Renderer from './Renderer';
 import Responder from './Responder';
-
-// internal event
-const ONCLICK = '@intl/onclick';
-
-// public events which can be used by commands
-export const NEXT = '@core/next';
-export const WAIT = '@core/wait';
 
 /**
  * Gameではレイヤへのプリミティブなアクセスのみを許可する。これ以上に複雑な状態制御はCommandのレイヤで行う。

@@ -1,6 +1,6 @@
 import BaseGame from './BaseGame';
-import { Command } from './commands/command';
-import { WAITING_GLYPH } from './commands/message';
+import { Command } from './commands/base/commands';
+import { WAITING_GLYPH } from './commands/Message';
 import { Label, ScenarioFactory, ScenarioIterator } from './scenario/scenario';
 import { Jump } from './scenario/scenario';
 

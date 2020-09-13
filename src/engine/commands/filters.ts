@@ -7,8 +7,8 @@ import {
 import { TwistFilter } from '@pixi/filter-twist';
 
 import { layerName } from '../Renderer';
-import Base from './base';
-import { Command, pure } from './command';
+import CommandBase from './base/CommandBase';
+import { Command, pure } from './base/commands';
 import tickPromise from './modules/tickPromise';
 
 export interface DurationOptions {
@@ -36,7 +36,7 @@ export interface ShockwaveOptions extends ShockwaveFilterOptions {
 
 export type CRTOptions = CRTFilterOptions;
 
-export default class Filter extends Base {
+export default class Filter extends CommandBase {
   reset(on: layerName): Command {
     return pure(async () => {
       this.r.layers[on].filters = [];

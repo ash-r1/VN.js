@@ -2,7 +2,7 @@ import { IResourceDictionary } from 'pixi.js';
 
 import EventEmitter from 'eventemitter3';
 
-import { Command, Result } from '../command';
+import { Command, Result } from '../base/commands';
 
 export const BEGIN = '@parallel/BEGIN';
 export const END = '@parallel/END';
