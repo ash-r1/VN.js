@@ -4,6 +4,7 @@ import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../../layer/BlinkAnimationSprite';
 import Crossfade from '../../layer/Crossfade';
+import { layerName } from '../../Renderer';
 import Face, { CharacterSprite } from '../modules/Face';
 import CommandBase from './CommandBase';
 
@@ -17,21 +18,22 @@ export interface HideEvent {
   name: string;
 }
 
-export type CharacterSize = 'md' | 'lg';
-
-const ON = 'fg';
 
 const defaultZIndex = 0;
-const defaultSize = 'lg';
 
 export default abstract class CharacterCommandBase extends CommandBase {
   protected sprite?: CharacterSprite;
   protected faces: Record<string, Face>;
-  protected size: CharacterSize = defaultSize;
   protected zIndex = defaultZIndex;
   defaultHideDuration = 300;
 
-  constructor(r: Renderer, readonly name: string, faceOpts: FaceOption[]) {
+  constructor(
+    r: Renderer,
+    readonly name: string,
+    faceOpts: FaceOption[],
+    protected size: string,
+    protected on: layerName
+  ) {
     super(r);
     this.faces = faceOpts.reduce(
       (prev: Record<string, Face>, opt: FaceOption) => {
@@ -59,13 +61,13 @@ export default abstract class CharacterCommandBase extends CommandBase {
       this.sprite.gotoAndStop(0);
     }
 
-    this.r.RemoveLayer(this.sprite, ON);
+    this.r.RemoveLayer(this.sprite, this.on);
 
     const crossfade = new Crossfade(this.sprite.texture);
     this.beforeShow(crossfade);
-    this.r.AddLayer(crossfade, ON);
+    this.r.AddLayer(crossfade, this.on);
     crossfade.zIndex = this.zIndex;
-    this.r.sortLayers(ON);
+    this.r.sortLayers(this.on);
 
     const resource = resources[face.paths(this.size)[0]];
     if (!resource) {
@@ -74,11 +76,11 @@ export default abstract class CharacterCommandBase extends CommandBase {
     }
     await crossfade.animate(resource.texture, duration);
 
-    this.r.RemoveLayer(crossfade, ON);
+    this.r.RemoveLayer(crossfade, this.on);
 
     const nextSprite = await face.genSprite(this.size, resources);
     this.beforeShow(nextSprite);
-    this.r.AddLayer(nextSprite, ON);
+    this.r.AddLayer(nextSprite, this.on);
     nextSprite.zIndex = this.zIndex;
 
     return nextSprite;
@@ -95,7 +97,7 @@ export default abstract class CharacterCommandBase extends CommandBase {
     sprite.zIndex = this.zIndex;
     this.beforeShow(sprite);
 
-    await this.r.AddLayer(sprite, ON);
+    await this.r.AddLayer(sprite, this.on);
     await this.fadeIn(sprite, duration);
 
     return sprite;
@@ -104,7 +106,7 @@ export default abstract class CharacterCommandBase extends CommandBase {
   async hideIntl(duration: number): Promise<boolean> {
     if (this.sprite) {
       await this.fadeOut(this.sprite, duration);
-      await this.r.RemoveLayer(this.sprite, ON);
+      await this.r.RemoveLayer(this.sprite, this.on);
       this.sprite = undefined;
     }
     this.zIndex = defaultZIndex;
@@ -118,81 +120,4 @@ export default abstract class CharacterCommandBase extends CommandBase {
       this.zIndex = zIndex;
     }
   }
-
-  // private async moveIntl(xpos: number, duration: number): Promise<void> {
-  //   if (!this.sprite) {
-  //     debugger;
-  //     throw new Error(`Character(${this.name}) is not shown`);
-  //   }
-
-  //   if (xpos != this.xpos) {
-  //     const x = xpos * this.r.width;
-  //     await this.moveTo(this.sprite, { x }, duration);
-  //     this.xpos = xpos;
-  //     const ev: MoveEvent = { name: this.name, xpos };
-  //     this.ee.emit(MOVE, ev);
-  //   }
-  // }
-
-  // move(
-  //   xpos: string,
-  //   { duration = this.defaultMoveDuration }: MoveOption = {}
-  // ): Command {
-  //   return pure(async () => {
-  //     await this.moveIntl(parseFloat(xpos), duration);
-  //   });
-  // }
-
-  // show(
-  //   code: string,
-  //   { duration = this.defaultShowDuration, xpos, size, zIndex }: ShowOption = {}
-  // ): Command {
-  //   const face = this.faces[code];
-  //   if (!face) {
-  //     throw new Error(`undefined face for code=${code}`);
-  //   }
-  //   this.size = size ?? this.size;
-  //   const filepaths = face.paths(this.size);
-  //   // size state is necessary for the following paths detections in preload phase, save it.
-
-  //   return new MultipleResourcesCommand(
-  //     filepaths,
-  //     async (resources: Record<string, PIXI.LoaderResource>) => {
-  //       // store it again, for execution
-  //       this.size = size ?? this.size;
-  //       if (zIndex) {
-  //         this.zIndex = zIndex;
-  //       }
-  //       let nextSprite: CharacterSprite;
-  //       if (this.sprite) {
-  //         if (this.xpos != xpos && xpos) {
-  //           await this.moveIntl(xpos, this.defaultMoveDuration);
-  //         }
-  //         nextSprite = await this.crossfadeIntl(face, resources, duration);
-  //         const ev: ChangeEvent = {
-  //           name: this.name,
-  //           face,
-  //           xpos: this.xpos,
-  //         };
-  //         this.ee.emit(CHANGE, ev);
-  //       } else {
-  //         if (xpos) {
-  //           this.xpos = xpos;
-  //         }
-  //         nextSprite = await this.showIntl(face, resources, duration);
-  //         const ev: ShowEvent = {
-  //           name: this.name,
-  //           face,
-  //           xpos: this.xpos,
-  //         };
-  //         this.ee.emit(SHOW, ev);
-  //       }
-
-  //       if (nextSprite instanceof BlinkAnimationSprite) {
-  //         nextSprite.play();
-  //       }
-  //       this.sprite = nextSprite;
-  //     }
-  //   );
-  // }
 }
