@@ -101,7 +101,7 @@ export default class Character extends CommandBase {
     this.r.RemoveLayer(this.sprite, ON);
 
     const crossfade = new Crossfade(this.sprite.texture);
-    this.setPos(crossfade, this.xpos);
+    this.setPos(crossfade);
     this.r.AddLayer(crossfade, ON);
     crossfade.zIndex = this.zIndex;
     this.r.sortLayers(ON);
@@ -116,16 +116,16 @@ export default class Character extends CommandBase {
     this.r.RemoveLayer(crossfade, ON);
 
     const nextSprite = await face.genSprite(this.size, resources);
-    this.setPos(nextSprite, this.xpos);
+    this.setPos(nextSprite);
     this.r.AddLayer(nextSprite, ON);
     nextSprite.zIndex = this.zIndex;
 
     return nextSprite;
   }
 
-  setPos(sprite: PIXI.Sprite, xpos: number) {
+  setPos(sprite: PIXI.Sprite) {
     sprite.anchor.set(0.5, 1.0);
-    sprite.x = xpos * this.r.width;
+    sprite.x = this.xpos * this.r.width;
     sprite.y = this.r.height;
   }
 
@@ -133,13 +133,12 @@ export default class Character extends CommandBase {
     face: Face,
     resources: Record<string, PIXI.LoaderResource>,
     duration: number,
-    xpos: number
   ): Promise<CharacterSprite> {
     const sprite = await face.genSprite(this.size, resources);
     sprite.name = this.name;
     sprite.alpha = 0.0;
     sprite.zIndex = this.zIndex;
-    this.setPos(sprite, xpos);
+    this.setPos(sprite);
 
     await this.r.AddLayer(sprite, ON);
     await this.fadeIn(sprite, duration);
@@ -210,8 +209,7 @@ export default class Character extends CommandBase {
           nextSprite = await this.showIntl(
             face,
             resources,
-            duration,
-            this.xpos
+            duration
           );
           const ev: ShowEvent = {
             name: this.name,
