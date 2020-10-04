@@ -5,6 +5,7 @@ interface Layers {
   bg: PIXI.Container;
   fg: PIXI.Container;
   ui: PIXI.Container;
+  acc: PIXI.Container;
 }
 export type layerName = keyof Layers;
 
@@ -41,13 +42,19 @@ export default class Renderer {
     world.addChild(fg);
 
     const ui = new PIXI.Container();
+    ui.sortableChildren = true;
     this.app.stage.addChild(ui);
+
+    const acc = new PIXI.Container();
+    acc.sortableChildren = true;
+    this.app.stage.addChild(acc);
 
     this.layers = {
       world,
       bg,
       fg,
       ui,
+      acc,
     };
   }
 
