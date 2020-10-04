@@ -13,6 +13,7 @@ import Filter from './engine/commands/filters';
 import Image from './engine/commands/Image';
 import Message from './engine/commands/Message';
 import { WAITING_GLYPH } from './engine/commands/Message';
+import Side from './engine/commands/Side';
 import Sound from './engine/commands/Sound';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
@@ -29,6 +30,7 @@ export {
   // Commands
   Camera,
   Character,
+  Side,
   Command,
   Control,
   Core,
