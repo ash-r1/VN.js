@@ -5,10 +5,7 @@ import EventEmitter from 'eventemitter3';
 import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
-import CharacterCommandBase, {
-  CharacterSize,
-  FaceOption,
-} from './base/CharacterCommandBase';
+import CharacterCommandBase, { FaceOption } from './base/CharacterCommandBase';
 import { HideEvent } from './base/CharacterCommandBase';
 import { Command, MultipleResourcesCommand, pure } from './base/commands';
 import Face, { CharacterSprite } from './modules/Face';
@@ -36,6 +33,8 @@ export interface ShowHideOption {
   duration?: number;
 }
 
+export type CharacterSize = 'md' | 'lg';
+
 export interface ShowOption extends ShowHideOption {
   xpos?: number;
   size?: CharacterSize;
@@ -58,7 +57,7 @@ export default class Character extends CharacterCommandBase {
     name: string,
     faceOpts: FaceOption[]
   ) {
-    super(r, name, faceOpts);
+    super(r, name, faceOpts, 'lg', 'fg');
   }
 
   beforeShow(sprite: PIXI.Sprite) {
