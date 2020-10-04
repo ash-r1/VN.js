@@ -5,16 +5,13 @@ import EventEmitter from 'eventemitter3';
 import Renderer from 'src/engine/Renderer';
 
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
-import Crossfade from '../layer/Crossfade';
-import CommandBase from './base/CommandBase';
+import CharacterCommandBase, {
+  CharacterSize,
+  FaceOption,
+} from './base/CharacterCommandBase';
+import { HideEvent } from './base/CharacterCommandBase';
 import { Command, MultipleResourcesCommand, pure } from './base/commands';
 import Face, { CharacterSprite } from './modules/Face';
-
-export interface FaceOption {
-  code: string;
-  blink?: boolean;
-  filename?: string;
-}
 
 export const SHOW = '@character/SHOW';
 export const HIDE = '@character/HIDE';
@@ -26,9 +23,9 @@ export interface ShowEvent {
   face: Face;
   xpos: number;
 }
-export interface HideEvent {
-  name: string;
-}
+
+export { HideEvent };
+
 export interface MoveEvent {
   name: string;
   xpos: number;
@@ -50,100 +47,24 @@ export interface MoveOption {
   duration?: number;
 }
 
-type CharacterSize = 'md' | 'lg';
-
-const ON = 'fg';
-
-const defaultZIndex = 0;
-const defaultSize = 'lg';
-
-export default class Character extends CommandBase {
-  private faces: Record<string, Face>;
+export default class Character extends CharacterCommandBase {
   private xpos = 0.5;
-  private sprite?: CharacterSprite;
-  private size: CharacterSize = defaultSize;
-  private zIndex = defaultZIndex;
   defaultShowDuration = 300;
-  defaultHideDuration = 300;
   defaultMoveDuration = 300;
 
   constructor(
     r: Renderer,
     private ee: EventEmitter,
-    private name: string,
+    name: string,
     faceOpts: FaceOption[]
   ) {
-    super(r);
-    this.faces = faceOpts.reduce(
-      (prev: Record<string, Face>, opt: FaceOption) => {
-        return {
-          ...prev,
-          [opt.code]: new Face(name, opt.code, opt.blink, opt.filename),
-        };
-      },
-      {}
-    );
+    super(r, name, faceOpts);
   }
 
-  private async crossfadeIntl(
-    face: Face,
-    resources: Record<string, PIXI.LoaderResource>,
-    duration: number
-  ): Promise<CharacterSprite> {
-    if (!this.sprite) {
-      throw new Error(`character sprite not found (name=${this.name})`);
-    }
-
-    if (this.sprite instanceof BlinkAnimationSprite) {
-      this.sprite.gotoAndStop(0);
-    }
-
-    this.r.RemoveLayer(this.sprite, ON);
-
-    const crossfade = new Crossfade(this.sprite.texture);
-    this.setPos(crossfade);
-    this.r.AddLayer(crossfade, ON);
-    crossfade.zIndex = this.zIndex;
-    this.r.sortLayers(ON);
-
-    const resource = resources[face.paths(this.size)[0]];
-    if (!resource) {
-      debugger;
-      throw new Error('resource not found');
-    }
-    await crossfade.animate(resource.texture, duration);
-
-    this.r.RemoveLayer(crossfade, ON);
-
-    const nextSprite = await face.genSprite(this.size, resources);
-    this.setPos(nextSprite);
-    this.r.AddLayer(nextSprite, ON);
-    nextSprite.zIndex = this.zIndex;
-
-    return nextSprite;
-  }
-
-  setPos(sprite: PIXI.Sprite) {
+  beforeShow(sprite: PIXI.Sprite) {
     sprite.anchor.set(0.5, 1.0);
     sprite.x = this.xpos * this.r.width;
     sprite.y = this.r.height;
-  }
-
-  private async showIntl(
-    face: Face,
-    resources: Record<string, PIXI.LoaderResource>,
-    duration: number,
-  ): Promise<CharacterSprite> {
-    const sprite = await face.genSprite(this.size, resources);
-    sprite.name = this.name;
-    sprite.alpha = 0.0;
-    sprite.zIndex = this.zIndex;
-    this.setPos(sprite);
-
-    await this.r.AddLayer(sprite, ON);
-    await this.fadeIn(sprite, duration);
-
-    return sprite;
   }
 
   private async moveIntl(xpos: number, duration: number): Promise<void> {
@@ -206,11 +127,7 @@ export default class Character extends CommandBase {
           if (xpos) {
             this.xpos = xpos;
           }
-          nextSprite = await this.showIntl(
-            face,
-            resources,
-            duration
-          );
+          nextSprite = await this.showIntl(face, resources, duration);
           const ev: ShowEvent = {
             name: this.name,
             face,
@@ -229,20 +146,9 @@ export default class Character extends CommandBase {
 
   hide({ duration = this.defaultHideDuration }: HideOption = {}): Command {
     return pure(async () => {
-      if (this.sprite) {
-        await this.fadeOut(this.sprite, duration);
-        await this.r.RemoveLayer(this.sprite, ON);
-        this.sprite = undefined;
+      if (this.hideIntl(duration)) {
         this.ee.emit(HIDE, { name: this.name });
       }
-      this.zIndex = defaultZIndex;
     });
-  }
-
-  async order(zIndex: number): Promise<void> {
-    if (this.sprite) {
-      this.sprite.zIndex = zIndex;
-      this.zIndex = zIndex;
-    }
   }
 }
