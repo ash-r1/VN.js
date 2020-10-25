@@ -33,7 +33,7 @@ export class Comment extends StatementBase {
   }
 }
 
-export type ParamValue = string | number;
+export type ParamValue = string | number | boolean;
 export type KeywordParams = Map<string, ParamValue>;
 export type Params = Array<ParamValue | KeywordParams>;
 
@@ -42,12 +42,15 @@ type StringValueNode = Node<
   string
 >;
 type NumberValueNode = Node<'number', string>;
-type ValueNode = StringValueNode | NumberValueNode;
+type BooleanValueNode = Node<'boolean', string>;
+type ValueNode = StringValueNode | BooleanValueNode | NumberValueNode;
 
 const parseValue = (v: ValueNode): ParamValue => {
   const { name, value } = v;
   if (name === 'number') {
     return parseFloat(value);
+  } else if (name === 'boolean') {
+    return value == 'true';
   } else {
     return value;
   }
