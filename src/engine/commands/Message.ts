@@ -66,6 +66,19 @@ export default class Message extends CommandBase {
     });
   }
 
+  name(name: string): Command {
+    return new ResourceCommand(BG_PATH, async (resource) => {
+      await this.prepareBox(resource.texture, 0);
+      await this.messageBox?.changeNameText(name);
+    });
+  }
+
+  clearName(): Command {
+    return pure(async () => {
+      await this.messageBox?.changeNameText('');
+    });
+  }
+
   async clear(): Promise<void> {
     this.clearTextIntl();
   }
