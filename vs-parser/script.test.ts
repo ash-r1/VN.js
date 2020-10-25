@@ -31,7 +31,7 @@ describe(Script, () => {
     expect(arbits.size).toBe(3);
     expect(arbits.get('d')).toBe('α');
     expect(arbits.get('e')).toBe(1);
-    expect(arbits.get('f')).toBe('true');
+    expect(arbits.get('f')).toBe(true);
   });
 
   it('parses command with number param', () => {
@@ -57,7 +57,7 @@ describe(Script, () => {
     expect(arbits.size).toBe(3);
     expect(arbits.get('d')).toBe('α');
     expect(arbits.get('e')).toBe(1.2);
-    expect(arbits.get('f')).toBe('true');
+    expect(arbits.get('f')).toBe(true);
   });
 
   it('parses label command', () => {
