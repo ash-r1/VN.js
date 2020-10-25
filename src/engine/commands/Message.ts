@@ -20,6 +20,7 @@ export const WAITING_GLYPH = 'ui/waiting-gliff.png';
 export interface ShowOption extends ShowHideOption {
   x?: number;
   y?: number;
+  wait?: boolean;
 }
 type HideOption = ShowHideOption;
 
@@ -42,7 +43,10 @@ export default class Message extends CommandBase {
     }
   };
 
-  show(text: string, { duration = 500 }: ShowOption = {}): Command {
+  show(
+    text: string,
+    { duration = 500, wait = true }: ShowOption = {}
+  ): Command {
     return new ResourceCommand(BG_PATH, async (resource) => {
       await this.prepareBox(resource.texture, duration);
       await this.messageBox?.animateText(text);
@@ -51,7 +55,7 @@ export default class Message extends CommandBase {
       this.ee.once(NEXT, this.clearTextIntl);
 
       return {
-        wait: true,
+        wait,
       };
     });
   }
