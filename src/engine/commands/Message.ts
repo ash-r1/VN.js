@@ -14,6 +14,7 @@ export interface ShowHideOption {
 }
 
 const ON_LAYER = 'ui';
+const BG_PATH = 'game/textbox.png';
 export const WAITING_GLYPH = 'ui/waiting-gliff.png';
 
 export interface ShowOption extends ShowHideOption {
@@ -42,19 +43,9 @@ export default class Message extends CommandBase {
   };
 
   show(text: string, { duration = 500 }: ShowOption = {}): Command {
-    const src = 'game/textbox.png';
-    return new ResourceCommand(src, async (resource) => {
-      if (!this.messageBox) {
-        const messageBox = new MessageBox(resource.texture);
-        // TODO: Fix magic number
-        messageBox.y = 620;
-        messageBox.alpha = 0.0;
-        await this.r.AddLayer(messageBox, ON_LAYER);
-        await this.fadeIn(messageBox, duration);
-        this.messageBox = messageBox;
-      }
-
-      await this.messageBox.animateText(text);
+    return new ResourceCommand(BG_PATH, async (resource) => {
+      await this.prepareBox(resource.texture, duration);
+      await this.messageBox?.animateText(text);
 
       // clean up after clickwait
       this.ee.once(NEXT, this.clearTextIntl);
@@ -78,6 +69,18 @@ export default class Message extends CommandBase {
   async clear(): Promise<void> {
     this.clearTextIntl();
   }
+
+  private prepareBox = async (texture: PIXI.Texture, duration: number) => {
+    if (!this.messageBox) {
+      const messageBox = new MessageBox(texture);
+      // TODO: Fix magic number
+      messageBox.y = 620;
+      messageBox.alpha = 0.0;
+      await this.r.AddLayer(messageBox, ON_LAYER);
+      await this.fadeIn(messageBox, duration);
+      this.messageBox = messageBox;
+    }
+  };
 
   private showWaiting = async () => {
     // TODO: split to other. may subscribe Game's onclick/clickwait even
