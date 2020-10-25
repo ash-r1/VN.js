@@ -18,7 +18,9 @@ describe(Script, () => {
   };
 
   it('parses command', () => {
-    const st = parseSingle('@mod.exec a b c d=α e=1 f=true');
+    const st = parseSingle(
+      '@mod.exec a b c d=α e=1 f=true g=false h="true" i="false"'
+    );
     expect(st).toBeInstanceOf(Command);
     const cmd = st as Command;
     expect(cmd.module).toBe('mod');
@@ -28,10 +30,13 @@ describe(Script, () => {
     expect(cmd.params[1]).toBe('b');
     expect(cmd.params[2]).toBe('c');
     const arbits = cmd.params[3] as KeywordParams;
-    expect(arbits.size).toBe(3);
+    expect(arbits.size).toBe(6);
     expect(arbits.get('d')).toBe('α');
     expect(arbits.get('e')).toBe(1);
     expect(arbits.get('f')).toBe(true);
+    expect(arbits.get('g')).toBe(false);
+    expect(arbits.get('h')).toBe('true');
+    expect(arbits.get('i')).toBe('false');
   });
 
   it('parses command with number param', () => {
@@ -45,7 +50,7 @@ describe(Script, () => {
   });
 
   it('parses system command', () => {
-    const st = parseSingle('@@exec a b c d=α e=1.2 f=true');
+    const st = parseSingle("@@exec a b c d=α e=1.2 f=true g='true'");
     expect(st).toBeInstanceOf(SystemCommand);
     const cmd = st as SystemCommand;
     expect(cmd.func).toBe('exec');
@@ -54,10 +59,11 @@ describe(Script, () => {
     expect(cmd.params[1]).toBe('b');
     expect(cmd.params[2]).toBe('c');
     const arbits = cmd.params[3] as KeywordParams;
-    expect(arbits.size).toBe(3);
+    expect(arbits.size).toBe(4);
     expect(arbits.get('d')).toBe('α');
     expect(arbits.get('e')).toBe(1.2);
     expect(arbits.get('f')).toBe(true);
+    expect(arbits.get('g')).toBe('true');
   });
 
   it('parses label command', () => {
