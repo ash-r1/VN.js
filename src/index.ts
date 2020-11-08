@@ -4,7 +4,13 @@ import * as PIXI from 'pixi.js';
 import 'pixi-sound';
 
 import BaseGame from './engine/BaseGame';
-import { Command } from './engine/commands/base/commands';
+import {
+  Command,
+  pure,
+  PureCommand,
+  ResourceCommand,
+} from './engine/commands/base/commands';
+import { MultipleResourcesCommand } from './engine/commands/base/commands';
 import Camera from './engine/commands/Camera';
 import Character from './engine/commands/Character';
 import Control from './engine/commands/controls/Control';
@@ -32,6 +38,10 @@ export {
   Character,
   Side,
   Command,
+  PureCommand,
+  ResourceCommand,
+  MultipleResourcesCommand,
+  pure,
   Control,
   Core,
   Filter,
