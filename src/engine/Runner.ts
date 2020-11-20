@@ -20,8 +20,15 @@ export default class Runner<Game extends BaseGame> {
   }
 
   async jumpToScenario(scenarioName: string) {
-    const scenario = this.scenarios[scenarioName](this.game);
-    this.iter = new ScenarioIterator(scenario);
+    const g = this.scenarios[scenarioName];
+    if (g) {
+      const scenario = g(this.game);
+      this.iter = new ScenarioIterator(scenario);
+    } else {
+      throw new Error(
+        `The jump target scenario ${scenarioName} is not found in the list.`
+      );
+    }
     // NOTE: loadScenarioResources will break game-state on jump, just stop to do this.
     // TBD: preloading issue
     // await this.loadScenarioResources(scenario);
@@ -40,34 +47,41 @@ export default class Runner<Game extends BaseGame> {
 
   async loop() {
     while (true) {
-      const iterResult = this.iter.next();
-      if (iterResult.done) {
-        break;
-      }
-      const row = iterResult.value;
+      try {
+        const iterResult = this.iter.next();
+        if (iterResult.done) {
+          break;
+        }
+        const row = iterResult.value;
 
-      if (row instanceof Command) {
-        const command = row;
-        const resources = await this.game.safeResources(command.paths);
+        if (row instanceof Command) {
+          const command = row;
+          const resources = await this.game.safeResources(command.paths);
+          const result = await command.exec(resources);
 
-        // exec it after loading.
-        const result = await command.exec(resources);
-        if (result && result.wait) {
-          this.game.ee.emit(WAIT);
-          await this.game.waitNext();
-          this.game.ee.emit(NEXT);
+          // exec it after loading.
+          if (result && result.wait) {
+            this.game.ee.emit(WAIT);
+            await this.game.waitNext();
+            this.game.ee.emit(NEXT);
+          }
+        } else if (row instanceof Label) {
+          // TODO: store label for game saving feature?
+          console.debug('label: ', row.label);
+        } else if (row instanceof Jump) {
+          console.debug(
+            `jump to ${row.scenario} ${row.label ? `*${row.label}` : ''}`
+          );
+          if (row.scenario) {
+            await this.jumpToScenario(row.scenario);
+          }
+          if (row.label) {
+            this.iter.jump(row.label);
+          }
+          // Exec them on the next loop
         }
-      } else if (row instanceof Label) {
-        // TODO: store label for game saving feature?
-        console.debug('label: ', row.label);
-      } else if (row instanceof Jump) {
-        if (row.scenario) {
-          this.jumpToScenario(row.scenario);
-        }
-        if (row.label) {
-          this.iter.jump(row.label);
-        }
-        // Exec them on the next loop
+      } catch (e) {
+        console.error(`command exec error: ${e}`);
       }
     }
 

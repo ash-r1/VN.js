@@ -96,7 +96,7 @@ export default class Character extends CharacterCommandBase {
   ): Command {
     const face = this.faces[code];
     if (!face) {
-      throw new Error(`undefined face for code=${code}`);
+      throw new Error(`Character(${this.name}) '${code}' not found`);
     }
     this.size = size ?? this.size;
     const filepaths = face.paths(this.size);

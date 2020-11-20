@@ -55,7 +55,7 @@ export default class Side extends CharacterCommandBase {
   ): Command {
     const face = this.faces[code];
     if (!face) {
-      throw new Error(`undefined face for code=${code}`);
+      throw new Error(`Side '${code}' face not found`);
     }
     const filepaths = face.paths(this.size);
     // size state is necessary for the following paths detections in preload phase, save it.
