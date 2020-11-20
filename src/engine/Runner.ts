@@ -69,7 +69,7 @@ export default class Runner<Game extends BaseGame> {
         console.debug('label: ', row.label);
       } else if (row instanceof Jump) {
         if (row.scenario) {
-          this.jumpToScenario(row.scenario);
+          await this.jumpToScenario(row.scenario);
         }
         if (row.label) {
           this.iter.jump(row.label);
