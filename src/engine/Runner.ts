@@ -68,6 +68,9 @@ export default class Runner<Game extends BaseGame> {
         // TODO: store label for game saving feature?
         console.debug('label: ', row.label);
       } else if (row instanceof Jump) {
+        console.debug(
+          `jump to ${row.scenario} ${row.label ? `*${row.label}` : ''}`
+        );
         if (row.scenario) {
           await this.jumpToScenario(row.scenario);
         }
