@@ -20,8 +20,15 @@ export default class Runner<Game extends BaseGame> {
   }
 
   async jumpToScenario(scenarioName: string) {
-    const scenario = this.scenarios[scenarioName](this.game);
-    this.iter = new ScenarioIterator(scenario);
+    const g = this.scenarios[scenarioName];
+    if (g) {
+      const scenario = g(this.game);
+      this.iter = new ScenarioIterator(scenario);
+    } else {
+      throw new Error(
+        `The jump target scenario ${scenarioName} is not found in the list.`
+      );
+    }
     // NOTE: loadScenarioResources will break game-state on jump, just stop to do this.
     // TBD: preloading issue
     // await this.loadScenarioResources(scenario);
