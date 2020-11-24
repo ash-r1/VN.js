@@ -13,7 +13,7 @@ const AttrValue = (quote: string) =>
     .skip(P.string(quote));
 
 const Value = P.alt(
-  P.regexp(/[0-9]([0-9]?\.?[0-9]+)?/).node('number'),
+  P.regexp(/[0-9]([0-9]*\.?[0-9]+)?/).node('number'),
   P.regexp(/(true|false)/).node('boolean'),
   AttrValue('"').node('double-quoted-string'),
   AttrValue("'").node('single-quoted-stirng'),

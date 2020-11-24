@@ -50,7 +50,7 @@ describe(Script, () => {
   });
 
   it('parses system command', () => {
-    const st = parseSingle("@@exec a b c d=α e=1.2 f=true g='true'");
+    const st = parseSingle("@@exec a b c d=α e=100.2341 f=true g='true'");
     expect(st).toBeInstanceOf(SystemCommand);
     const cmd = st as SystemCommand;
     expect(cmd.func).toBe('exec');
@@ -61,7 +61,7 @@ describe(Script, () => {
     const arbits = cmd.params[3] as KeywordParams;
     expect(arbits.size).toBe(4);
     expect(arbits.get('d')).toBe('α');
-    expect(arbits.get('e')).toBe(1.2);
+    expect(arbits.get('e')).toBe(100.2341);
     expect(arbits.get('f')).toBe(true);
     expect(arbits.get('g')).toBe('true');
   });
