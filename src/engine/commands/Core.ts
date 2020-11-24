@@ -23,7 +23,8 @@ export default class Core extends CommandBase {
 
   wait(duration: number): Command {
     return pure(async () => {
-      await timeout(duration);
+      // sec -> msec
+      await timeout(duration * 1000);
     });
   }
 }
