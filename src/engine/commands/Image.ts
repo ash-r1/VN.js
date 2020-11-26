@@ -46,8 +46,13 @@ export default class Image extends CommandBase {
           scale,
           alpha: 0,
         });
+
+        const old = this.layers.get(name);
         await this.r.AddLayer(layer, on);
         await this.fadeIn(layer, duration);
+        if (old) {
+          await this.r.RemoveLayer(old.layer, old.on);
+        }
 
         this.layers.set(name, { layer, on });
       }
