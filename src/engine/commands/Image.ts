@@ -15,6 +15,12 @@ export interface ShowOption extends ShowHideOption {
   scale?: number;
 }
 type HideOption = ShowHideOption;
+export interface ShowIntlOption extends ShowOption {
+  on: layerName;
+  duration: number;
+}
+
+export type StillOption = ShowHideOption;
 
 interface LayerDef {
   layer: PIXI.DisplayObject;
@@ -59,12 +65,11 @@ export default class Image extends CommandBase {
     );
   }
 
-  show(
+  showIntl(
     name: string,
-    src: string,
-    { duration = 500, on = 'fg', ...option }: ShowOption = {}
+    filepath: string,
+    { duration, on, ...option }: ShowIntlOption
   ): Command {
-    const filepath = `game/images/${src}.png`;
     return new ResourceCommand(
       filepath,
       async (resource: PIXI.LoaderResource) => {
@@ -78,6 +83,15 @@ export default class Image extends CommandBase {
     );
   }
 
+  show(
+    name: string,
+    src: string,
+    { duration = 500, on = 'fg', ...option }: ShowOption = {}
+  ): Command {
+    const filepath = `game/images/${src}.png`;
+    return this.showIntl(name, filepath, { duration, on, ...option });
+  }
+
   hide(name: string, { duration = 500 }: HideOption = {}): Command {
     return pure(async () => {
       const layer = this.layers.get(name);
@@ -87,5 +101,20 @@ export default class Image extends CommandBase {
         this.layers.delete(name);
       }
     });
+  }
+
+  still(name: string, { duration = 500 }: StillOption = {}): Command {
+    const filepath = `game/images/still/${name}.png`;
+    return this.showIntl('still', filepath, {
+      duration,
+      on: 'fg',
+      // FIXIT: magic number
+      x: 960,
+      y: 540,
+    });
+  }
+
+  hideStill(option: HideOption): Command {
+    return this.hide('still', option);
   }
 }
