@@ -76,8 +76,12 @@ export default class Image extends CommandBase {
         const layer = new PIXI.Sprite(resource.texture);
         layer.anchor.set(0.5, 0.5);
         this.setLayerProps(layer, { ...option, alpha: 0 });
+        const old = this.layers.get(name);
         await this.r.AddLayer(layer, on);
         await this.fadeIn(layer, duration);
+        if (old) {
+          await this.r.RemoveLayer(old.layer, old.on);
+        }
         this.layers.set(name, { layer, on });
       }
     );
@@ -114,7 +118,7 @@ export default class Image extends CommandBase {
     });
   }
 
-  hideStill(option: HideOption): Command {
+  hideStill(option?: HideOption): Command {
     return this.hide('still', option);
   }
 }
