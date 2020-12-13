@@ -19,13 +19,14 @@ import Message from './engine/commands/Message';
 import { WAITING_GLYPH } from './engine/commands/Message';
 import Side from './engine/commands/Side';
 import Sound from './engine/commands/Sound';
+import GameLayer from './engine/GameLayer';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import Runner from './engine/Runner';
 
 export {
-  // Core
   BaseGame,
+  GameLayer,
   Runner,
   Renderer,
   Responder,
