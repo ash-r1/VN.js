@@ -29,6 +29,7 @@
     "types"
   ],
   "dependencies": {
+    "@inlet/react-pixi": "^6.0.6",
     "chalk": "^4.1.0",
     "change-case": "^4.1.1",
     "chokidar": "^3.4.2",
@@ -40,6 +41,8 @@
     "pixi-sound": "^3.0.5",
     "pixi.js": "^5.3.3",
     "raw-loader": "^4.0.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "watch": "^1.0.2"
   },
   "devDependencies": {
@@ -54,6 +57,7 @@
     "@types/fontfaceobserver": "^0.0.6",
     "@types/jest": "^26.0.13",
     "@types/parsimmon": "^1.10.2",
+    "@types/react": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "babel-jest": "^26.3.0",
