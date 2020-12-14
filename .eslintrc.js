@@ -12,6 +12,7 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
     'prettier',
     'prettier/@typescript-eslint',
   ],
@@ -35,7 +36,7 @@ module.exports = {
       {
         groups: [
           // pixi.js first
-          ['^pixi.js'],
+          ['^react$', '^pixi.js', '^@inlet/react-pixi$'],
           // Side effect imports.
           ['^\\u0000'],
           // Packages.

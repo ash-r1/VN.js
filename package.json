@@ -1,6 +1,6 @@
 {
   "name": "@ash-r1/vn.js",
-  "version": "0.0.18",
+  "version": "0.1.0-alpha.0",
   "repository": "git@github.com:ash-r1/VN.js.git",
   "author": "Ash <ash.suzuki.r1@gmail.com>",
   "license": "MPL-2.0",
@@ -30,6 +30,7 @@
   ],
   "dependencies": {
     "@inlet/react-pixi": "^6.0.6",
+    "@reduxjs/toolkit": "^1.5.0",
     "chalk": "^4.1.0",
     "change-case": "^4.1.1",
     "chokidar": "^3.4.2",
@@ -43,6 +44,8 @@
     "raw-loader": "^4.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-redux": "^7.2.2",
+    "redux": "^4.0.5",
     "watch": "^1.0.2"
   },
   "devDependencies": {
@@ -58,12 +61,14 @@
     "@types/jest": "^26.0.13",
     "@types/parsimmon": "^1.10.2",
     "@types/react": "^17.0.0",
+    "@types/react-redux": "^7.1.12",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "babel-jest": "^26.3.0",
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
+    "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "jest": "^26.4.2",
     "prettier": "^2.0.5",
