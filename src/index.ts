@@ -24,11 +24,13 @@ import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import Runner from './engine/Runner';
 import * as redux from './redux';
+import reducers from './redux/reducers';
 
 export {
   BaseGame,
   GameLayer,
   redux,
+  reducers,
   Runner,
   Renderer,
   Responder,

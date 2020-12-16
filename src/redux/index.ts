@@ -15,5 +15,3 @@ export type BaseDispatch = BaseStore['dispatch'];
 export const useBaseDispatch = () => useDispatch<BaseDispatch>();
 export const useBaseSelector = createSelectorHook<BaseState>();
 export const useBaseStore = () => useStore<BaseState>();
-
-export { reducers };
