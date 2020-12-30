@@ -1,3 +1,4 @@
 import counter from './counter';
+import world from './world';
 
-export default { counter };
+export default { counter, world };
