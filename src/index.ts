@@ -25,12 +25,16 @@ import Responder from './engine/Responder';
 import Runner from './engine/Runner';
 import * as redux from './redux';
 import reducers from './redux/reducers';
+import * as actions from './redux/reducers/actions';
+import sagas from './redux/sagas';
 
 export {
   BaseGame,
   GameLayer,
   redux,
   reducers,
+  actions,
+  sagas,
   Runner,
   Renderer,
   Responder,

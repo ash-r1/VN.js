@@ -1,9 +1,8 @@
 import { ComponentProps } from 'react';
-import { Texture } from 'pixi.js';
 
-import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import Image from '../../engine/components/Image';
+import Image from '../../../engine/components/Image';
 
 type ImageProps = ComponentProps<typeof Image>;
 type ImageState = {
