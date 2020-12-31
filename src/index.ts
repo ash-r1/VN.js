@@ -23,6 +23,11 @@ import GameLayer from './engine/GameLayer';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import Runner from './engine/Runner';
+import {
+  ScenariosConsumer,
+  ScenariosProvider,
+} from './engine/scenario/provider';
+import { useScenarios } from './hooks/useScenarios';
 import * as redux from './redux';
 import reducers from './redux/reducers';
 import * as actions from './redux/reducers/actions';
@@ -35,6 +40,9 @@ export {
   reducers,
   actions,
   sagas,
+  useScenarios,
+  ScenariosConsumer,
+  ScenariosProvider,
   Runner,
   Renderer,
   Responder,

@@ -1,5 +1,9 @@
 import React from 'react';
+import * as PIXI from 'pixi.js';
 import { Container, useApp } from '@inlet/react-pixi';
+
+import { Scenarios } from 'src/engine/scenario/provider';
+import { useScenarios } from 'src/hooks/useScenarios';
 
 import { useBaseDispatch, useBaseSelector } from '../../redux/index';
 import { actions } from '../../redux/reducers/world';
@@ -14,10 +18,11 @@ export interface Props {
 }
 
 const World: React.FC<Props> = ({ width, height }) => {
+  const pixi = useApp();
+  const scenarios = useScenarios();
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
-  const pixi = useApp();
 
   // React.Context 適当に作って useEngine() みたいなことして clickで engine.run する
   // そして engine.run の中ではredux側を上手いこと使って、....
@@ -27,22 +32,7 @@ const World: React.FC<Props> = ({ width, height }) => {
     console.log(`click!, ${scale.x}`);
     // Here's the problematic.
     //
-    const { loader } = pixi;
-    if (layers.length > 0) {
-      dispatch(actions.debug());
-    } else {
-      const path = 'game/images/bg garden-road-1-rev1.png';
-      // const path =
-      //   'https://i.picsum.photos/id/933/1200/1200.jpg?hmac=gKkxi6Sok4NBCn14G01G0_OnV2imWiSPVFy8VwFt6O8';
-      if (!loader.resources[path]) {
-        loader.add(path);
-        await new Promise((resolve) => {
-          console.log('loading resolved!');
-          loader.load(resolve);
-        });
-      }
-      dispatch(actions.addImageLayer({ key: `1`, props: { image: path } }));
-    }
+    dispatch(actions.next({ pixi, scenarios }));
   };
 
   return (
