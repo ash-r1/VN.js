@@ -7,13 +7,21 @@ import { useScenarios } from 'src/hooks/useScenarios';
 
 import { useBaseDispatch, useBaseSelector } from '../../redux/index';
 import { actions, LayerName } from '../../redux/reducers/world';
+import Character from './Character';
 import Image from './Image';
 import Rectangle from './Rectangle';
+
+type Components = Record<string, React.ComponentType<any>>;
+
+const defaultComponents: Components = {
+  Image,
+  Character,
+};
 
 export interface Props {
   width: number;
   height: number;
-  components?: Record<string, React.ComponentType<any>>;
+  components?: Components;
 }
 
 const World: React.FC<Props> = ({ width, height, components }) => {
@@ -22,8 +30,8 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
-  const componentsWithDefaults: Record<string, React.ComponentType<any>> = {
-    Image: Image,
+  const componentsWithDefaults: Components = {
+    ...defaultComponents,
     ...components,
   };
 
