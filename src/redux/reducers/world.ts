@@ -1,23 +1,27 @@
-import { ComponentProps } from 'react';
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Scenarios } from 'src/engine/scenario/provider';
 
-import Image from '../../engine/components/Image';
-
-type ImageProps = ComponentProps<typeof Image>;
-type ImageState = {
-  type: 'Image';
+export interface LayerState<Props = any> {
+  type: string;
   key: string;
-  props: ImageProps;
-};
-type ImagePayload = Omit<ImageState, 'type'>;
+  props: Props;
+}
 
-type LayerState = ImageState;
+export interface Layers {
+  acc: LayerState[];
+  msg: LayerState[];
+  fg: LayerState[];
+  bg: LayerState[];
+}
+export type LayerName = keyof Layers;
+
+export interface LayerPayload<Props = any> extends LayerState<Props> {
+  on: LayerName;
+}
 
 export interface StateType {
-  layers: LayerState[];
+  layers: Layers;
   stableCounter: number;
   scale: {
     x: number;
@@ -31,7 +35,12 @@ export interface StateType {
 }
 
 const initialState: StateType = {
-  layers: [],
+  layers: {
+    acc: [],
+    msg: [],
+    fg: [],
+    bg: [],
+  },
   stableCounter: 0,
   scale: {
     x: 1,
@@ -88,42 +97,35 @@ const slice = createSlice({
         stableCounter: state.stableCounter - 1,
       };
     },
-    debug: (state, action: PayloadAction) => {
-      const scale = state.scale;
+    addLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
+      const { type, key, props, on } = action.payload;
       return {
         ...state,
-        scale: {
-          x: scale.x + 0.1,
-          y: scale.y + 0.1,
+        layers: {
+          ...state.layers,
+          [on]: [...state.layers[on], { type, key, props }],
         },
       };
     },
-    addImageLayer: (state, action: PayloadAction<ImagePayload>) => {
-      return {
-        ...state,
-        layers: [
-          ...state.layers,
-          {
-            type: 'Image',
-            ...action.payload,
-          },
-        ],
-      };
-    },
-    removeImageLayer: (state, action: PayloadAction<{ key: string }>) => {
-      const { layers } = state;
+    removeLayer: (
+      state,
+      action: PayloadAction<{ key: string; on: LayerName }>
+    ): StateType => {
+      const { key, on } = action.payload;
+      const layers = state.layers[on];
       const newLayers: LayerState[] = [];
-      const { key } = action.payload;
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i];
         if (layer.key !== key) {
           newLayers.push(layer);
         }
       }
-
       return {
         ...state,
-        layers: newLayers,
+        layers: {
+          ...state.layers,
+          [on]: newLayers,
+        },
       };
     },
   },

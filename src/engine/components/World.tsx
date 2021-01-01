@@ -6,7 +6,7 @@ import { Scenarios } from 'src/engine/scenario/provider';
 import { useScenarios } from 'src/hooks/useScenarios';
 
 import { useBaseDispatch, useBaseSelector } from '../../redux/index';
-import { actions } from '../../redux/reducers/world';
+import { actions, LayerName } from '../../redux/reducers/world';
 import Image from './Image';
 import Rectangle from './Rectangle';
 
@@ -35,17 +35,21 @@ const World: React.FC<Props> = ({ width, height }) => {
     dispatch(actions.next({ pixi, scenarios }));
   };
 
+  console.log(layers);
+
   return (
     <Container interactive={true} pointerdown={handleClick}>
       {/* BaseLayer */}
       <Rectangle x={0} y={0} width={width} height={height} fill={0x000000} />
-      {layers.map(({ type, key, props }) => {
-        switch (type) {
-          case 'Image':
-            return <Image key={key} {...props} scale={scale} />;
-          default:
-            throw `Component type ${type} is not supported`;
-        }
+      {(['bg', 'fg', 'msg', 'acc'] as LayerName[]).map((layerName) => {
+        return layers[layerName].map(({ type, key, props }) => {
+          switch (type) {
+            case 'Image':
+              return <Image key={key} {...props} scale={scale} />;
+            default:
+              throw `Component type ${type} is not supported`;
+          }
+        });
       })}
     </Container>
   );

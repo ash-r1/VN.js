@@ -3,7 +3,7 @@ import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import { BaseState } from '../';
 import { actions } from '../reducers/world';
 
-function* handleA(action: ReturnType<typeof actions.addImageLayer>) {
+function* handleA(action: ReturnType<typeof actions.addLayer>) {
   const payload = action.payload;
   console.log('internal', payload);
 }
@@ -48,7 +48,7 @@ function* sampleSaga() {
     //
     takeEvery(actions.run, run),
     takeEvery(actions.next, next),
-    takeEvery(actions.addImageLayer, handleA),
+    takeEvery(actions.addLayer, handleA),
   ]);
 }
 
