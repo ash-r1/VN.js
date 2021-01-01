@@ -2,6 +2,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Scenarios } from 'src/engine/scenario/provider';
 
+import Character from '../../engine/components/Character';
+import Image from '../../engine/components/Image';
+
 export interface LayerState<Props = any> {
   type: string;
   key: string;
@@ -13,12 +16,23 @@ export interface Layers {
   msg: LayerState[];
   fg: LayerState[];
   bg: LayerState[];
+  // TODO: Configure keys from outside of VN.js? or, optional layer function?
 }
+
 export type LayerName = keyof Layers;
 
 export interface LayerPayload<Props = any> extends LayerState<Props> {
   on: LayerName;
+  // TODO: Add above, under options to control where to insert
 }
+
+export type SpecificLayerPayload<C extends React.ComponentType<any>> = Omit<
+  LayerPayload<React.ComponentProps<C>>,
+  'type'
+>;
+
+export type ImageLayerPayload = SpecificLayerPayload<typeof Image>;
+export type CharacterLayerPayload = SpecificLayerPayload<typeof Character>;
 
 export interface StateType {
   layers: Layers;
@@ -51,6 +65,17 @@ const initialState: StateType = {
     label: undefined,
     cursor: 0,
   },
+};
+
+const mergeLayers = (
+  layers: Layers,
+  on: LayerName,
+  { type, key, props }: { type: string; key: string; props: any }
+): Layers => {
+  return {
+    ...layers,
+    [on]: [...layers[on], { type, key, props }],
+  };
 };
 
 const slice = createSlice({
@@ -101,10 +126,31 @@ const slice = createSlice({
       const { type, key, props, on } = action.payload;
       return {
         ...state,
-        layers: {
-          ...state.layers,
-          [on]: [...state.layers[on], { type, key, props }],
-        },
+        layers: mergeLayers(state.layers, on, { type, key, props }),
+      };
+    },
+    addImageLayer: (
+      state,
+      action: PayloadAction<ImageLayerPayload>
+    ): StateType => {
+      const { key, props, on } = action.payload;
+      return {
+        ...state,
+        layers: mergeLayers(state.layers, on, { type: 'Image', key, props }),
+      };
+    },
+    addCharacterLayer: (
+      state,
+      action: PayloadAction<CharacterLayerPayload>
+    ): StateType => {
+      const { key, props, on } = action.payload;
+      return {
+        ...state,
+        layers: mergeLayers(state.layers, on, {
+          type: 'Character',
+          key,
+          props,
+        }),
       };
     },
     removeLayer: (

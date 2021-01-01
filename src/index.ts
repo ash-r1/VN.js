@@ -19,6 +19,7 @@ import Message from './engine/commands/Message';
 import { WAITING_GLYPH } from './engine/commands/Message';
 import Side from './engine/commands/Side';
 import Sound from './engine/commands/Sound';
+import CharacterCmp from './engine/components/Character';
 import GameLayer from './engine/GameLayer';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
@@ -43,6 +44,7 @@ export {
   useScenarios,
   ScenariosConsumer,
   ScenariosProvider,
+  CharacterCmp,
   Runner,
   Renderer,
   Responder,

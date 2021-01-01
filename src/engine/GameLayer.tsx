@@ -16,6 +16,7 @@ interface Props {
   // TOOD: Config here?
   width: number;
   height: number;
+  components?: Record<string, React.ComponentType<any>>;
 }
 
 // TODO: 外から渡したパラメータを元にstoreをextend出来ること

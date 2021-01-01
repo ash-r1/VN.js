@@ -13,16 +13,19 @@ import Rectangle from './Rectangle';
 export interface Props {
   width: number;
   height: number;
-  // TODO: bg, fg, acc
-  // layerGroups: string[];
+  components?: Record<string, React.ComponentType<any>>;
 }
 
-const World: React.FC<Props> = ({ width, height }) => {
+const World: React.FC<Props> = ({ width, height, components }) => {
   const pixi = useApp();
   const scenarios = useScenarios();
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
+  const componentsWithDefaults: Record<string, React.ComponentType<any>> = {
+    Image: Image,
+    ...components,
+  };
 
   // React.Context 適当に作って useEngine() みたいなことして clickで engine.run する
   // そして engine.run の中ではredux側を上手いこと使って、....
@@ -41,13 +44,16 @@ const World: React.FC<Props> = ({ width, height }) => {
     <Container interactive={true} pointerdown={handleClick}>
       {/* BaseLayer */}
       <Rectangle x={0} y={0} width={width} height={height} fill={0x000000} />
+      {/* User Layers */}
       {(['bg', 'fg', 'msg', 'acc'] as LayerName[]).map((layerName) => {
         return layers[layerName].map(({ type, key, props }) => {
-          switch (type) {
-            case 'Image':
-              return <Image key={key} {...props} scale={scale} />;
-            default:
-              throw `Component type ${type} is not supported`;
+          if (componentsWithDefaults[type]) {
+            return React.createElement(componentsWithDefaults[type], {
+              key,
+              ...props,
+            });
+          } else {
+            throw `Component type ${type} is not supported`;
           }
         });
       })}
