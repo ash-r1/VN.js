@@ -49,22 +49,29 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   console.log(layers);
 
   return (
-    <Container interactive={true} pointerdown={handleClick}>
+    <Container
+      name="world"
+      interactive={true}
+      pointerdown={handleClick}
+      ref={containerRef}
+    >
       {/* BaseLayer */}
       <Rectangle x={0} y={0} width={width} height={height} fill={0x000000} />
       {/* User Layers */}
-      {(['bg', 'fg', 'msg', 'acc'] as LayerName[]).map((layerName) => {
-        return layers[layerName].map(({ type, key, props }) => {
-          if (componentsWithDefaults[type]) {
-            return React.createElement(componentsWithDefaults[type], {
-              key,
-              ...props,
-            });
-          } else {
-            throw `Component type ${type} is not supported`;
-          }
-        });
-      })}
+      {(['bg', 'fg', 'msg', 'acc'] as LayerName[]).map((layerName) => (
+        <Container name={layerName} key={layerName}>
+          {layers[layerName].map(({ type, key, props }) => {
+            if (componentsWithDefaults[type]) {
+              return React.createElement(componentsWithDefaults[type], {
+                key,
+                ...props,
+              });
+            } else {
+              throw `Component type ${type} is not supported`;
+            }
+          })}
+        </Container>
+      ))}
     </Container>
   );
 };

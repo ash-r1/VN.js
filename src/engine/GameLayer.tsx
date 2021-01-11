@@ -32,7 +32,7 @@ export const Game: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <Container>
+    <Container name="game">
       <World {...props} />
     </Container>
   );
