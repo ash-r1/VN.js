@@ -8,18 +8,28 @@ import Face, { CharacterSprite } from '../commands/modules/Face';
 import BlinkAnimationSprite from '../layer/BlinkAnimationSprite';
 
 interface BlinkProps {
+  name: string;
   normal: string;
   ajar: string;
   close: string;
   isPlaying: boolean;
+  alpha?: number;
   ratio?: number;
   initialFrame?: number;
 }
 
 const BlinkCharacter = PixiComponent<BlinkProps, Sprite>('CharacterIntl', {
   create: (props) => {
-    const { normal, ajar, close, isPlaying, ratio, initialFrame } = {
-      ratio: 1.0,
+    const {
+      name,
+      normal,
+      ajar,
+      close,
+      alpha,
+      isPlaying,
+      ratio,
+      initialFrame,
+    } = {
       ...props,
     };
     const normalTexture = Texture.from(normal);
@@ -32,7 +42,9 @@ const BlinkCharacter = PixiComponent<BlinkProps, Sprite>('CharacterIntl', {
       closeTexture,
       ratio
     );
-    blinkSprite[isPlaying ? 'gotoAndPlay' : 'gotoAndStop'](initialFrame || 0);
+    blinkSprite.alpha = alpha ?? 1.0;
+    blinkSprite.name = name;
+    blinkSprite[isPlaying ? 'gotoAndPlay' : 'gotoAndStop'](initialFrame ?? 0);
     return blinkSprite;
   },
   applyProps: (instance, oldProps, newProps) => {
@@ -49,9 +61,10 @@ export interface Props {
   name: string;
   size: string;
   pose: string;
+  alpha?: number;
 }
 
-const Character: React.FC<Props> = ({ name, size, pose }) => {
+const Character: React.FC<Props> = ({ name, size, pose, alpha }) => {
   console.log(`Character: ${name}:${size}:${pose}`);
   const base = `game/images/${name}/${name} ${size} ${pose}`;
   const normal = `${base} a.png`;
@@ -59,9 +72,11 @@ const Character: React.FC<Props> = ({ name, size, pose }) => {
   const close = `${base} b.png`;
   return (
     <BlinkCharacter
+      name={name}
       normal={normal}
       ajar={ajar}
       close={close}
+      alpha={alpha}
       isPlaying={true}
     />
   );
