@@ -1,3 +1,5 @@
+import { Container as PixiContainer } from 'pixi.js';
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Scenarios } from 'src/engine/scenario/provider';
@@ -7,7 +9,7 @@ import Image from '../../engine/components/Image';
 
 export interface LayerState<Props = any> {
   type: string;
-  key: string;
+  name: string;
   props: Props;
 }
 
@@ -36,7 +38,7 @@ export type CharacterLayerPayload = SpecificLayerPayload<typeof Character>;
 
 export interface StateType {
   layers: Layers;
-  stableCounter: number;
+  unstableCounter: number;
   scale: {
     x: number;
     y: number;
@@ -55,7 +57,7 @@ const initialState: StateType = {
     fg: [],
     bg: [],
   },
-  stableCounter: 0,
+  unstableCounter: 0,
   scale: {
     x: 1,
     y: 1,
@@ -70,11 +72,11 @@ const initialState: StateType = {
 const mergeLayers = (
   layers: Layers,
   on: LayerName,
-  { type, key, props }: { type: string; key: string; props: any }
+  { type, name, props }: { type: string; name: string; props: any }
 ): Layers => {
   return {
     ...layers,
-    [on]: [...layers[on], { type, key, props }],
+    [on]: [...layers[on], { type, name, props }],
   };
 };
 
@@ -100,14 +102,19 @@ const slice = createSlice({
     },
     next: (
       state,
-      action: PayloadAction<{ pixi: PIXI.Application; scenarios: Scenarios }>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      action: PayloadAction<{
+        pixi: PIXI.Application;
+        scenarios: Scenarios;
+        container?: PixiContainer;
+      }>
     ) => {
       return {
         ...state,
-        stableCounter: state.stableCounter + 1,
+        unstableCounter: state.unstableCounter + 1,
       };
     },
-    done: (
+    nextDone: (
       state,
       action: PayloadAction<{
         path: string;
@@ -119,50 +126,50 @@ const slice = createSlice({
       return {
         ...state,
         scenario: { path, label, cursor: cursor ?? 0 },
-        stableCounter: state.stableCounter - 1,
+        unstableCounter: state.unstableCounter - 1,
       };
     },
     addLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
-      const { type, key, props, on } = action.payload;
+      const { type, name, props, on } = action.payload;
       return {
         ...state,
-        layers: mergeLayers(state.layers, on, { type, key, props }),
+        layers: mergeLayers(state.layers, on, { type, name, props }),
       };
     },
     addImageLayer: (
       state,
       action: PayloadAction<ImageLayerPayload>
     ): StateType => {
-      const { key, props, on } = action.payload;
+      const { name, props, on } = action.payload;
       return {
         ...state,
-        layers: mergeLayers(state.layers, on, { type: 'Image', key, props }),
+        layers: mergeLayers(state.layers, on, { type: 'Image', name, props }),
       };
     },
     addCharacterLayer: (
       state,
       action: PayloadAction<CharacterLayerPayload>
     ): StateType => {
-      const { key, props, on } = action.payload;
+      const { name, props, on } = action.payload;
       return {
         ...state,
         layers: mergeLayers(state.layers, on, {
           type: 'Character',
-          key,
+          name,
           props,
         }),
       };
     },
     removeLayer: (
       state,
-      action: PayloadAction<{ key: string; on: LayerName }>
+      action: PayloadAction<{ name: string; on: LayerName }>
     ): StateType => {
-      const { key, on } = action.payload;
+      const { name, on } = action.payload;
       const layers = state.layers[on];
       const newLayers: LayerState[] = [];
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i];
-        if (layer.key !== key) {
+        if (layer.name !== name) {
           newLayers.push(layer);
         }
       }
