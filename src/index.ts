@@ -25,6 +25,7 @@ import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import Runner from './engine/Runner';
 import {
+  Context,
   ScenariosConsumer,
   ScenariosProvider,
 } from './engine/scenario/provider';
@@ -42,6 +43,7 @@ export {
   actions,
   sagas,
   useScenarios,
+  Context,
   ScenariosConsumer,
   ScenariosProvider,
   CharacterCmp,

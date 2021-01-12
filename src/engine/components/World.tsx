@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import * as PIXI from 'pixi.js';
-import { Container, useApp } from '@inlet/react-pixi';
+import { Container, PixiRef, useApp } from '@inlet/react-pixi';
 
 import { Scenarios } from 'src/engine/scenario/provider';
 import { useScenarios } from 'src/hooks/useScenarios';
@@ -30,6 +30,7 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
+  const containerRef = useRef<PixiRef<typeof Container>>(null);
   const componentsWithDefaults: Components = {
     ...defaultComponents,
     ...components,
@@ -43,7 +44,13 @@ const World: React.FC<Props> = ({ width, height, components }) => {
     console.log(`click!, ${scale.x}`);
     // Here's the problematic.
     //
-    dispatch(actions.next({ pixi, scenarios }));
+    dispatch(
+      actions.next({
+        pixi,
+        scenarios,
+        container: containerRef?.current ?? undefined,
+      })
+    );
   };
 
   console.log(layers);
@@ -60,10 +67,12 @@ const World: React.FC<Props> = ({ width, height, components }) => {
       {/* User Layers */}
       {(['bg', 'fg', 'msg', 'acc'] as LayerName[]).map((layerName) => (
         <Container name={layerName} key={layerName}>
-          {layers[layerName].map(({ type, key, props }) => {
+          {layers[layerName].map(({ type, name, props }) => {
             if (componentsWithDefaults[type]) {
+              console.log(`type=${type}, name=${name}`);
               return React.createElement(componentsWithDefaults[type], {
-                key,
+                key: name,
+                name,
                 ...props,
               });
             } else {

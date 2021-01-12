@@ -1,22 +1,7 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import { all, put, select, takeEvery } from 'redux-saga/effects';
 
 import { BaseState } from '../';
 import { actions } from '../reducers/world';
-
-function* handleA(action: ReturnType<typeof actions.addLayer>) {
-  const payload = action.payload;
-  console.log('internal', payload);
-}
-
-const loadResource = async (loader: PIXI.Loader, path: string) => {
-  if (!loader.resources[path]) {
-    loader.add(path);
-    await new Promise((resolve) => {
-      loader.load(resolve);
-    });
-  }
-  return loader.resources[path];
-};
 
 function* run(action: ReturnType<typeof actions.run>) {
   const { pixi, scenarios } = action.payload;
@@ -30,17 +15,18 @@ function* next(action: ReturnType<typeof actions.next>) {
 
   const cursor = state.cursor ?? 0;
 
-  const { scenarios } = action.payload;
-  // TODO: memoize scenario
+  const { scenarios, container } = action.payload;
+
+  // TODO: memoize scenario based on the "container"
   const scenario = scenarios[state.path]();
   const cmd = scenario[cursor];
-  const nextAction = cmd();
+  const nextAction = cmd({ container });
 
   if (nextAction) {
     yield put(nextAction);
   }
 
-  yield put(actions.done({ ...state, cursor: cursor + 1 }));
+  yield put(actions.nextDone({ ...state, cursor: cursor + 1 }));
 }
 
 function* sampleSaga() {
@@ -48,7 +34,6 @@ function* sampleSaga() {
     //
     takeEvery(actions.run, run),
     takeEvery(actions.next, next),
-    takeEvery(actions.addLayer, handleA),
   ]);
 }
 

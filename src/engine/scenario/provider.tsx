@@ -1,16 +1,20 @@
 import React from 'react';
+import { Container as PixiContainer } from 'pixi.js';
 
 import { PayloadAction } from '@reduxjs/toolkit';
 
+export interface Context {
+  container?: PixiContainer;
+}
+
 // TODO: how to remove any ?
-export type Row = () => PayloadAction<any> | undefined;
+export type Row = (ctx: Context) => PayloadAction<any> | undefined;
 export type Scenario = Row[];
 export type Scenarios = Record<string, () => Scenario>;
 
-const Context = React.createContext<Scenarios>({});
-
-const ScenariosProvider = Context.Provider;
-const ScenariosConsumer = Context.Consumer;
+const ScenarioContext = React.createContext<Scenarios>({});
+const ScenariosProvider = ScenarioContext.Provider;
+const ScenariosConsumer = ScenarioContext.Consumer;
 
 interface Props {
   scenarios: Scenarios;
@@ -30,4 +34,4 @@ const withScenarios = (BaseComponent: React.ComponentClass<Props>) => {
   return wrapper;
 };
 
-export { withScenarios, ScenariosProvider, ScenariosConsumer, Context };
+export { withScenarios, ScenariosProvider, ScenariosConsumer, ScenarioContext };

@@ -53,14 +53,14 @@ export default class Image extends CommandBase {
           alpha: 0,
         });
 
-        const old = this.layers.get(name);
+        const old = this.layers.get(src);
         await this.r.AddLayer(layer, on);
         await this.fadeIn(layer, duration);
         if (old) {
           await this.r.RemoveLayer(old.layer, old.on);
         }
 
-        this.layers.set(name, { layer, on });
+        this.layers.set(src, { layer, on });
       }
     );
   }
