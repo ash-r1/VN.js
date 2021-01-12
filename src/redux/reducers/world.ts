@@ -1,6 +1,7 @@
 import { Container as PixiContainer } from 'pixi.js';
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import produce from 'immer';
 
 import { Scenarios } from 'src/engine/scenario/provider';
 
@@ -129,6 +130,18 @@ const slice = createSlice({
         unstableCounter: state.unstableCounter - 1,
       };
     },
+    do: (state) => {
+      return {
+        ...state,
+        unstableCounter: state.unstableCounter + 1,
+      };
+    },
+    done: (state) => {
+      return {
+        ...state,
+        unstableCounter: state.unstableCounter - 1,
+      };
+    },
     addLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
       const { type, name, props, on } = action.payload;
       return {
@@ -158,6 +171,28 @@ const slice = createSlice({
           name,
           props,
         }),
+      };
+    },
+    updateCharacterLayer: (
+      state,
+      action: PayloadAction<CharacterLayerPayload>
+    ): StateType => {
+      const { name, props, on } = action.payload;
+      const { [on]: targetLayer, ...otherLayers } = state.layers;
+      const newTargetLayer = produce(targetLayer, (draft) => {
+        draft.forEach((layer, index) => {
+          //
+          if (layer.name === name) {
+            draft[index].props = props;
+          }
+        });
+      });
+      return {
+        ...state,
+        layers: {
+          ...otherLayers,
+          [on]: newTargetLayer,
+        } as typeof state.layers,
       };
     },
     removeLayer: (

@@ -1,4 +1,6 @@
-import { AnimatedSprite, Texture } from 'pixi.js';
+import { AnimatedSprite, Sprite, Texture, Ticker } from 'pixi.js';
+
+import { WeightedAverageFilter } from '../filters/WeightedAverageFilter';
 
 const blinkFrames = (
   normal: Texture,
@@ -42,6 +44,25 @@ const blinkTexture = (
 const staticTexture = (char: string, size: string, pose: string) =>
   Texture.from(`game/images/${char}/${char} ${size} ${pose}.png`);
 
+const texturesFor = (
+  char: string,
+  size: string,
+  pose: string,
+  blink: boolean,
+  speed: number
+): Texture[] | AnimatedSprite.FrameObject[] => {
+  if (blink) {
+    return blinkFrames(
+      blinkTexture(char, size, pose, 'a'),
+      blinkTexture(char, size, pose, 'c'),
+      blinkTexture(char, size, pose, 'b'),
+      speed
+    );
+  } else {
+    return [staticTexture(char, size, pose)];
+  }
+};
+
 export default class CharacterSprite extends AnimatedSprite {
   private _char: string;
   private _size: string;
@@ -49,6 +70,7 @@ export default class CharacterSprite extends AnimatedSprite {
   private _blink: boolean;
   private _speed: number;
   private _dirty: boolean;
+  private _weightedAverageFilter?: WeightedAverageFilter;
 
   constructor(
     char: string,
@@ -71,19 +93,94 @@ export default class CharacterSprite extends AnimatedSprite {
 
   reloadTextures() {
     const { char, size, pose, blink, speed } = this;
-    if (blink) {
-      this.textures = blinkFrames(
-        blinkTexture(char, size, pose, 'a'),
-        blinkTexture(char, size, pose, 'c'),
-        blinkTexture(char, size, pose, 'b'),
-        speed
-      ) as any[];
-      // ↑ pixi.js has incorrect d.ts
-      // PR Fixes: https://github.com/pixijs/pixi.js/pull/7143
-    } else {
-      this.textures = [staticTexture(char, size, pose)];
-    }
+    this.textures = texturesFor(char, size, pose, blink, speed) as any[];
+    // ↑ pixi.js has incorrect d.ts
+    // PR Fixes: https://github.com/pixijs/pixi.js/pull/7143;
+    this._dirty = false;
     this.play();
+  }
+
+  async fadeTo(targetAlpha: number, duration: number) {
+    const firstAlpha = this.alpha;
+    let elapsed = 0;
+    await new Promise<void>((resolve) => {
+      const tick = (deltaTime: number) => {
+        const ms = deltaTime * Ticker.shared.deltaMS;
+        elapsed += ms;
+        this.alpha =
+          firstAlpha + (targetAlpha - firstAlpha) * (elapsed / duration);
+        if (elapsed >= duration) {
+          Ticker.shared.remove(tick);
+          resolve();
+        }
+      };
+      Ticker.shared.add(tick);
+    });
+  }
+
+  async fadeIn(duration: number) {
+    await this.fadeTo(1.0, duration);
+  }
+
+  async fadeOut(duration: number) {
+    await this.fadeTo(0.0, duration);
+  }
+
+  async crossfade(pose: string, blink: boolean, duration: number) {
+    this.gotoAndStop(0);
+    const { char, size, speed } = this;
+    const nextTextures = texturesFor(
+      char,
+      size,
+      pose ?? this.pose,
+      blink ?? this.blink,
+      speed
+    );
+
+    const toTexture =
+      nextTextures[0] instanceof Texture
+        ? nextTextures[0]
+        : nextTextures[0].texture;
+    const toSprite = new Sprite(toTexture);
+
+    const weightedAverageFilter = new WeightedAverageFilter(toSprite);
+    this.filters = [weightedAverageFilter];
+    this._weightedAverageFilter = weightedAverageFilter;
+
+    let elapsed = 0;
+    await new Promise<void>((resolve) => {
+      const tick = (deltaTime: number) => {
+        const ms = deltaTime * Ticker.shared.deltaMS;
+        elapsed += ms;
+        const rate = elapsed / duration;
+        weightedAverageFilter.weight = rate;
+        if (elapsed >= duration) {
+          Ticker.shared.remove(tick);
+          resolve();
+        }
+      };
+      Ticker.shared.add(tick);
+    });
+
+    console.log('crossfade resolved.');
+
+    if (pose) {
+      this.pose = pose;
+    }
+    if (blink) {
+      this.blink = blink;
+    }
+
+    this.reloadTextures();
+    this.filters = [];
+    this._weightedAverageFilter = undefined;
+  }
+
+  resetFilterTransform() {
+    if (this._weightedAverageFilter) {
+      this._weightedAverageFilter.otherSprite.anchor = this.anchor;
+      this._weightedAverageFilter.worldTransform = this.worldTransform;
+    }
   }
 
   get char() {
@@ -125,8 +222,14 @@ export default class CharacterSprite extends AnimatedSprite {
   update(deltaTime: number): void {
     if (this._dirty) {
       this.reloadTextures();
-      this._dirty = false;
     }
     super.update(deltaTime);
   }
 }
+
+const originalRender = CharacterSprite.prototype.render;
+CharacterSprite.prototype.render = function (this: CharacterSprite, renderer) {
+  this.resetFilterTransform();
+
+  originalRender.bind(this)(renderer);
+};

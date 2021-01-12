@@ -1,47 +1,101 @@
-import { Container as PixiContainer } from 'pixi.js';
+import { Container as PixiContainer, Sprite as PixiSprite } from 'pixi.js';
 
 import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 
+import Character from 'src/engine/components/Character';
 import CharacterSprite from 'src/engine/display/ChracterSprite';
 
+import { BaseState } from '../';
 import { actions } from '../reducers/character';
-import { actions as worldActions } from '../reducers/world';
+import { actions as worldActions, LayerState } from '../reducers/world';
+
+type CharacterProps = React.ComponentProps<typeof Character>;
 
 function* show(action: ReturnType<typeof actions.show>) {
-  console.log('SHOW:', action.payload);
-
-  // unstable/stable control ?
-  // yield put(worldActions.doing());
-
-  // TOOD: Consider if the character already exists.
-  const { name, size, pose, ctx } = { size: 'lg', ...action.payload };
-  const { container } = ctx;
+  yield put(worldActions.do());
 
   const on = 'fg';
-  // QUESTION: How to get PIXI.js renderer/ref here?
 
-  // (1) Add a character with alpha=0.0
+  // FIXME: Fix with type-safe saga
+  const existent: LayerState<CharacterProps> | undefined = yield select(
+    (state: BaseState): LayerState<CharacterProps> | undefined => {
+      return state.world.layers[on].find(
+        (layers) => layers.name === action.payload.name
+      );
+    }
+  );
+
+  const defaultSize: string = existent?.props.size ?? 'lg'; // lg for safety
+  const defaultAlpha: number = existent?.props.alpha ?? 1.0; // lg for safety
+  const { name, size, pose, blink, alpha, ctx } = {
+    size: defaultSize,
+    alpha: defaultAlpha,
+    ...action.payload,
+  };
+  const { container } = ctx;
+
+  const layer = container?.getChildByName(on) as PixiContainer | undefined;
+
+  // QUESTION: How to get PIXI.js renderer/ref here?
+  if (existent) {
+    // CrossFade
+    if (layer) {
+      const sprite = layer.getChildByName(name) as CharacterSprite | undefined;
+      if (sprite) {
+        // FIXME: pass blink from outside
+        const blink = true;
+        yield call(sprite.crossfade.bind(sprite), pose, blink, 300);
+      }
+    }
+  } else {
+    // Add
+    yield put(
+      worldActions.addCharacterLayer({
+        name,
+        on,
+        props: {
+          name,
+          size,
+          pose,
+          // TODO: CHANGEME: 0.0
+          alpha: 0.0,
+          // TODO: CHANGEME
+          blink: true,
+        },
+      })
+    );
+    // (2) FadeIn
+    if (layer) {
+      const sprite = layer.getChildByName(name) as CharacterSprite | undefined;
+      if (sprite) {
+        yield call(sprite.fadeIn.bind(sprite), 300);
+      }
+    }
+  }
+
+  // Adjustments (by low-level PIXI.js API)
+  if (container) {
+    const layer = container.getChildByName(on) as PixiContainer;
+    const sprite = layer.getChildByName(name) as CharacterSprite;
+    // (2) FadeIn
+    yield call(sprite.fadeIn.bind(sprite), 300);
+  }
+
   yield put(
-    worldActions.addCharacterLayer({
+    worldActions.updateCharacterLayer({
       name,
-      on,
+      on: on,
       props: {
         name,
         size,
         pose,
-        // TODO: CHANGEME
-        blink: true,
+        blink,
+        alpha,
       },
     })
   );
 
-  // (2) Crossfade (by low-level PIXI.js API)
-  if (container) {
-    const layer = container.getChildByName(on) as PixiContainer;
-    const sprite = layer.getChildByName(name) as CharacterSprite;
-  }
-
-  // (3) Set alpha to 1.0
+  yield put(worldActions.done());
 }
 
 function* characterSaga() {

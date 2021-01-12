@@ -9,6 +9,8 @@ const show = createAction<{
   name: string;
   size?: string;
   pose: string;
+  blink: boolean;
+  alpha?: number;
 }>('character/show');
 
 const hide = createAction<{
