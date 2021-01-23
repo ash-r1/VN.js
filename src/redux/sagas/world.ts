@@ -4,8 +4,8 @@ import { BaseState } from '../';
 import { actions } from '../reducers/world';
 
 function* run(action: ReturnType<typeof actions.run>) {
-  const { pixi, scenarios } = action.payload;
-  yield put(actions.next({ pixi, scenarios }));
+  const { scenarios } = action.payload;
+  yield put(actions.next({ scenarios }));
 }
 
 function* next(action: ReturnType<typeof actions.next>) {
@@ -15,12 +15,12 @@ function* next(action: ReturnType<typeof actions.next>) {
 
   const cursor = state.cursor ?? 0;
 
-  const { scenarios, container } = action.payload;
+  const { scenarios } = action.payload;
 
   // TODO: memoize scenario based on the "container"
   const scenario = scenarios[state.path]();
   const cmd = scenario[cursor];
-  const nextAction = cmd({ container });
+  const nextAction = cmd();
 
   if (nextAction) {
     yield put(nextAction);

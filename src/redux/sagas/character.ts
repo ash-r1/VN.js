@@ -1,8 +1,16 @@
 import { Container as PixiContainer, Sprite as PixiSprite } from 'pixi.js';
 
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import {
+  all,
+  call,
+  getContext,
+  put,
+  select,
+  takeEvery,
+} from 'redux-saga/effects';
 
 import Character from 'src/engine/components/Character';
+import Context from 'src/engine/context';
 import CharacterSprite from 'src/engine/display/ChracterSprite';
 
 import { BaseState } from '../';
@@ -27,14 +35,15 @@ function* show(action: ReturnType<typeof actions.show>) {
 
   const defaultSize: string = existent?.props.size ?? 'lg'; // lg for safety
   const defaultAlpha: number = existent?.props.alpha ?? 1.0; // lg for safety
-  const { name, size, pose, blink, alpha, ctx } = {
+  const { name, size, pose, blink, alpha } = {
     size: defaultSize,
     alpha: defaultAlpha,
     ...action.payload,
   };
-  const { container } = ctx;
+  const vnContext: Context = yield getContext('vn');
+  const { worldContainer } = vnContext;
 
-  const layer = container?.getChildByName(on) as PixiContainer | undefined;
+  const layer = worldContainer?.getChildByName(on) as PixiContainer | undefined;
 
   // QUESTION: How to get PIXI.js renderer/ref here?
   if (existent) {
@@ -74,8 +83,8 @@ function* show(action: ReturnType<typeof actions.show>) {
   }
 
   // Adjustments (by low-level PIXI.js API)
-  if (container) {
-    const layer = container.getChildByName(on) as PixiContainer;
+  if (worldContainer) {
+    const layer = worldContainer.getChildByName(on) as PixiContainer;
     const sprite = layer.getChildByName(name) as CharacterSprite;
     // (2) FadeIn
     yield call(sprite.fadeIn.bind(sprite), 300);

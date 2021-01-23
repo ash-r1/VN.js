@@ -2,11 +2,12 @@
 import 'pixi-sound';
 
 import CharacterCmp from './engine/components/Character';
+import Context from './engine/context';
 import GameLayer from './engine/GameLayer';
+import * as modules from './engine/modules';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
 import {
-  Context,
   ScenariosConsumer,
   ScenariosProvider,
 } from './engine/scenario/provider';
@@ -21,6 +22,7 @@ export {
   redux,
   reducers,
   actions,
+  modules,
   sagas,
   useScenarios,
   Context,

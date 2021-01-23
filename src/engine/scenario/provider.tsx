@@ -3,12 +3,8 @@ import { Container as PixiContainer } from 'pixi.js';
 
 import { PayloadAction } from '@reduxjs/toolkit';
 
-export interface Context {
-  container?: PixiContainer;
-}
-
 // TODO: how to remove any ?
-export type Row = (ctx: Context) => PayloadAction<any> | undefined;
+export type Row = () => PayloadAction<any> | undefined;
 export type Scenario = Row[];
 export type Scenarios = Record<string, () => Scenario>;
 

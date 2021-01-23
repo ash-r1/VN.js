@@ -1,4 +1,4 @@
-import { Container as PixiContainer } from 'pixi.js';
+import * as PIXI from 'pixi.js';
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import produce from 'immer';
@@ -88,7 +88,6 @@ const slice = createSlice({
     run: (
       state,
       action: PayloadAction<{
-        pixi: PIXI.Application;
         scenarios: Scenarios;
         path: string;
         label?: string;
@@ -105,9 +104,7 @@ const slice = createSlice({
       state,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       action: PayloadAction<{
-        pixi: PIXI.Application;
         scenarios: Scenarios;
-        container?: PixiContainer;
       }>
     ) => {
       return {
@@ -144,6 +141,7 @@ const slice = createSlice({
     },
     addLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
       const { type, name, props, on } = action.payload;
+
       return {
         ...state,
         layers: mergeLayers(state.layers, on, { type, name, props }),

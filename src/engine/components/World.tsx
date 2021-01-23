@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { Container, PixiRef, useApp } from '@inlet/react-pixi';
 
 import { Scenarios } from 'src/engine/scenario/provider';
 import { useScenarios } from 'src/hooks/useScenarios';
 
+import { useVNContext } from '../../hooks/useVNContext';
 import { useBaseDispatch, useBaseSelector } from '../../redux/index';
 import { actions, LayerName } from '../../redux/reducers/world';
 import Character from './Character';
@@ -25,8 +26,9 @@ export interface Props {
 }
 
 const World: React.FC<Props> = ({ width, height, components }) => {
-  const pixi = useApp();
+  const pixiApp = useApp();
   const scenarios = useScenarios();
+  const vnContext = useVNContext();
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
@@ -35,6 +37,11 @@ const World: React.FC<Props> = ({ width, height, components }) => {
     ...defaultComponents,
     ...components,
   };
+
+  useEffect(() => {
+    vnContext.app = pixiApp;
+    vnContext.worldContainer = containerRef.current ?? undefined;
+  }, [pixiApp, containerRef.current]);
 
   // React.Context 適当に作って useEngine() みたいなことして clickで engine.run する
   // そして engine.run の中ではredux側を上手いこと使って、....
@@ -46,9 +53,7 @@ const World: React.FC<Props> = ({ width, height, components }) => {
     //
     dispatch(
       actions.next({
-        pixi,
         scenarios,
-        container: containerRef?.current ?? undefined,
       })
     );
   };
