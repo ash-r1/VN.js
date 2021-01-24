@@ -8,7 +8,7 @@ export default class Image extends Module {
     super();
     //
   }
-  bg(filename: string) {
+  bg(filename: string, options: {} = {}) {
     const path = `game/images/bg ${filename}`;
     return actions.addImageLayer({
       name: 'bg-image',

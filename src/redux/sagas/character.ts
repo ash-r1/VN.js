@@ -19,7 +19,7 @@ import { actions as worldActions, LayerState } from '../reducers/world';
 
 type CharacterProps = React.ComponentProps<typeof Character>;
 
-function* show(action: ReturnType<typeof actions.show>) {
+function* show({ payload }: ReturnType<typeof actions.show>) {
   yield put(worldActions.do());
 
   const on = 'fg';
@@ -28,18 +28,16 @@ function* show(action: ReturnType<typeof actions.show>) {
   const existent: LayerState<CharacterProps> | undefined = yield select(
     (state: BaseState): LayerState<CharacterProps> | undefined => {
       return state.world.layers[on].find(
-        (layers) => layers.name === action.payload.name
+        (layers) => layers.name === payload.name
       );
     }
   );
 
   const defaultSize: string = existent?.props.size ?? 'lg'; // lg for safety
   const defaultAlpha: number = existent?.props.alpha ?? 1.0; // lg for safety
-  const { name, size, pose, blink, alpha } = {
-    size: defaultSize,
-    alpha: defaultAlpha,
-    ...action.payload,
-  };
+  const { name, pose, blink } = payload;
+  const size = payload.size ?? defaultSize;
+  const alpha = payload.alpha ?? defaultAlpha;
   const engine: BaseEngine = yield getContext('engine');
   const { worldContainer } = engine;
 

@@ -7,4 +7,19 @@ export default class Character extends Module {
     super();
     //
   }
+  show(pose: string, options: { size?: string; blink?: boolean } = {}) {
+    const { size, blink } = { blink: true, ...options };
+    return actions.show({
+      name: this.name,
+      size,
+      pose,
+      blink,
+    });
+  }
+  // TODO: Add duration
+  hide(options: {} = {}) {
+    return actions.hide({
+      name: this.name,
+    });
+  }
 }
