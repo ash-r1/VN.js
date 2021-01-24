@@ -2,10 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { Container, PixiRef, useApp } from '@inlet/react-pixi';
 
-import { Scenarios } from 'src/engine/scenario/provider';
-import { useScenarios } from 'src/hooks/useScenarios';
-
-import { useVNContext } from '../../hooks/useVNContext';
+import { useEngine } from '../../hooks/useEngine';
 import { useBaseDispatch, useBaseSelector } from '../../redux/index';
 import { actions, LayerName } from '../../redux/reducers/world';
 import Character from './Character';
@@ -27,8 +24,7 @@ export interface Props {
 
 const World: React.FC<Props> = ({ width, height, components }) => {
   const pixiApp = useApp();
-  const scenarios = useScenarios();
-  const vnContext = useVNContext();
+  const engine = useEngine();
   const dispatch = useBaseDispatch();
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
@@ -39,23 +35,15 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   };
 
   useEffect(() => {
-    vnContext.app = pixiApp;
-    vnContext.worldContainer = containerRef.current ?? undefined;
+    engine.app = pixiApp;
+    engine.worldContainer = containerRef.current ?? undefined;
   }, [pixiApp, containerRef.current]);
 
   // React.Context 適当に作って useEngine() みたいなことして clickで engine.run する
   // そして engine.run の中ではredux側を上手いこと使って、....
 
   const handleClick = async () => {
-    // Improbe resource loading like previous implementation
-    console.log(`click!, ${scale.x}`);
-    // Here's the problematic.
-    //
-    dispatch(
-      actions.next({
-        scenarios,
-      })
-    );
+    dispatch(actions.next());
   };
 
   console.log(layers);

@@ -3,8 +3,6 @@ import * as PIXI from 'pixi.js';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import produce from 'immer';
 
-import { Scenarios } from 'src/engine/scenario/provider';
-
 import Character from '../../engine/components/Character';
 import Image from '../../engine/components/Image';
 
@@ -88,7 +86,6 @@ const slice = createSlice({
     run: (
       state,
       action: PayloadAction<{
-        scenarios: Scenarios;
         path: string;
         label?: string;
         cursor?: number;
@@ -100,13 +97,7 @@ const slice = createSlice({
         scenario: { path, label, cursor: cursor ?? 0 },
       };
     },
-    next: (
-      state,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      action: PayloadAction<{
-        scenarios: Scenarios;
-      }>
-    ) => {
+    next: (state) => {
       return {
         ...state,
         unstableCounter: state.unstableCounter + 1,

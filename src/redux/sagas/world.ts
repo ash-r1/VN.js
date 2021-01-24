@@ -1,11 +1,11 @@
-import { all, put, select, takeEvery } from 'redux-saga/effects';
+import { all, getContext, put, select, takeEvery } from 'redux-saga/effects';
 
 import { BaseState } from '../';
+import BaseEngine from '../../engine/BaseEngine';
 import { actions } from '../reducers/world';
 
-function* run(action: ReturnType<typeof actions.run>) {
-  const { scenarios } = action.payload;
-  yield put(actions.next({ scenarios }));
+function* run() {
+  yield put(actions.next());
 }
 
 function* next(action: ReturnType<typeof actions.next>) {
@@ -15,7 +15,8 @@ function* next(action: ReturnType<typeof actions.next>) {
 
   const cursor = state.cursor ?? 0;
 
-  const { scenarios } = action.payload;
+  const engine: BaseEngine = yield getContext('engine');
+  const { scenarios } = engine;
 
   // TODO: memoize scenario based on the "container"
   const scenario = scenarios[state.path]();

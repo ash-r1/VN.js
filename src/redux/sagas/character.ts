@@ -10,10 +10,10 @@ import {
 } from 'redux-saga/effects';
 
 import Character from 'src/engine/components/Character';
-import Context from 'src/engine/context';
 import CharacterSprite from 'src/engine/display/ChracterSprite';
 
 import { BaseState } from '../';
+import BaseEngine from '../../engine/BaseEngine';
 import { actions } from '../reducers/character';
 import { actions as worldActions, LayerState } from '../reducers/world';
 
@@ -40,8 +40,8 @@ function* show(action: ReturnType<typeof actions.show>) {
     alpha: defaultAlpha,
     ...action.payload,
   };
-  const vnContext: Context = yield getContext('vn');
-  const { worldContainer } = vnContext;
+  const engine: BaseEngine = yield getContext('engine');
+  const { worldContainer } = engine;
 
   const layer = worldContainer?.getChildByName(on) as PixiContainer | undefined;
 
