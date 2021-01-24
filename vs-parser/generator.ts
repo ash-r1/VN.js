@@ -44,15 +44,15 @@ export class Generator {
     if (st instanceof Comment) {
       return `//${st.body}`;
     } else if (st instanceof Command) {
-      return `g.${st.module}.${st.func}(${this.formatParams(st.params)}),`;
+      return `e.${st.module}.${st.func}(${this.formatParams(st.params)}),`;
     } else if (st instanceof SystemCommand) {
-      return `g._.${st.func}(${this.formatParams(st.params)}),`;
+      return `e._.${st.func}(${this.formatParams(st.params)}),`;
     } else if (st instanceof Label) {
-      return `g._.label('${st.body}'),`;
+      return `e._.label('${st.body}'),`;
     } else if (st instanceof Text) {
-      return `g.message.show(\`${st.body}\`),`;
+      return `e.message.show(\`${st.body}\`),`;
     } else if (st instanceof Parallel) {
-      return `g._.parallel(
+      return `e._.parallel(
         //
         ${st.statements
           .map((subStatement) => `${this.formatStatement(subStatement)}\n`)
@@ -67,9 +67,9 @@ export class Generator {
     const scenarioName = camelCase(name);
     const ts = `
 import { ScenarioFactory } from '@ash-r1/vn.js';
-import Game from 'src/game';
+import Engine from 'src/engine';
 
-const ${scenarioName}: ScenarioFactory<Game> = (g: Game) => {
+const ${scenarioName}: ScenarioFactory<Engine> = (e: Engine) => {
   return [
     ${script.statements.map((st) => this.formatStatement(st)).join('    \n')}
   ];

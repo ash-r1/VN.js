@@ -42,6 +42,7 @@ export interface StateType {
     x: number;
     y: number;
   };
+  running: boolean;
   scenario: {
     path: string;
     label?: string;
@@ -61,6 +62,7 @@ const initialState: StateType = {
     x: 1,
     y: 1,
   },
+  running: false,
   scenario: {
     path: '',
     label: undefined,
@@ -94,6 +96,7 @@ const slice = createSlice({
       const { path, label, cursor } = action.payload;
       return {
         ...state,
+        running: true,
         scenario: { path, label, cursor: cursor ?? 0 },
       };
     },

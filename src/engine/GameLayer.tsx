@@ -1,16 +1,12 @@
-import React, { useEffect } from 'react';
-import { Container, Stage, useApp } from '@inlet/react-pixi';
+import React from 'react';
+import { Container, Stage } from '@inlet/react-pixi';
 
 import { Provider } from 'react-redux';
-import { put } from 'redux-saga/effects';
 
-import { BaseEngine } from '..';
 import { BaseStore } from '../redux';
-import { useBaseDispatch } from '../redux/index';
-import { actions } from '../redux/reducers/world';
+import BaseEngine from './BaseEngine';
 import World from './components/World';
 import { EngineProvider } from './provider';
-import { Scenarios } from './scenario';
 
 interface Props {
   // TOOD: Config here?
@@ -22,13 +18,6 @@ interface Props {
 // TODO: 外から渡したパラメータを元にstoreをextend出来ること
 //       もしくはProviderで包むのはゲーム側の責務にする(事もできる)ようにすること？ 単にpropsでStore渡して、その型を型推論するようにしてもいいかもしれない。
 export const Game: React.FC<Props> = (props) => {
-  const dispatch = useBaseDispatch();
-
-  useEffect(() => {
-    //
-    dispatch(actions.run({ path: 'debug' }));
-  }, []);
-
   return (
     <Container name="game">
       <World {...props} />

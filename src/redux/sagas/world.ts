@@ -19,9 +19,8 @@ function* next(action: ReturnType<typeof actions.next>) {
   const { scenarios } = engine;
 
   // TODO: memoize scenario based on the "container"
-  const scenario = scenarios[state.path]();
-  const cmd = scenario[cursor];
-  const nextAction = cmd();
+  const scenario = scenarios[state.path];
+  const nextAction = scenario(engine)[cursor];
 
   if (nextAction) {
     yield put(nextAction);

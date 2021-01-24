@@ -26,6 +26,7 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   const pixiApp = useApp();
   const engine = useEngine();
   const dispatch = useBaseDispatch();
+  const running = useBaseSelector((s) => s.world.running);
   const layers = useBaseSelector((s) => s.world.layers);
   const scale = useBaseSelector((s) => s.world.scale);
   const containerRef = useRef<PixiRef<typeof Container>>(null);
@@ -37,7 +38,10 @@ const World: React.FC<Props> = ({ width, height, components }) => {
   useEffect(() => {
     engine.app = pixiApp;
     engine.worldContainer = containerRef.current ?? undefined;
-  }, [pixiApp, containerRef.current]);
+    if (!running) {
+      dispatch(actions.run({ path: 'first' }));
+    }
+  }, [pixiApp, containerRef.current, running]);
 
   // React.Context 適当に作って useEngine() みたいなことして clickで engine.run する
   // そして engine.run の中ではredux側を上手いこと使って、....
