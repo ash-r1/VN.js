@@ -47,6 +47,7 @@ export interface StateType {
     path: string;
     label?: string;
     cursor: number;
+    wait: boolean;
   };
 }
 
@@ -67,6 +68,7 @@ const initialState: StateType = {
     path: '',
     label: undefined,
     cursor: 0,
+    wait: false,
   },
 };
 
@@ -106,10 +108,11 @@ const slice = createSlice({
       return {
         ...state,
         running: true,
-        scenario: { path, label, cursor: cursor ?? 0 },
+        scenario: { path, label, cursor: cursor ?? 0, wait: true },
       };
     },
-    next: (state) => {
+    next: (state) => state,
+    nextDo: (state) => {
       return {
         ...state,
         unstableCounter: state.unstableCounter + 1,
@@ -121,12 +124,13 @@ const slice = createSlice({
         path: string;
         label?: string;
         cursor?: number;
+        wait?: boolean;
       }>
     ) => {
-      const { path, label, cursor } = action.payload;
+      const { path, label, cursor, wait } = action.payload;
       return {
         ...state,
-        scenario: { path, label, cursor: cursor ?? 0 },
+        scenario: { path, label, cursor: cursor ?? 0, wait: wait ?? false },
         unstableCounter: state.unstableCounter - 1,
       };
     },

@@ -1,4 +1,11 @@
-import { all, getContext, put, select, takeEvery } from 'redux-saga/effects';
+import {
+  all,
+  call,
+  getContext,
+  put,
+  select,
+  takeEvery,
+} from 'redux-saga/effects';
 
 import { BaseState } from '../';
 import BaseEngine from '../../engine/BaseEngine';
@@ -9,6 +16,17 @@ function* run() {
 }
 
 function* next(action: ReturnType<typeof actions.next>) {
+  const unstableCounter: number = yield select<(s: BaseState) => number>(
+    (s) => s.world.unstableCounter
+  );
+
+  if (unstableCounter !== 0) {
+    console.debug('skip unstable next');
+    return;
+  }
+
+  yield put(actions.nextDo());
+
   const state: BaseState['world']['scenario'] = yield select<
     (s: BaseState) => BaseState['world']['scenario']
   >((s) => s.world.scenario);
@@ -20,26 +38,58 @@ function* next(action: ReturnType<typeof actions.next>) {
 
   // TODO: memoize scenario based on the "container"
   const scenario = scenarios[state.path];
-  const row = scenario(engine)[cursor];
-
-  if (!row) {
+  const nextRow = scenario(engine)[cursor];
+  if (!nextRow) {
     throw 'scenario ended error';
   }
 
-  // TODO: How to control wait for click (or not)?
-  //       use row.wait for this feature
+  yield put(nextRow.action);
 
-  yield put(row.action);
-
-  yield put(actions.nextDone({ ...state, cursor: cursor + 1 }));
+  yield put(
+    actions.nextDone({
+      ...state,
+      cursor: cursor + 1,
+      wait: nextRow.wait,
+    })
+  );
 }
 
-function* sampleSaga() {
+function timeout(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function* doNext() {
+  const wait: boolean = yield select<(s: BaseState) => boolean>(
+    (s) => s.world.scenario.wait
+  );
+  const unstableCounter: number = yield select<(s: BaseState) => number>(
+    (s) => s.world.unstableCounter
+  );
+
+  // wait for the next rendering
+  yield call(timeout, 0);
+
+  if (unstableCounter == 0 && !wait) {
+    yield put(actions.next());
+  }
+}
+
+function* done() {
+  yield doNext();
+}
+
+function* nextDone() {
+  yield doNext();
+}
+
+function* allSagas() {
   yield all([
     //
     takeEvery(actions.run, run),
     takeEvery(actions.next, next),
+    takeEvery(actions.done, done),
+    takeEvery(actions.nextDone, nextDone),
   ]);
 }
 
-export default sampleSaga;
+export default allSagas;
