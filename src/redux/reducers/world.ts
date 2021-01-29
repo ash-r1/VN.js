@@ -75,6 +75,15 @@ const mergeLayers = (
   on: LayerName,
   { type, name, props }: { type: string; name: string; props: any }
 ): Layers => {
+  const index = layers[on].findIndex((v) => v.name === name);
+  if (index >= 0) {
+    const newLayers = {
+      ...layers,
+      [on]: [...layers[on]],
+    };
+    newLayers[on][index] = { type, name, props };
+    return newLayers;
+  }
   return {
     ...layers,
     [on]: [...layers[on], { type, name, props }],
@@ -133,7 +142,7 @@ const slice = createSlice({
         unstableCounter: state.unstableCounter - 1,
       };
     },
-    addLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
+    putLayer: (state, action: PayloadAction<LayerPayload>): StateType => {
       const { type, name, props, on } = action.payload;
 
       return {
@@ -141,7 +150,7 @@ const slice = createSlice({
         layers: mergeLayers(state.layers, on, { type, name, props }),
       };
     },
-    addImageLayer: (
+    putImageLayer: (
       state,
       action: PayloadAction<ImageLayerPayload>
     ): StateType => {
@@ -151,7 +160,7 @@ const slice = createSlice({
         layers: mergeLayers(state.layers, on, { type: 'Image', name, props }),
       };
     },
-    addCharacterLayer: (
+    putCharacterLayer: (
       state,
       action: PayloadAction<CharacterLayerPayload>
     ): StateType => {

@@ -57,7 +57,7 @@ function* show({ payload }: ReturnType<typeof actions.show>) {
   } else {
     // Add
     yield put(
-      worldActions.addCharacterLayer({
+      worldActions.putCharacterLayer({
         name,
         on,
         props: {
@@ -105,10 +105,23 @@ function* show({ payload }: ReturnType<typeof actions.show>) {
   yield put(worldActions.done());
 }
 
+function* hide({ payload }: ReturnType<typeof actions.show>) {
+  yield put(worldActions.do());
+  const { name } = payload;
+  yield put(
+    worldActions.removeLayer({
+      name,
+      on: 'fg',
+    })
+  );
+  yield put(worldActions.done());
+}
+
 function* characterSaga() {
   yield all([
     //
     takeEvery(actions.show, show),
+    takeEvery(actions.hide, hide),
   ]);
 }
 

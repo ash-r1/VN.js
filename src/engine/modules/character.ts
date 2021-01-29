@@ -1,5 +1,6 @@
 import { actions } from 'src/redux/reducers/character';
 
+import { Row } from '../scenario';
 import Module from './module';
 export default class Character extends Module {
   //
@@ -7,19 +8,25 @@ export default class Character extends Module {
     super();
     //
   }
-  show(pose: string, options: { size?: string; blink?: boolean } = {}) {
+  show(pose: string, options: { size?: string; blink?: boolean } = {}): Row {
     const { size, blink } = { blink: true, ...options };
-    return actions.show({
+    const action = actions.show({
       name: this.name,
       size,
       pose,
       blink,
     });
+    return {
+      action,
+      wait: true,
+    };
   }
   // TODO: Add duration
   hide(options: {} = {}) {
-    return actions.hide({
-      name: this.name,
-    });
+    return {
+      action: actions.hide({
+        name: this.name,
+      }),
+    };
   }
 }

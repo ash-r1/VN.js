@@ -20,11 +20,16 @@ function* next(action: ReturnType<typeof actions.next>) {
 
   // TODO: memoize scenario based on the "container"
   const scenario = scenarios[state.path];
-  const nextAction = scenario(engine)[cursor];
+  const row = scenario(engine)[cursor];
 
-  if (nextAction) {
-    yield put(nextAction);
+  if (!row) {
+    throw 'scenario ended error';
   }
+
+  // TODO: How to control wait for click (or not)?
+  //       use row.wait for this feature
+
+  yield put(row.action);
 
   yield put(actions.nextDone({ ...state, cursor: cursor + 1 }));
 }

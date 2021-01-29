@@ -2,8 +2,12 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import BaseEngine from '../BaseEngine';
 
-// TODO: how to remove any ?
-export type Row = PayloadAction<any>;
+export interface Row {
+  // TODO: how to remove any ?
+  action: PayloadAction<any>;
+  // TODO: update for wait
+  wait?: boolean;
+}
 export type Scenario = Row[];
 export type ScenarioFactory<Engine extends BaseEngine> = (
   engine: Engine

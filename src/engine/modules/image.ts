@@ -1,5 +1,6 @@
 import { actions } from 'src/redux/reducers/world';
 
+import { Row } from '../scenario';
 import Module from './module';
 
 export default class Image extends Module {
@@ -8,14 +9,18 @@ export default class Image extends Module {
     super();
     //
   }
-  bg(filename: string, options: {} = {}) {
+  bg(filename: string, options: {} = {}): Row {
     const path = `game/images/bg ${filename}`;
-    return actions.addImageLayer({
+    const action = actions.putImageLayer({
       name: 'bg-image',
       on: 'bg',
       props: {
         image: path,
       },
     });
+    return {
+      action,
+      wait: false,
+    };
   }
 }
