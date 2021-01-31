@@ -121,7 +121,7 @@ const slice = createSlice({
     nextDone: (
       state,
       action: PayloadAction<{
-        path: string;
+        path?: string;
         label?: string;
         cursor?: number;
         wait?: boolean;
@@ -130,7 +130,12 @@ const slice = createSlice({
       const { path, label, cursor, wait } = action.payload;
       return {
         ...state,
-        scenario: { path, label, cursor: cursor ?? 0, wait: wait ?? false },
+        scenario: {
+          path: path ? path : state.scenario.path,
+          label,
+          cursor: cursor ?? 0,
+          wait: wait ?? false,
+        },
         unstableCounter: state.unstableCounter - 1,
       };
     },

@@ -11,6 +11,10 @@ import { BaseState } from '../';
 import BaseEngine from '../../engine/BaseEngine';
 import { actions } from '../reducers/world';
 
+function timeout(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function* run() {
   yield put(actions.next());
 }
@@ -43,19 +47,24 @@ function* next(action: ReturnType<typeof actions.next>) {
     throw 'scenario ended error';
   }
 
-  yield put(nextRow.action);
-
-  yield put(
-    actions.nextDone({
-      ...state,
-      cursor: cursor + 1,
-      wait: nextRow.wait,
-    })
-  );
-}
-
-function timeout(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  if (nextRow.type === 'jump') {
+    // TODO: jump label
+    yield put(
+      actions.nextDone({
+        ...state,
+        path: nextRow.scenario || state.path,
+        cursor: 0,
+      })
+    );
+  } else {
+    yield put(nextRow.action);
+    yield put(
+      actions.nextDone({
+        cursor: cursor + 1,
+        wait: nextRow.wait,
+      })
+    );
+  }
 }
 
 function* doNext() {
