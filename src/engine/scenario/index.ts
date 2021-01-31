@@ -12,9 +12,13 @@ export interface Command {
 export interface Jump {
   type: 'jump';
   scenario?: string;
-  // label?: string;
+  label?: string;
 }
-export type Row = Command | Jump;
+export interface Label {
+  type: 'label';
+  name: string;
+}
+export type Row = Command | Jump | Label;
 export type Scenario = Row[];
 export type ScenarioFactory<Engine extends BaseEngine> = (
   engine: Engine

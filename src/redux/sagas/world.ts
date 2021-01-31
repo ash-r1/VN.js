@@ -38,22 +38,30 @@ function* next(action: ReturnType<typeof actions.next>) {
   const cursor = state.cursor ?? 0;
 
   const engine: BaseEngine = yield getContext('engine');
-  const { scenarios } = engine;
+  const { scenarioController } = engine;
 
-  // TODO: memoize scenario based on the "container"
-  const scenario = scenarios[state.path];
-  const nextRow = scenario(engine)[cursor];
+  scenarioController.jumpToScenario(state.path, engine);
+  scenarioController.jumpToLabel(state.label);
+  const nextRow = scenarioController.getRow(state.cursor);
   if (!nextRow) {
     throw 'scenario ended error';
   }
 
   if (nextRow.type === 'jump') {
-    // TODO: jump label
     yield put(
       actions.nextDone({
         ...state,
         path: nextRow.scenario || state.path,
+        label: state.label,
         cursor: 0,
+      })
+    );
+  } else if (nextRow.type === 'label') {
+    yield put(
+      actions.nextDone({
+        ...state,
+        label: nextRow.name,
+        cursor: 1,
       })
     );
   } else {
@@ -74,10 +82,8 @@ function* doNext() {
   const unstableCounter: number = yield select<(s: BaseState) => number>(
     (s) => s.world.unstableCounter
   );
-
   // wait for the next rendering
   yield call(timeout, 0);
-
   if (unstableCounter == 0 && !wait) {
     yield put(actions.next());
   }

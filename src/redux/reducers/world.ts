@@ -45,7 +45,7 @@ export interface StateType {
   running: boolean;
   scenario: {
     path: string;
-    label?: string;
+    label: string;
     cursor: number;
     wait: boolean;
   };
@@ -66,7 +66,7 @@ const initialState: StateType = {
   running: false,
   scenario: {
     path: '',
-    label: undefined,
+    label: '',
     cursor: 0,
     wait: false,
   },
@@ -108,7 +108,7 @@ const slice = createSlice({
       return {
         ...state,
         running: true,
-        scenario: { path, label, cursor: cursor ?? 0, wait: true },
+        scenario: { path, label: label ?? '', cursor: cursor ?? 0, wait: true },
       };
     },
     next: (state) => state,
@@ -132,7 +132,7 @@ const slice = createSlice({
         ...state,
         scenario: {
           path: path ? path : state.scenario.path,
-          label,
+          label: label ? label : state.scenario.label,
           cursor: cursor ?? 0,
           wait: wait ?? false,
         },
