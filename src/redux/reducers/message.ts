@@ -1,18 +1,23 @@
 import { createAction } from '@reduxjs/toolkit';
 
+import Padding from 'src/engine/interfaces/Padding';
+import { TextStyle } from 'src/engine/interfaces/TextStyle';
+
 // Saga-only actions, reducer doesn't react them
 
-const show = createAction<{
-  message: string;
-  image: string;
+export interface LayoutOptions {
   width: number;
   height: number;
   x?: number;
   y?: number;
-  paddingLeft?: number;
-  paddingTop?: number;
-  paddingRight?: number;
-  paddingBottom?: number;
+  padding?: Partial<Padding>;
+}
+
+const show = createAction<{
+  message: string;
+  image: string;
+  layout: LayoutOptions;
+  style: TextStyle;
 }>('message/show');
 
 // const hide = createAction<{

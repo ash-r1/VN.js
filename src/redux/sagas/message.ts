@@ -8,22 +8,13 @@ import { actions as worldActions } from '../reducers/world';
 function* show({ payload }: ReturnType<typeof actions.show>) {
   yield put(worldActions.do());
 
-  const {
-    message,
-    image,
-    width,
-    height,
-    x,
-    y,
-    paddingLeft,
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-  } = payload;
+  const { message, image, layout, style } = payload;
 
   // TODO: Control Fade-In
 
   console.log(`show message: ${message}`);
+
+  const { width, height, x, y, padding } = layout;
 
   // show message
   yield put(
@@ -37,12 +28,8 @@ function* show({ payload }: ReturnType<typeof actions.show>) {
         height: height,
         x,
         y,
-        padding: {
-          left: paddingLeft,
-          top: paddingTop,
-          right: paddingRight,
-          bottom: paddingBottom,
-        },
+        padding,
+        style,
       },
     })
   );

@@ -18,11 +18,23 @@ export default abstract class BaseEngine {
     this.scenarioController = new ScenarioController(scenarios);
     this.image = new Image();
     this.message = new Message('game/textbox.png', {
-      y: 630,
-      height: 420,
-      width: 1920,
-      paddingLeft: 440,
-      paddingTop: 100,
+      layout: {
+        y: 630,
+        height: 420,
+        width: 1920,
+        padding: {
+          left: 450,
+          top: 100,
+        },
+      },
+      style: {
+        fontFamily: 'Noto Serif JP',
+        fill: '#1e1e1e',
+        align: 'left',
+        fontSize: 36,
+        fontWeight: '500',
+        lineHeight: 50,
+      },
     });
     this._ = new Control();
   }

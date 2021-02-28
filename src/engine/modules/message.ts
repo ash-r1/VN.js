@@ -1,17 +1,12 @@
-import { actions } from 'src/redux/reducers/message';
+import { TextStyle } from 'src/engine/interfaces/TextStyle';
+import { actions, LayoutOptions } from 'src/redux/reducers/message';
 
 import { Row } from '../scenario';
 import Module from './module';
 
 export interface Options {
-  width: number;
-  height: number;
-  x?: number;
-  y?: number;
-  paddingLeft?: number;
-  paddingTop?: number;
-  paddingRight?: number;
-  paddingBottom?: number;
+  layout: LayoutOptions;
+  style: TextStyle;
 }
 
 export default class Message extends Module {
@@ -21,28 +16,13 @@ export default class Message extends Module {
     //
   }
   show(message: string, showOptions: {} = {}): Row {
-    const {
-      width,
-      height,
-      x,
-      y,
-      paddingLeft,
-      paddingTop,
-      paddingRight,
-      paddingBottom,
-    } = this.options;
+    const { layout, style } = this.options;
     const image = this.image;
     const action = actions.show({
       message,
       image,
-      x,
-      y,
-      width,
-      height,
-      paddingLeft,
-      paddingTop,
-      paddingRight,
-      paddingBottom,
+      layout,
+      style,
     });
     return {
       action,
