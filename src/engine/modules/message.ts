@@ -29,4 +29,12 @@ export default class Message extends Module {
       wait: true,
     };
   }
+
+  hide(HideOptions: {} = {}): Row {
+    const action = actions.hide({});
+    return {
+      action,
+      wait: false,
+    };
+  }
 }

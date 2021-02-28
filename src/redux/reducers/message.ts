@@ -20,10 +20,9 @@ const show = createAction<{
   style: TextStyle;
 }>('message/show');
 
-// const hide = createAction<{
-//   name: string;
-// }>('message/hide');
+const hide = createAction<{}>('message/hide');
 
 export const actions = {
   show,
+  hide,
 };
