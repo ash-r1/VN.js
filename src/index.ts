@@ -1,55 +1,33 @@
-import * as PIXI from 'pixi.js';
-
 // To modify PIXI.loader before initialization, we must include pixi-sound here.
 import 'pixi-sound';
 
-import BaseGame from './engine/BaseGame';
-import {
-  Command,
-  pure,
-  PureCommand,
-  ResourceCommand,
-} from './engine/commands/base/commands';
-import { MultipleResourcesCommand } from './engine/commands/base/commands';
-import Camera from './engine/commands/Camera';
-import Character from './engine/commands/Character';
-import Control from './engine/commands/controls/Control';
-import Core from './engine/commands/Core';
-import Filter from './engine/commands/filters';
-import Image from './engine/commands/Image';
-import Message from './engine/commands/Message';
-import { WAITING_GLYPH } from './engine/commands/Message';
-import Side from './engine/commands/Side';
-import Sound from './engine/commands/Sound';
+import { Scenarios } from 'src/engine/scenario';
+
+import BaseEngine from './engine/BaseEngine';
+import CharacterCmp from './engine/components/Character';
+import GameLayer from './engine/GameLayer';
+import * as modules from './engine/modules';
+import Character from './engine/modules/character';
 import Renderer from './engine/Renderer';
 import Responder from './engine/Responder';
-import Runner from './engine/Runner';
+import { ScenarioFactory } from './engine/scenario/index';
+import * as redux from './redux';
+import reducers from './redux/reducers';
+import * as actions from './redux/reducers/actions';
+import sagas from './redux/sagas';
 
 export {
-  // PIXI
-  PIXI,
-  // Core
-  BaseGame,
-  Runner,
+  BaseEngine,
+  Scenarios,
+  ScenarioFactory,
+  GameLayer,
+  redux,
+  reducers,
+  actions,
+  modules,
+  Character,
+  sagas,
+  CharacterCmp,
   Renderer,
   Responder,
-  // Commands
-  Camera,
-  Character,
-  Side,
-  Command,
-  PureCommand,
-  ResourceCommand,
-  MultipleResourcesCommand,
-  pure,
-  Control,
-  Core,
-  Filter,
-  Image,
-  Message,
-  Sound,
-  // Other
-  WAITING_GLYPH,
 };
-
-export * from './engine/scenario/scenario';
