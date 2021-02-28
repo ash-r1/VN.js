@@ -5,6 +5,7 @@ import produce from 'immer';
 
 import Character from '../../engine/components/Character';
 import Image from '../../engine/components/Image';
+import Message from '../../engine/components/Message';
 
 export interface LayerState<Props = any> {
   type: string;
@@ -34,6 +35,7 @@ export type SpecificLayerPayload<C extends React.ComponentType<any>> = Omit<
 
 export type ImageLayerPayload = SpecificLayerPayload<typeof Image>;
 export type CharacterLayerPayload = SpecificLayerPayload<typeof Character>;
+export type MessageLayerPayload = SpecificLayerPayload<typeof Message>;
 
 export interface StateType {
   layers: Layers;
@@ -157,6 +159,16 @@ const slice = createSlice({
       return {
         ...state,
         layers: mergeLayers(state.layers, on, { type, name, props }),
+      };
+    },
+    putMessageLayer: (
+      state,
+      action: PayloadAction<MessageLayerPayload>
+    ): StateType => {
+      const { name, props, on } = action.payload;
+      return {
+        ...state,
+        layers: mergeLayers(state.layers, on, { type: 'Message', name, props }),
       };
     },
     putImageLayer: (

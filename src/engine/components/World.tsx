@@ -7,6 +7,7 @@ import { useBaseDispatch, useBaseSelector } from '../../redux/index';
 import { actions, LayerName } from '../../redux/reducers/world';
 import Character from './Character';
 import Image from './Image';
+import Message from './Message';
 import Rectangle from './Rectangle';
 
 type Components = Record<string, React.ComponentType<any>>;
@@ -14,6 +15,7 @@ type Components = Record<string, React.ComponentType<any>>;
 const defaultComponents: Components = {
   Image,
   Character,
+  Message,
 };
 
 export interface Props {
